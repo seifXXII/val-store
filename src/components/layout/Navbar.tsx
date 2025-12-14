@@ -14,19 +14,25 @@ export function Navbar() {
         <p>Free shipping over $200 • Duties & Taxes included in all orders</p>
       </div>
 
-      {/* Main Navbar */}
-      <nav className="bg-white sticky top-0 z-50">
+      {/* Main Navbar with notched border */}
+      <nav className="bg-white sticky top-0 z-50 border-t border-b border-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Top border with gap for logo */}
-          <div className="absolute top-0 left-0 right-0 flex items-center">
-            <div className="flex-1 border-t border-black" />
-            <div className="px-12" /> {/* Gap for logo */}
-            <div className="flex-1 border-t border-black" />
+          {/* Split top border around logo */}
+          <div className="absolute -top-px left-0 right-0 h-px flex items-center justify-center pointer-events-none">
+            <div
+              className="flex-1 bg-black h-px"
+              style={{ maxWidth: "calc(50% - 60px)" }}
+            />
+            <div className="w-32 bg-white h-px" /> {/* Clear gap for logo */}
+            <div
+              className="flex-1 bg-black h-px"
+              style={{ maxWidth: "calc(50% - 60px)" }}
+            />
           </div>
 
           <div className="flex items-center justify-between h-16 relative">
             {/* Left: Navigation */}
-            <div className="hidden md:flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-6 z-10">
               <Link
                 href="/collections/all"
                 className="text-sm font-medium hover:text-gray-600 transition-colors"
@@ -47,16 +53,16 @@ export function Navbar() {
               </Link>
             </div>
 
-            {/* Center: Logo */}
+            {/* Center: Logo - breaks through the top border */}
             <Link
               href="/"
-              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold tracking-wider bg-white px-4"
+              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold tracking-wider bg-white px-6 z-20"
             >
               VAL
             </Link>
 
             {/* Right: Icons */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 z-10">
               <button className="hover:text-gray-600 transition-colors">
                 <Search className="h-5 w-5" />
               </button>
@@ -79,7 +85,7 @@ export function Navbar() {
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden"
+              className="md:hidden z-10"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
@@ -89,9 +95,6 @@ export function Navbar() {
               )}
             </button>
           </div>
-
-          {/* Bottom border */}
-          <div className="absolute bottom-0 left-0 right-0 border-b border-black" />
         </div>
 
         {/* Mobile Menu */}
