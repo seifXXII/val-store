@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ShoppingCart, User, Search, Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -19,8 +18,47 @@ export function Navbar() {
       <nav className="border-b bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Left: User & Cart (Reversed from Shihiko) */}
+            {/* Left: Navigation Links (like Shihiko) */}
+            <div className="hidden md:flex items-center gap-8">
+              <div className="relative group">
+                <button className="text-sm font-medium hover:text-gray-600 transition-colors uppercase">
+                  Shop All
+                </button>
+              </div>
+
+              <div className="relative group">
+                <button className="text-sm font-medium hover:text-gray-600 transition-colors uppercase">
+                  Categories
+                </button>
+              </div>
+
+              <div className="relative group">
+                <button className="text-sm font-medium hover:text-gray-600 transition-colors uppercase">
+                  Drop
+                </button>
+              </div>
+
+              <Link
+                href="/collections/vault"
+                className="text-sm font-medium hover:text-gray-600 transition-colors uppercase"
+              >
+                Vault
+              </Link>
+            </div>
+
+            {/* Center: Logo */}
+            <Link
+              href="/"
+              className="text-2xl font-bold tracking-wider absolute left-1/2 transform -translate-x-1/2"
+            >
+              VAL
+            </Link>
+
+            {/* Right: Utility Icons (like Shihiko) */}
             <div className="flex items-center gap-4">
+              <button className="hover:text-gray-600 transition-colors">
+                <Search className="h-5 w-5" />
+              </button>
               <Link
                 href="/account"
                 className="hover:text-gray-600 transition-colors"
@@ -36,48 +74,11 @@ export function Navbar() {
                   0
                 </span>
               </Link>
-              <button className="hover:text-gray-600 transition-colors">
-                <Search className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Center: Logo */}
-            <Link href="/" className="text-2xl font-bold tracking-wider">
-              VAL
-            </Link>
-
-            {/* Right: Navigation Links (Reversed from Shihiko) */}
-            <div className="hidden md:flex items-center gap-8">
-              <div className="relative group">
-                <button className="text-sm font-medium hover:text-gray-600 transition-colors">
-                  SHOP ALL
-                </button>
-                {/* Dropdown - We'll expand this later */}
-              </div>
-
-              <div className="relative group">
-                <button className="text-sm font-medium hover:text-gray-600 transition-colors">
-                  CATEGORIES
-                </button>
-              </div>
-
-              <div className="relative group">
-                <button className="text-sm font-medium hover:text-gray-600 transition-colors">
-                  NEW DROPS
-                </button>
-              </div>
-
-              <Link
-                href="/collections/sale"
-                className="text-sm font-medium hover:text-gray-600 transition-colors"
-              >
-                SALE
-              </Link>
             </div>
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden"
+              className="md:hidden absolute left-4"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
@@ -95,27 +96,27 @@ export function Navbar() {
             <div className="px-4 py-4 space-y-3">
               <Link
                 href="/collections/all"
-                className="block text-sm font-medium py-2"
+                className="block text-sm font-medium py-2 uppercase"
               >
-                SHOP ALL
+                Shop All
               </Link>
               <Link
                 href="/collections/categories"
-                className="block text-sm font-medium py-2"
+                className="block text-sm font-medium py-2 uppercase"
               >
-                CATEGORIES
+                Categories
               </Link>
               <Link
-                href="/collections/new"
-                className="block text-sm font-medium py-2"
+                href="/collections/drop"
+                className="block text-sm font-medium py-2 uppercase"
               >
-                NEW DROPS
+                Drop
               </Link>
               <Link
-                href="/collections/sale"
-                className="block text-sm font-medium py-2"
+                href="/collections/vault"
+                className="block text-sm font-medium py-2 uppercase"
               >
-                SALE
+                Vault
               </Link>
             </div>
           </div>
