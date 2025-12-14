@@ -17,11 +17,8 @@ export function LoginCard() {
         <CardDescription>Sign in to your account to continue</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* OAuth Buttons */}
-        <div className="grid grid-cols-2 gap-4">
-          <GoogleSignInButton />
-          <FacebookSignInButton />
-        </div>
+        {/* Email/Password Form */}
+        <LoginForm />
 
         {/* OR Divider */}
         <div className="relative">
@@ -35,8 +32,11 @@ export function LoginCard() {
           </div>
         </div>
 
-        {/* Email/Password Form */}
-        <LoginForm />
+        {/* OAuth Buttons */}
+        <div className="grid grid-cols-2 gap-4">
+          <GoogleSignInButton />
+          <FacebookSignInButton />
+        </div>
       </CardContent>
     </Card>
   );
