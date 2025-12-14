@@ -14,7 +14,12 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-      enabled: !!process.env.GOOGLE_CLIENT_ID, // Only enable if env vars are set
+      enabled: !!process.env.GOOGLE_CLIENT_ID,
+    },
+    facebook: {
+      clientId: process.env.FACEBOOK_CLIENT_ID || "",
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET || "",
+      enabled: !!process.env.FACEBOOK_CLIENT_ID,
     },
   },
   session: {
