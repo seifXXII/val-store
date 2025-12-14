@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
@@ -16,6 +17,7 @@ interface SignupFormData {
   firstName: string;
   lastName: string;
   phone: string;
+  birthday: string;
 }
 
 export function SignupForm() {
@@ -28,6 +30,7 @@ export function SignupForm() {
     firstName: "",
     lastName: "",
     phone: "",
+    birthday: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -148,10 +151,9 @@ export function SignupForm() {
 
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           placeholder="At least 8 characters"
           value={formData.password}
           onChange={handleChange}
@@ -161,14 +163,24 @@ export function SignupForm() {
 
       <div className="space-y-2">
         <Label htmlFor="confirmPassword">Confirm password</Label>
-        <Input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
           placeholder="Re-enter your password"
           value={formData.confirmPassword}
           onChange={handleChange}
           required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="birthday">Birthday (Optional)</Label>
+        <Input
+          id="birthday"
+          name="birthday"
+          type="date"
+          value={formData.birthday}
+          onChange={handleChange}
         />
       </div>
 
