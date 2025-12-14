@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { trpc } from "@/lib/trpc";
+import { signUp } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 
 interface SignupFormData {
@@ -19,6 +20,7 @@ interface SignupFormData {
 
 export function SignupForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const [formData, setFormData] = useState<SignupFormData>({
     email: "",
     password: "",
@@ -27,17 +29,7 @@ export function SignupForm() {
     lastName: "",
     phone: "",
   });
-  const [error, setError] = useState("");
-
-  const signupMutation = trpc.auth.signup.useMutation({
-    onSuccess: (data) => {
-      localStorage.setItem("user", JSON.stringify(data.user));
-      router.push("/");
-    },
-    onError: (err) => {
-      setError(err.message);
-    },
-  });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((previousFormData) => ({
@@ -48,35 +40,62 @@ export function SignupForm() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Passwords do not match",
+      });
       return;
     }
 
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Password must be at least 8 characters",
+      });
       return;
     }
 
-    signupMutation.mutate({
-      email: formData.email,
-      password: formData.password,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      phone: formData.phone || undefined,
-    });
+    setIsLoading(true);
+
+    try {
+      const { error: signUpError } = await signUp.email({
+        email: formData.email,
+        password: formData.password,
+        name: `${formData.firstName} ${formData.lastName}`,
+      });
+
+      if (signUpError) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: signUpError.message || "Failed to create account",
+        });
+        return;
+      }
+
+      // Success
+      toast({
+        title: "Success!",
+        description: "Your account has been created successfully.",
+      });
+      router.push("/login");
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
-        <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
-          {error}
-        </div>
-      )}
-
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="firstName">First name</Label>
@@ -153,12 +172,8 @@ export function SignupForm() {
         />
       </div>
 
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={signupMutation.isPending}
-      >
-        {signupMutation.isPending ? "Creating account..." : "Create account"}
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? "Creating account..." : "Create account"}
       </Button>
 
       <div className="mt-4 text-center text-sm">
