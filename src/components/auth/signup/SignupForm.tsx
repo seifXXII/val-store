@@ -83,7 +83,7 @@ export function SignupForm() {
         description: "Your account has been created successfully.",
       });
       router.push("/login");
-    } catch (err) {
+    } catch {
       toast({
         variant: "destructive",
         title: "Error",
