@@ -10,51 +10,45 @@ export function Navbar() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className="bg-black text-white text-center py-2 text-sm">
+      <div className="bg-black text-white text-center py-2 text-sm border-b border-gray-800">
         <p>Free shipping over $200 • Duties & Taxes included in all orders</p>
       </div>
 
       {/* Main Navbar */}
       <nav className="border-b bg-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Left: Navigation Links (like Shihiko) */}
-            <div className="hidden md:flex items-center gap-8">
-              <div className="relative group">
-                <button className="text-sm font-medium hover:text-gray-600 transition-colors uppercase">
-                  Shop All
-                </button>
-              </div>
-
-              <div className="relative group">
-                <button className="text-sm font-medium hover:text-gray-600 transition-colors uppercase">
-                  Categories
-                </button>
-              </div>
-
-              <div className="relative group">
-                <button className="text-sm font-medium hover:text-gray-600 transition-colors uppercase">
-                  Drop
-                </button>
-              </div>
-
+          <div className="flex items-center justify-between h-16 relative">
+            {/* Left: Navigation */}
+            <div className="hidden md:flex items-center gap-6">
               <Link
-                href="/collections/vault"
-                className="text-sm font-medium hover:text-gray-600 transition-colors uppercase"
+                href="/collections/all"
+                className="text-sm font-medium hover:text-gray-600 transition-colors"
               >
-                Vault
+                Shop
+              </Link>
+              <Link
+                href="/collections/new"
+                className="text-sm font-medium hover:text-gray-600 transition-colors"
+              >
+                New
+              </Link>
+              <Link
+                href="/collections/sale"
+                className="text-sm font-medium hover:text-gray-600 transition-colors"
+              >
+                Sale
               </Link>
             </div>
 
-            {/* Center: Logo */}
+            {/* Center: Logo (Absolutely centered like Shihiko) */}
             <Link
               href="/"
-              className="text-2xl font-bold tracking-wider absolute left-1/2 transform -translate-x-1/2"
+              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold tracking-wider"
             >
               VAL
             </Link>
 
-            {/* Right: Utility Icons (like Shihiko) */}
+            {/* Right: Icons */}
             <div className="flex items-center gap-4">
               <button className="hover:text-gray-600 transition-colors">
                 <Search className="h-5 w-5" />
@@ -78,7 +72,7 @@ export function Navbar() {
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden absolute left-4"
+              className="md:hidden absolute left-0"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
@@ -96,27 +90,21 @@ export function Navbar() {
             <div className="px-4 py-4 space-y-3">
               <Link
                 href="/collections/all"
-                className="block text-sm font-medium py-2 uppercase"
+                className="block text-sm font-medium py-2"
               >
-                Shop All
+                Shop
               </Link>
               <Link
-                href="/collections/categories"
-                className="block text-sm font-medium py-2 uppercase"
+                href="/collections/new"
+                className="block text-sm font-medium py-2"
               >
-                Categories
+                New
               </Link>
               <Link
-                href="/collections/drop"
-                className="block text-sm font-medium py-2 uppercase"
+                href="/collections/sale"
+                className="block text-sm font-medium py-2"
               >
-                Drop
-              </Link>
-              <Link
-                href="/collections/vault"
-                className="block text-sm font-medium py-2 uppercase"
-              >
-                Vault
+                Sale
               </Link>
             </div>
           </div>
