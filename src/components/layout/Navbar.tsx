@@ -10,12 +10,12 @@ export function Navbar() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className="bg-black text-white text-center py-2 text-sm border-b border-gray-800">
+      <div className="bg-black text-white text-center py-2 text-sm">
         <p>Free shipping over $200 • Duties & Taxes included in all orders</p>
       </div>
 
-      {/* Main Navbar */}
-      <nav className="border-b bg-white sticky top-0 z-50">
+      {/* Main Navbar - with split border design */}
+      <nav className="bg-white sticky top-0 z-50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 relative">
             {/* Left: Navigation */}
@@ -40,16 +40,18 @@ export function Navbar() {
               </Link>
             </div>
 
-            {/* Center: Logo (Absolutely centered like Shihiko) */}
-            <Link
-              href="/"
-              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold tracking-wider"
-            >
-              VAL
-            </Link>
+            {/* Center: Logo with border notch */}
+            <div className="absolute left-1/2 top-0 transform -translate-x-1/2 bg-white px-8 z-10">
+              <Link
+                href="/"
+                className="block text-2xl font-bold tracking-wider py-4"
+              >
+                VAL
+              </Link>
+            </div>
 
             {/* Right: Icons */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 z-20">
               <button className="hover:text-gray-600 transition-colors">
                 <Search className="h-5 w-5" />
               </button>
@@ -72,7 +74,7 @@ export function Navbar() {
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden absolute left-0"
+              className="md:hidden z-20"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
@@ -83,6 +85,23 @@ export function Navbar() {
             </button>
           </div>
         </div>
+
+        {/* Split Border - Left and Right sides */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gray-200 pointer-events-none">
+          {/* Left border */}
+          <div
+            className="absolute left-0 top-0 h-px bg-gray-200"
+            style={{ width: "calc(50% - 80px)" }}
+          />
+          {/* Right border */}
+          <div
+            className="absolute right-0 top-0 h-px bg-gray-200"
+            style={{ width: "calc(50% - 80px)" }}
+          />
+        </div>
+
+        {/* Bottom border - full width */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200" />
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
