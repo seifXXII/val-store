@@ -16,7 +16,7 @@ export function FacebookSignInButton() {
         provider: "facebook",
         callbackURL: "/",
       });
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         title: "Error",

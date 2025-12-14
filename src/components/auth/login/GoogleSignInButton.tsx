@@ -16,7 +16,7 @@ export function GoogleSignInButton() {
         provider: "google",
         callbackURL: "/",
       });
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         title: "Error",
