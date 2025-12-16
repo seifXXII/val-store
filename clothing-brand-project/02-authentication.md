@@ -1,159 +1,309 @@
 # Authentication & Authorization
 
-## 🔐 Authentication Flow
+## 🔐 Better Auth Implementation
 
-### User Registration
-
-**Endpoint**: `POST /api/auth/register`
-
-**Process**:
-
-1. User submits registration form (email, password, name)
-2. Validate email format and password strength
-3. Check if email already exists
-4. Hash password using bcrypt (salt rounds: 12)
-5. Create user record with `email_verified: false`
-6. Generate email verification token (JWT, 24h expiry)
-7. Send verification email
-8. Return success message
-
-**Required Fields**:
-
-```json
-{
-  "email": "user@example.com",
-  "password": "SecurePass123!",
-  "first_name": "John",
-  "last_name": "Doe",
-  "phone": "+1234567890"
-}
-```
-
-**Password Requirements**:
-
-- Minimum 8 characters
-- At least 1 uppercase letter
-- At least 1 lowercase letter
-- At least 1 number
-- At least 1 special character
+Val Store uses **[Better Auth](https://www.better-auth.com/)** - a modern, full-stack authentication library for TypeScript with built-in session management, OAuth support, and security best practices.
 
 ---
 
-### User Login
+## 📋 Configuration
 
-**Endpoint**: `POST /api/auth/login`
+### Better Auth Setup
 
-**Process**:
+**Location:** `src/lib/auth.ts`
+
+```typescript
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from "@/db";
+
+export const auth = betterAuth({
+  database: drizzleAdapter(db, {
+    provider: "pg", // PostgreSQL
+  }),
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false, // Set to true when email service is ready
+  },
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      enabled: !!process.env.GOOGLE_CLIENT_ID,
+    },
+    facebook: {
+      clientId: process.env.FACEBOOK_CLIENT_ID || "",
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET || "",
+      enabled: !!process.env.FACEBOOK_CLIENT_ID,
+    },
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // Update session every 24 hours
+  },
+});
+```
+
+### Client Configuration
+
+**Location:** `src/lib/auth-client.ts`
+
+```typescript
+import { createAuthClient } from "better-auth/react";
+
+export const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+});
+
+export const { signIn, signUp, signOut, useSession, $Infer } = authClient;
+```
+
+---
+
+## 🔄 Authentication Flows
+
+### User Registration (Email/Password)
+
+**Client Usage:**
+
+```typescript
+import { signUp } from "@/lib/auth-client";
+
+const handleSignUp = async () => {
+  const { data, error } = await signUp.email({
+    email: "user@example.com",
+    password: "SecurePass123!",
+    name: "John Doe",
+  });
+
+  if (error) {
+    console.error("Signup failed:", error);
+    return;
+  }
+
+  console.log("User created:", data.user);
+  // Redirect to login or dashboard
+};
+```
+
+**Process:**
+
+1. User submits email, password, and name
+2. Better Auth validates input
+3. Password is hashed automatically (bcrypt)
+4. User record created in `user` table
+5. Session created automatically
+6. Returns user data and session
+
+---
+
+### User Login (Email/Password)
+
+**Client Usage:**
+
+```typescript
+import { signIn } from "@/lib/auth-client";
+
+const handleLogin = async () => {
+  const { data, error } = await signIn.email({
+    email: "user@example.com",
+    password: "SecurePass123!",
+  });
+
+  if (error) {
+    console.error("Login failed:", error);
+    return;
+  }
+
+  console.log("Logged in:", data.user);
+  // Session is automatically created and stored
+};
+```
+
+**Process:**
 
 1. User submits email and password
-2. Find user by email
-3. Verify password hash
-4. Check if user is active and email verified
-5. Generate access token (JWT, 15min expiry)
-6. Generate refresh token (JWT, 7 days expiry)
-7. Update `last_login` timestamp
-8. Return tokens and user data
+2. Better Auth verifies credentials
+3. Creates/updates session in `session` table
+4. Returns user data and session token
+5. Session stored in HTTP-only cookie
 
-**Request**:
+---
 
-```json
-{
-  "email": "user@example.com",
-  "password": "SecurePass123!"
-}
+### OAuth Login (Google/Facebook)
+
+**Client Usage:**
+
+```typescript
+import { signIn } from "@/lib/auth-client";
+
+// Google Sign-In
+const handleGoogleLogin = async () => {
+  await signIn.social({
+    provider: "google",
+    callbackURL: "/dashboard",
+  });
+};
+
+// Facebook Sign-In
+const handleFacebookLogin = async () => {
+  await signIn.social({
+    provider: "facebook",
+    callbackURL: "/dashboard",
+  });
+};
 ```
 
-**Response**:
+**Process:**
 
-```json
-{
-  "user": {
-    "id": "uuid",
-    "email": "user@example.com",
-    "first_name": "John",
-    "last_name": "Doe",
-    "role": "customer"
-  },
-  "access_token": "eyJhbGc...",
-  "refresh_token": "eyJhbGc..."
+1. User clicks OAuth provider button
+2. Redirected to provider's auth page
+3. User authorizes the application
+4. Provider redirects back with auth code
+5. Better Auth exchanges code for tokens
+6. Creates/updates user in `user` table
+7. Links account in `account` table
+8. Creates session and redirects to callback URL
+
+---
+
+### Check Current Session
+
+**Client Usage:**
+
+```typescript
+import { useSession } from "@/lib/auth-client";
+
+function ProfileComponent() {
+  const { data: session, isPending } = useSession();
+
+  if (isPending) return <div>Loading...</div>;
+  if (!session) return <div>Not logged in</div>;
+
+  return (
+    <div>
+      <h1>Welcome, {session.user.name}</h1>
+      <p>Email: {session.user.email}</p>
+    </div>
+  );
 }
 ```
-
----
-
-### Email Verification
-
-**Endpoint**: `GET /api/auth/verify-email/:token`
-
-**Process**:
-
-1. Extract token from URL
-2. Verify JWT token validity
-3. Extract user ID from token
-4. Update `email_verified: true`
-5. Redirect to login page with success message
-
----
-
-### Password Reset
-
-**Endpoints**:
-
-- Request: `POST /api/auth/forgot-password`
-- Reset: `POST /api/auth/reset-password`
-
-**Request Reset Process**:
-
-1. User submits email
-2. Find user by email
-3. Generate password reset token (JWT, 1h expiry)
-4. Send reset email with token link
-5. Return success message
-
-**Reset Password Process**:
-
-1. User submits new password with token
-2. Verify token validity
-3. Validate new password
-4. Hash new password
-5. Update user password
-6. Invalidate all existing refresh tokens
-7. Send confirmation email
-
----
-
-### Token Refresh
-
-**Endpoint**: `POST /api/auth/refresh`
-
-**Process**:
-
-1. User submits refresh token
-2. Verify refresh token
-3. Check if token is blacklisted
-4. Generate new access token
-5. Optionally rotate refresh token
-6. Return new tokens
 
 ---
 
 ### Logout
 
-**Endpoint**: `POST /api/auth/logout`
+**Client Usage:**
 
-**Process**:
+```typescript
+import { signOut } from "@/lib/auth-client";
 
-1. Add refresh token to blacklist
-2. Clear client-side tokens
-3. Return success
+const handleLogout = async () => {
+  await signOut();
+  // Redirects to homepage or login page
+};
+```
+
+**Process:**
+
+1. Invalidates current session in database
+2. Clears session cookie
+3. Redirects user
 
 ---
 
-## 👤 Authorization Levels
+## 🗄️ Database Schema
+
+Better Auth automatically manages these tables:
+
+### `user` Table
+
+```sql
+CREATE TABLE user (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  email_verified BOOLEAN DEFAULT false,
+  image TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### `session` Table
+
+```sql
+CREATE TABLE session (
+  id TEXT PRIMARY KEY,
+  expires_at TIMESTAMP NOT NULL,
+  token TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  ip_address TEXT,
+  user_agent TEXT,
+  user_id TEXT REFERENCES user(id) ON DELETE CASCADE
+);
+```
+
+### `account` Table
+
+```sql
+CREATE TABLE account (
+  id TEXT PRIMARY KEY,
+  account_id TEXT NOT NULL,
+  provider_id TEXT NOT NULL,
+  user_id TEXT REFERENCES user(id) ON DELETE CASCADE,
+  access_token TEXT,
+  refresh_token TEXT,
+  id_token TEXT,
+  access_token_expires_at TIMESTAMP,
+  refresh_token_expires_at TIMESTAMP,
+  scope TEXT,
+  password TEXT, -- Hashed, for email/password auth
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### `verification` Table
+
+```sql
+CREATE TABLE verification (
+  id TEXT PRIMARY KEY,
+  identifier TEXT NOT NULL,
+  value TEXT NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+---
+
+## 👤 Authorization Levels (Custom Implementation)
+
+Better Auth provides authentication. For **role-based authorization**, we extend with a custom `user_profiles` table:
+
+### UserProfile Table
+
+```sql
+CREATE TABLE user_profiles (
+  id UUID PRIMARY KEY,
+  user_id TEXT REFERENCES user(id) ON DELETE CASCADE,
+  role user_role NOT NULL DEFAULT 'customer',
+  phone VARCHAR,
+  shipping_address TEXT,
+  billing_address TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TYPE user_role AS ENUM ('customer', 'worker', 'admin');
+```
 
 ### 1. Customer (Default)
 
-**Permissions**:
+**Permissions:**
 
 - View products and categories
 - Manage own profile
@@ -161,9 +311,8 @@
 - Place orders
 - View own order history
 - Write product reviews
-- Manage wishlist
 
-**Protected Routes**:
+**Protected Routes:**
 
 - `/account/*`
 - `/checkout/*`
@@ -171,141 +320,61 @@
 
 ---
 
-### 2. Admin
+### 2. Worker
 
-**Permissions**:
+**Permissions:**
 
 - All customer permissions
-- Manage products (CRUD)
-- Manage categories (CRUD)
 - View all orders
 - Update order status
+- Process payments
 - Manage inventory
-- View customer list
-- Approve/reject reviews
-- Manage coupons
 
-**Protected Routes**:
+**Protected Routes:**
 
-- `/admin/*`
-- `/admin/products/*`
-- `/admin/orders/*`
-- `/admin/customers/*`
-- `/admin/inventory/*`
+- `/worker/*`
+- `/worker/orders/*`
+- `/worker/inventory/*`
 
 ---
 
-### 3. Super Admin
+### 3. Admin
 
-**Permissions**:
+**Permissions:**
 
-- All admin permissions
-- Manage admin users
-- View analytics and reports
-- System configuration
-- Manage payments
-- Access logs and audit trail
+- All worker permissions
+- Manage products (CRUD)
+- Manage categories (CRUD)
+- View customer list
+- Manage coupons
+- View analytics
 
-**Protected Routes**:
+**Protected Routes:**
 
-- `/admin/users/*`
-- `/admin/settings/*`
+- `/admin/*`
+- `/admin/products/*`
+- `/admin/customers/*`
 - `/admin/analytics/*`
 
 ---
 
-## 🛡️ Security Measures
+## 🛡️ Security Features
 
-### Password Security
+### Built-in Security (Better Auth)
 
-```javascript
-// Hash password
-const bcrypt = require("bcrypt");
-const saltRounds = 12;
-const hashedPassword = await bcrypt.hash(password, saltRounds);
+✅ **Password Hashing** - Automatic bcrypt with salt rounds  
+✅ **Session Management** - HTTP-only cookies  
+✅ **CSRF Protection** - Built-in token validation  
+✅ **Token Rotation** - Automatic refresh token rotation  
+✅ **Session Expiry** - Configurable expiration (7-day default)  
+✅ **IP & User Agent Tracking** - Stored in session table  
+✅ **OAuth Security** - State parameter validation
 
-// Verify password
-const isValid = await bcrypt.compare(password, hashedPassword);
-```
+### Additional Security Measures
 
-### JWT Configuration
+**Rate Limiting** (To Implement):
 
-```javascript
-// Access Token
-{
-  payload: {
-    user_id: 'uuid',
-    email: 'user@example.com',
-    role: 'customer'
-  },
-  secret: process.env.JWT_ACCESS_SECRET,
-  expiresIn: '15m'
-}
-
-// Refresh Token
-{
-  payload: {
-    user_id: 'uuid',
-    type: 'refresh'
-  },
-  secret: process.env.JWT_REFRESH_SECRET,
-  expiresIn: '7d'
-}
-```
-
-### Middleware Implementation
-
-**Auth Middleware**:
-
-```javascript
-async function authenticate(req, res, next) {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(401).json({ error: "No token provided" });
-
-    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-    const user = await User.findById(decoded.user_id);
-
-    if (!user || !user.is_active) {
-      return res.status(401).json({ error: "Invalid token" });
-    }
-
-    req.user = user;
-    next();
-  } catch (error) {
-    return res.status(401).json({ error: "Invalid token" });
-  }
-}
-```
-
-**Role-Based Middleware**:
-
-```javascript
-function authorize(...roles) {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ error: "Access denied" });
-    }
-    next();
-  };
-}
-
-// Usage
-router.get(
-  "/admin/products",
-  authenticate,
-  authorize("admin", "super_admin"),
-  getProducts
-);
-```
-
----
-
-## 🔒 Additional Security Features
-
-### Rate Limiting
-
-```javascript
+```typescript
 // Login attempts
 - 5 attempts per 15 minutes per IP
 - Lock account after 10 failed attempts
@@ -315,52 +384,88 @@ router.get(
 - 20 requests per minute for unauthenticated users
 ```
 
-### CORS Configuration
+**Email Verification** (To Enable):
+Set `requireEmailVerification: true` in Better Auth config
 
-```javascript
-const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS.split(","),
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
+---
+
+## 🔐 Middleware Implementation
+
+### Protect Server Routes
+
+```typescript
+// app/api/protected/route.ts
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+
+export async function GET() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  return Response.json({ user: session.user });
+}
 ```
 
-### Session Management
+### Protect Client Routes
 
-- Implement refresh token rotation
-- Blacklist tokens on logout
-- Automatic session expiry
-- Remember me functionality (30 days)
+```typescript
+// app/dashboard/page.tsx
+"use client";
+import { useSession } from "@/lib/auth-client";
+import { redirect } from "next/navigation";
 
-### Two-Factor Authentication (Optional)
+export default function DashboardPage() {
+  const { data: session, isPending } = useSession();
 
-- Email OTP (6 digits, 5min expiry)
-- SMS OTP (optional)
-- Authenticator app support
+  if (isPending) return <div>Loading...</div>;
+  if (!session) redirect("/login");
+
+  return <div>Dashboard content</div>;
+}
+```
+
+### Role-Based Protection
+
+```typescript
+import { useSession } from "@/lib/auth-client";
+
+function AdminPage() {
+  const { data: session } = useSession();
+
+  // Fetch user profile to check role
+  const { data: profile } = useUserProfile(session?.user.id);
+
+  if (profile?.role !== "admin") {
+    return <div>Access Denied</div>;
+  }
+
+  return <div>Admin content</div>;
+}
+```
 
 ---
 
 ## 📋 Environment Variables
 
 ```env
-# JWT Secrets
-JWT_ACCESS_SECRET=your-super-secret-access-key
-JWT_REFRESH_SECRET=your-super-secret-refresh-key
+# Better Auth
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+BETTER_AUTH_SECRET=your-super-secret-key-min-32-chars
 
-# Email Service
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=noreply@yourbrand.com
-SMTP_PASS=your-smtp-password
+# OAuth Providers (Optional)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 
-# Frontend URL
-FRONTEND_URL=https://yourbrand.com
+FACEBOOK_CLIENT_ID=your-facebook-client-id
+FACEBOOK_CLIENT_SECRET=your-facebook-client-secret
 
-# Token Expiry
-ACCESS_TOKEN_EXPIRY=15m
-REFRESH_TOKEN_EXPIRY=7d
-EMAIL_VERIFY_TOKEN_EXPIRY=24h
-PASSWORD_RESET_TOKEN_EXPIRY=1h
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/val_store
 ```
 
 ---
@@ -371,40 +476,47 @@ PASSWORD_RESET_TOKEN_EXPIRY=1h
 sequenceDiagram
     participant User
     participant Client
-    participant API
+    participant BetterAuth
     participant DB
-    participant Email
 
     User->>Client: Enter credentials
-    Client->>API: POST /auth/login
-    API->>DB: Find user by email
-    DB-->>API: User data
-    API->>API: Verify password
-    API->>API: Generate tokens
-    API-->>Client: Access + Refresh tokens
-    Client->>Client: Store tokens
-    Client->>API: Request with access token
-    API->>API: Verify token
-    API-->>Client: Protected resource
+    Client->>BetterAuth: signIn.email()
+    BetterAuth->>DB: Find user by email
+    DB-->>BetterAuth: User data
+    BetterAuth->>BetterAuth: Verify password hash
+    BetterAuth->>DB: Create session
+    DB-->>BetterAuth: Session created
+    BetterAuth-->>Client: User + Session (HTTP-only cookie)
+    Client->>Client: Update UI
 
-    Note over Client,API: Access token expires
+    Note over Client,BetterAuth: Subsequent requests
 
-    Client->>API: POST /auth/refresh
-    API->>API: Verify refresh token
-    API-->>Client: New access token
+    Client->>BetterAuth: Request with session cookie
+    BetterAuth->>DB: Validate session
+    DB-->>BetterAuth: Session valid
+    BetterAuth-->>Client: Protected resource
 ```
 
 ---
 
 ## 📝 Best Practices
 
-1. **Never store passwords in plain text**
-2. **Use HTTPS only** for all authentication endpoints
-3. **Implement CSRF protection** for form submissions
-4. **Sanitize all user inputs** to prevent SQL injection
-5. **Log all authentication events** for audit trail
-6. **Implement account lockout** after failed attempts
-7. **Use secure, httpOnly cookies** for refresh tokens
-8. **Regularly rotate JWT secrets**
-9. **Implement logout on all devices** functionality
-10. **Send security alerts** for suspicious activities
+1. ✅ **Use Better Auth's built-in security** - Don't roll your own auth
+2. ✅ **Enable HTTPS only** in production
+3. ✅ **Use HTTP-only cookies** for sessions (automatic with Better Auth)
+4. ✅ **Implement email verification** when email service is ready
+5. ✅ **Add rate limiting** for auth endpoints
+6. ✅ **Log authentication events** for audit trail
+7. ✅ **Use environment variables** for secrets
+8. ✅ **Implement role-based access** via UserProfile table
+9. ✅ **Enable OAuth providers** for better UX
+10. ✅ **Monitor sessions** and implement logout on all devices
+
+---
+
+## 📚 Resources
+
+- [Better Auth Documentation](https://www.better-auth.com/)
+- [Better Auth GitHub](https://github.com/better-auth/better-auth)
+- [OAuth 2.0 Specification](https://oauth.net/2/)
+- [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)

@@ -1,8 +1,9 @@
 import { router } from "./trpc";
-import { authRouter } from "./routers/auth";
 
+// App router - add your routers here
+// Auth is handled by Better Auth directly
 export const appRouter = router({
-  auth: authRouter,
+  // Future routers will be added here (products, orders, etc.)
 });
 
 export type AppRouter = typeof appRouter;
