@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import Link from "next/link";
 import type { ExtendedSignUpEmail } from "@/types/auth";
 
@@ -23,7 +23,6 @@ interface SignupFormData {
 
 export function SignupForm() {
   const router = useRouter();
-  const { toast } = useToast();
   const [formData, setFormData] = useState<SignupFormData>({
     email: "",
     password: "",
@@ -46,20 +45,12 @@ export function SignupForm() {
     event.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Passwords do not match",
-      });
+      toast.error("Passwords do not match");
       return;
     }
 
     if (formData.password.length < 8) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Password must be at least 8 characters",
-      });
+      toast.error("Password must be at least 8 characters");
       return;
     }
 
@@ -78,26 +69,15 @@ export function SignupForm() {
       });
 
       if (signUpError) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: signUpError.message || "Failed to create account",
-        });
+        toast.error(signUpError.message || "Failed to create account");
         return;
       }
 
       // Success
-      toast({
-        title: "Success!",
-        description: "Your account has been created successfully.",
-      });
+      toast.success("Your account has been created successfully.");
       router.push("/login");
     } catch {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "An unexpected error occurred",
-      });
+      toast.error("An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
