@@ -433,6 +433,8 @@ export default function DashboardPage() {
 
 ```typescript
 import { useSession } from "@/lib/auth-client";
+// Note: useUserProfile hook needs to be implemented in your project
+// Example: import { useUserProfile } from "@/hooks/useUserProfile";
 
 function AdminPage() {
   const { data: session } = useSession();

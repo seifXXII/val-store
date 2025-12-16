@@ -74,10 +74,18 @@ export class OrderEntity {
   }
 
   /**
-   * Calculate total from items
+   * Validate that stored total matches calculated total
+   * @throws Error if totals don't match (more than 1 cent difference)
    */
-  calculateTotal(): number {
-    return this.subtotal + this.tax + this.shippingCost;
+  validateTotal(): void {
+    const expectedTotal = this.subtotal + this.tax + this.shippingCost;
+    if (Math.abs(expectedTotal - this.totalAmount) > 0.01) {
+      throw new Error(
+        `Order total mismatch: expected ${expectedTotal.toFixed(
+          2
+        )}, got ${this.totalAmount.toFixed(2)}`
+      );
+    }
   }
 
   /**
@@ -100,8 +108,12 @@ export class OrderEntity {
 
   /**
    * Check if order can be refunded
+   * Allows refunds for paid, shipped, and delivered orders
    */
   canRefund(): boolean {
-    return this.isPaid() && !this.isFinalState();
+    // Allow refunds for paid/shipped/delivered orders, but not cancelled/refunded
+    return (
+      this.isPaid() && this.status !== "cancelled" && this.status !== "refunded"
+    );
   }
 }
