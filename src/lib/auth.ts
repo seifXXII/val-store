@@ -10,6 +10,19 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false, // Set to true when email service is ready
   },
+  user: {
+    // Extend user model with additional fields
+    additionalFields: {
+      phone: {
+        type: "string",
+        required: false,
+      },
+      birthday: {
+        type: "date",
+        required: false,
+      },
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID || "",

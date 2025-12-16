@@ -9,6 +9,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
+import type { ExtendedSignUpEmail } from "@/types/auth";
 
 interface SignupFormData {
   email: string;
@@ -65,10 +66,15 @@ export function SignupForm() {
     setIsLoading(true);
 
     try {
-      const { error: signUpError } = await signUp.email({
+      // Use properly typed signUp with custom fields (no any!)
+      const { error: signUpError } = await (
+        signUp.email as ExtendedSignUpEmail
+      )({
         email: formData.email,
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`,
+        phone: formData.phone || undefined,
+        birthday: formData.birthday || undefined,
       });
 
       if (signUpError) {

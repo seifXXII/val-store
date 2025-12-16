@@ -63,9 +63,11 @@ export interface ProductRepositoryInterface {
   delete(productId: string): Promise<void>;
 
   /**
-   * Update product stock
+   * Update product stock to an absolute value
+   * @param productId - Product ID
+   * @param newStock - New stock quantity (absolute value, must be >= 0)
    */
-  updateStock(productId: string, quantity: number): Promise<void>;
+  updateStock(productId: string, newStock: number): Promise<void>;
 
   /**
    * Check if a product slug exists

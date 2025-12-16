@@ -32,9 +32,14 @@ export interface CartRepositoryInterface {
   addItem(cartItem: CartItemEntity): Promise<CartItemEntity>;
 
   /**
-   * Update cart item quantity
+   * Update cart item quantity to an absolute value
+   * @param cartItemId - Cart item ID
+   * @param newQuantity - New quantity (absolute value, must be > 0)
    */
-  updateQuantity(cartItemId: string, quantity: number): Promise<CartItemEntity>;
+  updateQuantity(
+    cartItemId: string,
+    newQuantity: number
+  ): Promise<CartItemEntity>;
 
   /**
    * Remove item from cart

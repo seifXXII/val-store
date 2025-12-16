@@ -5,7 +5,10 @@
  * Implementation will be in the infrastructure layer.
  */
 
-import { UserProfileEntity } from "@/domain/entities/user-profile.entity";
+import {
+  UserProfileEntity,
+  UserRole,
+} from "@/domain/entities/user-profile.entity";
 
 export interface UserProfileRepositoryInterface {
   /**
@@ -26,9 +29,7 @@ export interface UserProfileRepositoryInterface {
   /**
    * Find all profiles by role
    */
-  findByRole(
-    role: "customer" | "worker" | "admin"
-  ): Promise<UserProfileEntity[]>;
+  findByRole(role: UserRole): Promise<UserProfileEntity[]>;
 
   /**
    * Create a new user profile
