@@ -10,74 +10,110 @@ export function Navbar() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className="bg-black text-white text-center py-2 text-sm">
+      <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white text-center py-2 text-sm">
         <p>Free shipping over $200 • Duties & Taxes included in all orders</p>
       </div>
 
-      {/* Main Navbar with notched border */}
-      <nav className="bg-white sticky top-0 z-50 border-t border-b border-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Split top border around logo */}
-          <div className="absolute -top-px left-0 right-0 h-px flex items-center justify-center pointer-events-none">
-            <div
-              className="flex-1 bg-black h-px"
-              style={{ maxWidth: "calc(50% - 60px)" }}
-            />
-            <div className="w-32 bg-white h-px" /> {/* Clear gap for logo */}
-            <div
-              className="flex-1 bg-black h-px"
-              style={{ maxWidth: "calc(50% - 60px)" }}
-            />
-          </div>
+      {/* Main Navbar with SVG Neon Border */}
+      <nav className="bg-black sticky top-0 z-50 relative">
+        {/* Neon SVG Border with Center Gap */}
+        <svg
+          className="w-full absolute top-0 z-10 pointer-events-none"
+          height="80"
+          viewBox="0 0 1200 80"
+          preserveAspectRatio="none"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
 
-          <div className="flex items-center justify-between h-16 relative">
-            {/* Left: Navigation */}
-            <div className="hidden md:flex items-center gap-6 z-10">
+          {/* Base glow */}
+          <path
+            d="M 0,20 L 450,20 L 480,60 L 720,60 L 750,20 L 1200,20"
+            stroke="#a855f7"
+            strokeWidth="4"
+            opacity="0.2"
+          />
+
+          {/* Neon layer */}
+          <path
+            d="M 0,20 L 450,20 L 480,60 L 720,60 L 750,20 L 1200,20"
+            stroke="#a855f7"
+            strokeWidth="1.5"
+            filter="url(#neon-glow)"
+          />
+
+          {/* White core */}
+          <path
+            d="M 0,20 L 450,20 L 480,60 L 720,60 L 750,20 L 1200,20"
+            stroke="white"
+            strokeWidth="0.5"
+            opacity="0.8"
+          />
+        </svg>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="flex items-center justify-between h-20 relative">
+            {/* Left Section: Navigation Links */}
+            <div className="hidden md:flex items-center gap-8 z-20 flex-1">
               <Link
                 href="/collections/all"
-                className="text-sm font-medium hover:text-gray-600 transition-colors"
+                className="text-sm font-medium text-gray-300 hover:text-[#a855f7] transition-colors duration-300 uppercase tracking-wider"
               >
                 Shop
               </Link>
               <Link
                 href="/collections/new"
-                className="text-sm font-medium hover:text-gray-600 transition-colors"
+                className="text-sm font-medium text-gray-300 hover:text-[#a855f7] transition-colors duration-300 uppercase tracking-wider"
               >
                 New
               </Link>
               <Link
                 href="/collections/sale"
-                className="text-sm font-medium hover:text-gray-600 transition-colors"
+                className="text-sm font-medium text-gray-300 hover:text-[#a855f7] transition-colors duration-300 uppercase tracking-wider"
               >
                 Sale
               </Link>
             </div>
 
-            {/* Center: Logo - breaks through the top border */}
+            {/* Center Section: Logo */}
             <Link
               href="/"
-              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold tracking-wider bg-white px-6 z-20"
+              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30"
             >
-              VAL
+              <div className="relative group">
+                <div className="absolute inset-0 bg-[#a855f7] blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <span className="relative text-4xl font-black tracking-[0.2em] text-white drop-shadow-[0_0_10px_rgba(168,85,247,0.8)] group-hover:drop-shadow-[0_0_20px_rgba(168,85,247,1)] transition-all duration-300">
+                  VAL
+                </span>
+              </div>
             </Link>
 
-            {/* Right: Icons */}
-            <div className="flex items-center gap-4 z-10">
-              <button className="hover:text-gray-600 transition-colors">
+            {/* Right Section: Icons */}
+            <div className="hidden md:flex items-center gap-6 z-20 flex-1 justify-end">
+              <button className="text-gray-300 hover:text-[#a855f7] transition-colors duration-300 hover:scale-110 transform">
                 <Search className="h-5 w-5" />
               </button>
               <Link
                 href="/account"
-                className="hover:text-gray-600 transition-colors"
+                className="text-gray-300 hover:text-[#a855f7] transition-colors duration-300 hover:scale-110 transform"
               >
                 <User className="h-5 w-5" />
               </Link>
               <Link
                 href="/cart"
-                className="hover:text-gray-600 transition-colors relative"
+                className="text-gray-300 hover:text-[#a855f7] transition-colors duration-300 hover:scale-110 transform relative"
               >
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-[#a855f7] text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-[0_0_10px_rgba(168,85,247,0.8)]">
                   0
                 </span>
               </Link>
@@ -85,7 +121,7 @@ export function Navbar() {
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden z-10"
+              className="md:hidden z-20 text-gray-300 hover:text-[#a855f7] transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
@@ -99,26 +135,41 @@ export function Navbar() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-black">
-            <div className="px-4 py-4 space-y-3">
+          <div className="md:hidden border-t border-[#a855f7]/20 bg-black/95 backdrop-blur-lg">
+            <div className="px-4 py-6 space-y-4">
               <Link
                 href="/collections/all"
-                className="block text-sm font-medium py-2"
+                className="block text-sm font-medium py-3 text-gray-300 hover:text-[#a855f7] transition-colors uppercase tracking-wider"
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 Shop
               </Link>
               <Link
                 href="/collections/new"
-                className="block text-sm font-medium py-2"
+                className="block text-sm font-medium py-3 text-gray-300 hover:text-[#a855f7] transition-colors uppercase tracking-wider"
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 New
               </Link>
               <Link
                 href="/collections/sale"
-                className="block text-sm font-medium py-2"
+                className="block text-sm font-medium py-3 text-gray-300 hover:text-[#a855f7] transition-colors uppercase tracking-wider"
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 Sale
               </Link>
+              <div className="flex items-center gap-6 pt-4 border-t border-[#a855f7]/20">
+                <button className="text-gray-300 hover:text-[#a855f7] transition-colors">
+                  <Search className="h-5 w-5" />
+                </button>
+                <Link
+                  href="/account"
+                  className="text-gray-300 hover:text-[#a855f7] transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User className="h-5 w-5" />
+                </Link>
+              </div>
             </div>
           </div>
         )}
