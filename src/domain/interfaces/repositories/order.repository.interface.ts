@@ -5,10 +5,10 @@
  * Implementation will be in the infrastructure layer.
  */
 
-import { OrderEntity, OrderStatus } from "@/domain/entities/order.entity";
+import { OrderEntity } from "@/domain/entities/order.entity";
 
 export interface OrderFilters {
-  status?: OrderStatus;
+  status?: string; // Changed to string for compatibility with use cases
   userId?: string;
   startDate?: Date;
   endDate?: Date;
@@ -35,7 +35,7 @@ export interface OrderRepositoryInterface {
   /**
    * Find orders by status
    */
-  findByStatus(status: OrderStatus): Promise<OrderEntity[]>;
+  findByStatus(status: string): Promise<OrderEntity[]>;
 
   /**
    * Get user's recent orders
@@ -55,7 +55,7 @@ export interface OrderRepositoryInterface {
   /**
    * Update order status
    */
-  updateStatus(orderId: string, status: OrderStatus): Promise<void>;
+  updateStatus(orderId: string, status: string): Promise<OrderEntity>;
 
   /**
    * Delete an order
@@ -70,5 +70,10 @@ export interface OrderRepositoryInterface {
   /**
    * Get order count by status
    */
-  countByStatus(status: OrderStatus): Promise<number>;
+  countByStatus(status: string): Promise<number>;
+
+  /**
+   * Get order count with filters
+   */
+  count(filters?: OrderFilters): Promise<number>;
 }

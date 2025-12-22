@@ -8,7 +8,6 @@
 export type OrderStatus =
   | "pending"
   | "processing"
-  | "paid"
   | "shipped"
   | "delivered"
   | "cancelled"
@@ -43,9 +42,15 @@ export class OrderEntity {
 
   /**
    * Check if order has been paid
+   * In our schema, processing/shipped/delivered implies payment
    */
   isPaid(): boolean {
-    return this.paidAt !== null || this.status === "paid";
+    return (
+      this.paidAt !== null ||
+      this.status === "processing" ||
+      this.status === "shipped" ||
+      this.status === "delivered"
+    );
   }
 
   /**

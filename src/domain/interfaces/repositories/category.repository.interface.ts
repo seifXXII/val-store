@@ -62,4 +62,9 @@ export interface CategoryRepositoryInterface {
    * Get category hierarchy (category with all its children)
    */
   getHierarchy(categoryId: string): Promise<CategoryEntity[]>;
+
+  /**
+   * Get category count
+   */
+  count(): Promise<number>;
 }
