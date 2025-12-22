@@ -14,17 +14,30 @@ import { Button } from "@/components/ui/button";
 import { Eye, Loader2 } from "lucide-react";
 import Link from "next/link";
 
-const statusColors = {
+type OrderStatus =
+  | "pending"
+  | "processing"
+  | "paid"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+  | "refunded";
+
+const statusColors: Record<
+  OrderStatus,
+  "secondary" | "default" | "outline" | "destructive"
+> = {
   pending: "secondary",
   processing: "default",
+  paid: "default",
   shipped: "outline",
   delivered: "default",
   cancelled: "destructive",
   refunded: "secondary",
-} as const;
+};
 
 export function OrdersTable() {
-  const { data: orders, isLoading } = trpc.admin.orders.list.useQuery();
+  const { data: response, isLoading } = trpc.admin.orders.list.useQuery();
 
   if (isLoading) {
     return (
@@ -33,6 +46,8 @@ export function OrdersTable() {
       </div>
     );
   }
+
+  const orders = response?.orders || [];
 
   return (
     <div className="rounded-md border">
@@ -54,25 +69,19 @@ export function OrdersTable() {
             orders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell className="font-medium">
-                  {order.orderNumber}
+                  {order.id.slice(0, 8)}
                 </TableCell>
-                <TableCell>Customer</TableCell>
+                <TableCell>{order.userId}</TableCell>
                 <TableCell>
                   {new Date(order.createdAt).toLocaleDateString()}
                 </TableCell>
-                <TableCell>{order.itemsCount}</TableCell>
-                <TableCell>
-                  ${parseFloat(order.totalAmount).toFixed(2)}
-                </TableCell>
+                <TableCell>{order.totalItems}</TableCell>
+                <TableCell>${order.totalAmount}</TableCell>
                 <TableCell>
                   <Badge variant="default">Paid</Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant={
-                      statusColors[order.status as keyof typeof statusColors]
-                    }
-                  >
+                  <Badge variant={statusColors[order.status as OrderStatus]}>
                     {order.status}
                   </Badge>
                 </TableCell>

@@ -35,6 +35,7 @@ export const genderEnum = pgEnum("gender", ["men", "women", "unisex", "kids"]);
 export const orderStatusEnum = pgEnum("order_status", [
   "pending",
   "processing",
+  "paid",
   "shipped",
   "delivered",
   "cancelled",

@@ -2,12 +2,13 @@
  * OrderStatus Value Object
  *
  * Represents order status with state machine logic for valid transitions.
- * Matches database enum exactly: pending, processing, shipped, delivered, cancelled, refunded
+ * Matches database enum: pending, processing, paid, shipped, delivered, cancelled, refunded
  */
 
 export type OrderStatusValue =
   | "pending"
   | "processing"
+  | "paid"
   | "shipped"
   | "delivered"
   | "cancelled"
@@ -25,6 +26,7 @@ export class OrderStatus {
     const validStatuses: OrderStatusValue[] = [
       "pending",
       "processing",
+      "paid",
       "shipped",
       "delivered",
       "cancelled",
@@ -51,7 +53,8 @@ export class OrderStatus {
   canTransitionTo(newStatus: OrderStatusValue): boolean {
     const transitions: Record<OrderStatusValue, OrderStatusValue[]> = {
       pending: ["processing", "cancelled"],
-      processing: ["shipped", "cancelled"],
+      processing: ["paid", "cancelled"],
+      paid: ["shipped", "refunded"],
       shipped: ["delivered", "cancelled"],
       delivered: ["refunded"],
       cancelled: [], // Final state

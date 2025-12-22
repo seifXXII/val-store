@@ -256,25 +256,25 @@ export class DrizzleOrderRepository implements OrderRepositoryInterface {
   }): OrderEntity {
     const orderItems =
       dbOrder.items?.map((item) => ({
-        productId: item.productId || "",
+        productId: item.productId ?? "unknown",
         productName: item.productName,
         quantity: item.quantity,
         price: parseFloat(item.unitPrice), // Map unitPrice to price
-      })) || [];
+      })) ?? [];
 
     return new OrderEntity(
       dbOrder.id,
-      dbOrder.userId || "",
+      dbOrder.userId ?? "guest",
       dbOrder.status, // Use as-is, matches entity type
       orderItems,
       parseFloat(dbOrder.subtotal),
       parseFloat(dbOrder.taxAmount), // Map taxAmount to tax
       parseFloat(dbOrder.shippingAmount), // Map shippingAmount to shippingCost
       parseFloat(dbOrder.totalAmount),
-      dbOrder.shippingAddressId || "", // Map ID to string for now
-      dbOrder.billingAddressId || "", // Map ID to string for now
-      null, // paymentMethod not in schema
-      null, // paidAt not in schema
+      dbOrder.shippingAddressId ?? "", // Map ID to string for now
+      dbOrder.billingAddressId ?? "", // Map ID to string for now
+      null, // paymentMethod not in current schema
+      null, // paidAt not in current schema
       dbOrder.shippedAt,
       dbOrder.deliveredAt,
       new Date(dbOrder.createdAt),
