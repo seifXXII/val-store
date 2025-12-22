@@ -1,8 +1,6 @@
 import { z } from "zod";
 import { router, publicProcedure } from "../../trpc";
-import { db } from "@/db";
-import { products, productVariants, categories } from "@/db/schema";
-import { eq, desc, sql } from "drizzle-orm";
+import { container } from "@/application/container";
 
 // Validation schemas
 const createProductSchema = z.object({
@@ -11,98 +9,54 @@ const createProductSchema = z.object({
   sku: z.string().min(1),
   description: z.string(),
   categoryId: z.string().uuid(),
-  gender: z.enum(["men", "women", "unisex", "kids"]),
-  basePrice: z.string(), // Stored as decimal string
-  salePrice: z.string().optional(),
-  costPrice: z.string().optional(),
-  material: z.string().optional(),
-  careInstructions: z.string().optional(),
-  metaTitle: z.string().optional(),
-  metaDescription: z.string().optional(),
+  basePrice: z.number().positive(),
+  salePrice: z.number().positive().optional(),
   isActive: z.boolean().default(true),
-  variants: z
-    .array(
-      z.object({
-        size: z.string(),
-        color: z.string(),
-        stockQuantity: z.number().int().min(0),
-        sku: z.string(),
-      })
-    )
-    .optional(),
+  isFeatured: z.boolean().default(false),
+});
+
+const listProductsSchema = z.object({
+  isActive: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  categoryId: z.string().uuid().optional(),
+  minPrice: z.number().optional(),
+  maxPrice: z.number().optional(),
 });
 
 export const productsRouter = router({
   // List all products
-  list: publicProcedure.query(async () => {
-    const productsList = await db
-      .select({
-        id: products.id,
-        sku: products.sku,
-        name: products.name,
-        basePrice: products.basePrice,
-        isActive: products.isActive,
-        createdAt: products.createdAt,
-        categoryName: categories.name,
-        // Get total stock from variants
-        totalStock: sql<number>`(
-          SELECT COALESCE(SUM(${productVariants.stockQuantity}), 0)
-          FROM ${productVariants}
-          WHERE ${productVariants.productId} = ${products.id}
-        )`.as("total_stock"),
-      })
-      .from(products)
-      .leftJoin(categories, eq(products.categoryId, categories.id))
-      .orderBy(desc(products.createdAt));
-
-    return productsList;
-  }),
+  list: publicProcedure
+    .input(listProductsSchema.optional())
+    .query(async ({ input }) => {
+      const useCase = container.getListProductsUseCase();
+      return useCase.execute(input || {});
+    }),
 
   // Get single product by ID
   getById: publicProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ input }) => {
-      const product = await db.query.products.findFirst({
-        where: eq(products.id, input.id),
-        with: {
-          variants: true,
-          images: true,
-        },
-      });
+      const useCase = container.getGetProductUseCase();
+      return useCase.execute({ id: input.id });
+    }),
 
-      if (!product) {
-        throw new Error("Product not found");
-      }
-
-      return product;
+  // Get product by slug
+  getBySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      const useCase = container.getGetProductUseCase();
+      return useCase.execute({ slug: input.slug });
     }),
 
   // Create new product
   create: publicProcedure
     .input(createProductSchema)
     .mutation(async ({ input }) => {
-      const { variants, ...productData } = input;
-
-      // Create product
-      const [newProduct] = await db
-        .insert(products)
-        .values(productData)
-        .returning();
-
-      // Create variants if provided
-      if (variants && variants.length > 0) {
-        await db.insert(productVariants).values(
-          variants.map((variant) => ({
-            ...variant,
-            productId: newProduct.id,
-          }))
-        );
-      }
-
-      return newProduct;
+      const useCase = container.getCreateProductUseCase();
+      return useCase.execute(input);
     }),
 
-  // Update product
+  // Update product (simplified for now - TODO: create UpdateProductUseCase)
   update: publicProcedure
     .input(
       z.object({
@@ -110,61 +64,24 @@ export const productsRouter = router({
         data: createProductSchema.partial(),
       })
     )
-    .mutation(async ({ input }) => {
-      const { variants, ...productData } = input.data;
-
-      // Update product
-      const [updated] = await db
-        .update(products)
-        .set(productData)
-        .where(eq(products.id, input.id))
-        .returning();
-
-      // If variants provided, delete old ones and create new
-      if (variants) {
-        await db
-          .delete(productVariants)
-          .where(eq(productVariants.productId, input.id));
-
-        if (variants.length > 0) {
-          await db.insert(productVariants).values(
-            variants.map((variant) => ({
-              ...variant,
-              productId: input.id,
-            }))
-          );
-        }
-      }
-
-      return updated;
+    .mutation(async () => {
+      // TODO: Implement UpdateProductUseCase
+      throw new Error("Update use case not implemented yet");
     }),
 
   // Delete product
   delete: publicProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ input }) => {
-      await db.delete(products).where(eq(products.id, input.id));
-      return { success: true };
+      const useCase = container.getDeleteProductUseCase();
+      return useCase.execute(input);
     }),
 
   // Toggle product status
   toggleStatus: publicProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ input }) => {
-      const product = await db.query.products.findFirst({
-        where: eq(products.id, input.id),
-      });
-
-      if (!product) {
-        throw new Error("Product not found");
-      }
-
-      const [updated] = await db
-        .update(products)
-        .set({ isActive: !product.isActive })
-        .where(eq(products.id, input.id))
-        .returning();
-
-      return updated;
+      const useCase = container.getToggleProductStatusUseCase();
+      return useCase.execute(input);
     }),
 });

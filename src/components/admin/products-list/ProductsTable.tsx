@@ -23,7 +23,10 @@ import { toast } from "sonner";
 
 export function ProductsTable() {
   const utils = trpc.useUtils();
-  const { data: products, isLoading } = trpc.admin.products.list.useQuery();
+  const { data, isLoading } = trpc.admin.products.list.useQuery();
+
+  // Extract products array from new API response structure
+  const products = data?.products || [];
 
   // Delete mutation with optimistic update
   const deleteMutation = trpc.admin.products.delete.useMutation({
@@ -32,18 +35,23 @@ export function ProductsTable() {
       await utils.admin.products.list.cancel();
 
       // Snapshot previous value
-      const previousProducts = utils.admin.products.list.getData();
+      const previousData = utils.admin.products.list.getData();
 
       // Optimistically remove from list
-      utils.admin.products.list.setData(undefined, (old) =>
-        old?.filter((p) => p.id !== variables.id)
-      );
+      utils.admin.products.list.setData(undefined, (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          products: old.products.filter((p) => p.id !== variables.id),
+          total: old.total - 1,
+        };
+      });
 
-      return { previousProducts };
+      return { previousData };
     },
     onError: (err, variables, context) => {
       // Rollback on error
-      utils.admin.products.list.setData(undefined, context?.previousProducts);
+      utils.admin.products.list.setData(undefined, context?.previousData);
       toast.error("Failed to delete product");
     },
     onSettled: () => {
@@ -59,19 +67,23 @@ export function ProductsTable() {
   const toggleMutation = trpc.admin.products.toggleStatus.useMutation({
     onMutate: async (variables) => {
       await utils.admin.products.list.cancel();
-      const previousProducts = utils.admin.products.list.getData();
+      const previousData = utils.admin.products.list.getData();
 
       // Optimistically toggle status
-      utils.admin.products.list.setData(undefined, (old) =>
-        old?.map((p) =>
-          p.id === variables.id ? { ...p, isActive: !p.isActive } : p
-        )
-      );
+      utils.admin.products.list.setData(undefined, (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          products: old.products.map((p) =>
+            p.id === variables.id ? { ...p, isActive: !p.isActive } : p
+          ),
+        };
+      });
 
-      return { previousProducts };
+      return { previousData };
     },
     onError: (err, variables, context) => {
-      utils.admin.products.list.setData(undefined, context?.previousProducts);
+      utils.admin.products.list.setData(undefined, context?.previousData);
       toast.error("Failed to update product status");
     },
     onSettled: () => {
@@ -93,10 +105,10 @@ export function ProductsTable() {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[80px]">Image</TableHead>
-            <TableHead>SKU</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Category</TableHead>
-            <TableHead>Price</TableHead>
+            <TableHead>Base Price</TableHead>
+            <TableHead>Current Price</TableHead>
             <TableHead>Stock</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="w-[70px]">Actions</TableHead>
@@ -107,23 +119,36 @@ export function ProductsTable() {
             products.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>
-                  <div className="h-12 w-12 rounded-md bg-muted" />
+                  {product.primaryImage ? (
+                    <img
+                      src={product.primaryImage}
+                      alt={product.name}
+                      className="h-12 w-12 rounded-md object-cover"
+                    />
+                  ) : (
+                    <div className="h-12 w-12 rounded-md bg-muted" />
+                  )}
                 </TableCell>
-                <TableCell className="font-medium">{product.sku}</TableCell>
-                <TableCell>{product.name}</TableCell>
-                <TableCell>{product.categoryName || "Uncategorized"}</TableCell>
+                <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell>Uncategorized</TableCell>
+                <TableCell>${product.basePrice.toFixed(2)}</TableCell>
                 <TableCell>
-                  ${parseFloat(product.basePrice).toFixed(2)}
+                  ${product.currentPrice.toFixed(2)}
+                  {product.isOnSale && (
+                    <span className="ml-2 text-xs text-destructive">
+                      -{product.discountPercentage}%
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <span
                     className={
-                      product.totalStock < 10
+                      product.stock < 10
                         ? "text-destructive font-medium"
                         : "text-foreground"
                     }
                   >
-                    {product.totalStock}
+                    {product.stock}
                   </span>
                 </TableCell>
                 <TableCell>
@@ -147,7 +172,7 @@ export function ProductsTable() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link href={`/products/${product.id}`}>
+                        <Link href={`/admin/products/${product.id}`}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </Link>
