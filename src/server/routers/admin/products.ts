@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, publicProcedure } from "../../trpc";
+import { router, adminProcedure } from "../../trpc";
 import { container } from "@/application/container";
 
 // Validation schemas
@@ -25,7 +25,7 @@ const listProductsSchema = z.object({
 
 export const productsRouter = router({
   // List all products
-  list: publicProcedure
+  list: adminProcedure
     .input(listProductsSchema.optional())
     .query(async ({ input }) => {
       const useCase = container.getListProductsUseCase();
@@ -33,7 +33,7 @@ export const productsRouter = router({
     }),
 
   // Get single product by ID
-  getById: publicProcedure
+  getById: adminProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ input }) => {
       const useCase = container.getGetProductUseCase();
@@ -41,7 +41,7 @@ export const productsRouter = router({
     }),
 
   // Get product by slug
-  getBySlug: publicProcedure
+  getBySlug: adminProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
       const useCase = container.getGetProductUseCase();
@@ -49,28 +49,28 @@ export const productsRouter = router({
     }),
 
   // Create new product
-  create: publicProcedure
+  create: adminProcedure
     .input(createProductSchema)
     .mutation(async ({ input }) => {
       const useCase = container.getCreateProductUseCase();
       return useCase.execute(input);
     }),
 
-  // Update product (simplified for now - TODO: create UpdateProductUseCase)
-  update: publicProcedure
+  // Update product
+  update: adminProcedure
     .input(
       z.object({
         id: z.string().uuid(),
         data: createProductSchema.partial(),
       })
     )
-    .mutation(async () => {
-      // TODO: Implement UpdateProductUseCase
-      throw new Error("Update use case not implemented yet");
+    .mutation(async ({ input }) => {
+      const useCase = container.getUpdateProductUseCase();
+      return useCase.execute(input);
     }),
 
   // Delete product
-  delete: publicProcedure
+  delete: adminProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ input }) => {
       const useCase = container.getDeleteProductUseCase();
@@ -78,7 +78,7 @@ export const productsRouter = router({
     }),
 
   // Toggle product status
-  toggleStatus: publicProcedure
+  toggleStatus: adminProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ input }) => {
       const useCase = container.getToggleProductStatusUseCase();

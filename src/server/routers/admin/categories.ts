@@ -1,11 +1,12 @@
 import { container } from "@/application/container";
 import { z } from "zod";
-import { router, publicProcedure } from "../../trpc";
+import { router, adminProcedure } from "../../trpc";
 
 /**
  * Categories Router - Thin Adapter
  *
  * Delegates all business logic to use cases.
+ * Protected with admin-only access.
  */
 
 const listCategoriesSchema = z
@@ -28,13 +29,13 @@ const deleteCategorySchema = z.object({
 
 export const categoriesRouter = router({
   // List all categories
-  list: publicProcedure.input(listCategoriesSchema).query(async ({ input }) => {
+  list: adminProcedure.input(listCategoriesSchema).query(async ({ input }) => {
     const useCase = container.getListCategoriesUseCase();
     return useCase.execute(input || {});
   }),
 
   // Create new category
-  create: publicProcedure
+  create: adminProcedure
     .input(createCategorySchema)
     .mutation(async ({ input }) => {
       const useCase = container.getCreateCategoryUseCase();
@@ -42,7 +43,7 @@ export const categoriesRouter = router({
     }),
 
   // Delete category
-  delete: publicProcedure
+  delete: adminProcedure
     .input(deleteCategorySchema)
     .mutation(async ({ input }) => {
       const useCase = container.getDeleteCategoryUseCase();

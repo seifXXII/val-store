@@ -14,6 +14,7 @@ import { ListProductsUseCase } from "./use-cases/products/list-products.use-case
 import { GetProductUseCase } from "./use-cases/products/get-product.use-case";
 import { DeleteProductUseCase } from "./use-cases/products/delete-product.use-case";
 import { ToggleProductStatusUseCase } from "./use-cases/products/toggle-product-status.use-case";
+import { UpdateProductUseCase } from "./use-cases/products/update-product.use-case";
 import { DrizzleOrderRepository } from "@/infrastructure/database/repositories/order.repository";
 import { ListOrdersUseCase } from "./use-cases/orders/list-orders.use-case";
 import { GetOrderUseCase } from "./use-cases/orders/get-order.use-case";
@@ -22,6 +23,17 @@ import { DrizzleCategoryRepository } from "@/infrastructure/database/repositorie
 import { ListCategoriesUseCase } from "./use-cases/categories/list-categories.use-case";
 import { CreateCategoryUseCase } from "./use-cases/categories/create-category.use-case";
 import { DeleteCategoryUseCase } from "./use-cases/categories/delete-category.use-case";
+import { UpdateCategoryUseCase } from "./use-cases/categories/update-category.use-case";
+import { DrizzleDashboardRepository } from "@/infrastructure/database/repositories/dashboard.repository";
+import { GetDashboardMetricsUseCase } from "./use-cases/dashboard/get-metrics.use-case";
+import { GetSalesTrendUseCase } from "./use-cases/dashboard/get-sales-trend.use-case";
+import { GetRecentOrdersUseCase } from "./use-cases/dashboard/get-recent-orders.use-case";
+import { DrizzleProductVariantRepository } from "@/infrastructure/database/repositories/product-variant.repository";
+import { AddProductVariantUseCase } from "./use-cases/products/add-product-variant.use-case";
+import { UpdateVariantStockUseCase } from "./use-cases/products/update-variant-stock.use-case";
+import { DrizzleProductImageRepository } from "@/infrastructure/database/repositories/product-image.repository";
+import { AddProductImageUseCase } from "./use-cases/products/add-product-image.use-case";
+import { RemoveProductImageUseCase } from "./use-cases/products/remove-product-image.use-case";
 
 class Container {
   private static instance: Container;
@@ -33,6 +45,7 @@ class Container {
   private getProductUseCase?: GetProductUseCase;
   private deleteProductUseCase?: DeleteProductUseCase;
   private toggleProductStatusUseCase?: ToggleProductStatusUseCase;
+  private updateProductUseCase?: UpdateProductUseCase;
 
   // Order dependencies
   private orderRepository?: DrizzleOrderRepository;
@@ -45,6 +58,23 @@ class Container {
   private listCategoriesUseCase?: ListCategoriesUseCase;
   private createCategoryUseCase?: CreateCategoryUseCase;
   private deleteCategoryUseCase?: DeleteCategoryUseCase;
+  private updateCategoryUseCase?: UpdateCategoryUseCase;
+
+  // Dashboard dependencies
+  private dashboardRepository?: DrizzleDashboardRepository;
+  private getDashboardMetricsUseCase?: GetDashboardMetricsUseCase;
+  private getSalesTrendUseCase?: GetSalesTrendUseCase;
+  private getRecentOrdersUseCase?: GetRecentOrdersUseCase;
+
+  // Product Variant dependencies
+  private productVariantRepository?: DrizzleProductVariantRepository;
+  private addProductVariantUseCase?: AddProductVariantUseCase;
+  private updateVariantStockUseCase?: UpdateVariantStockUseCase;
+
+  // Product Image dependencies
+  private productImageRepository?: DrizzleProductImageRepository;
+  private addProductImageUseCase?: AddProductImageUseCase;
+  private removeProductImageUseCase?: RemoveProductImageUseCase;
 
   private constructor() {}
 
@@ -107,6 +137,15 @@ class Container {
       );
     }
     return this.toggleProductStatusUseCase;
+  }
+
+  getUpdateProductUseCase(): UpdateProductUseCase {
+    if (!this.updateProductUseCase) {
+      this.updateProductUseCase = new UpdateProductUseCase(
+        this.getProductRepository()
+      );
+    }
+    return this.updateProductUseCase;
   }
 
   // Order Repository
@@ -177,6 +216,107 @@ class Container {
     return this.deleteCategoryUseCase;
   }
 
+  getUpdateCategoryUseCase(): UpdateCategoryUseCase {
+    if (!this.updateCategoryUseCase) {
+      this.updateCategoryUseCase = new UpdateCategoryUseCase(
+        this.getCategoryRepository()
+      );
+    }
+    return this.updateCategoryUseCase;
+  }
+
+  // Dashboard Repository
+  getDashboardRepository(): DrizzleDashboardRepository {
+    if (!this.dashboardRepository) {
+      this.dashboardRepository = new DrizzleDashboardRepository();
+    }
+    return this.dashboardRepository;
+  }
+
+  // Dashboard Use Cases
+  getGetDashboardMetricsUseCase(): GetDashboardMetricsUseCase {
+    if (!this.getDashboardMetricsUseCase) {
+      this.getDashboardMetricsUseCase = new GetDashboardMetricsUseCase(
+        this.getDashboardRepository()
+      );
+    }
+    return this.getDashboardMetricsUseCase;
+  }
+
+  getGetSalesTrendUseCase(): GetSalesTrendUseCase {
+    if (!this.getSalesTrendUseCase) {
+      this.getSalesTrendUseCase = new GetSalesTrendUseCase(
+        this.getDashboardRepository()
+      );
+    }
+    return this.getSalesTrendUseCase;
+  }
+
+  getGetRecentOrdersUseCase(): GetRecentOrdersUseCase {
+    if (!this.getRecentOrdersUseCase) {
+      this.getRecentOrdersUseCase = new GetRecentOrdersUseCase(
+        this.getDashboardRepository()
+      );
+    }
+    return this.getRecentOrdersUseCase;
+  }
+
+  // Product Variant Repository
+  getProductVariantRepository(): DrizzleProductVariantRepository {
+    if (!this.productVariantRepository) {
+      this.productVariantRepository = new DrizzleProductVariantRepository();
+    }
+    return this.productVariantRepository;
+  }
+
+  // Product Variant Use Cases
+  getAddProductVariantUseCase(): AddProductVariantUseCase {
+    if (!this.addProductVariantUseCase) {
+      this.addProductVariantUseCase = new AddProductVariantUseCase(
+        this.getProductVariantRepository(),
+        this.getProductRepository()
+      );
+    }
+    return this.addProductVariantUseCase;
+  }
+
+  getUpdateVariantStockUseCase(): UpdateVariantStockUseCase {
+    if (!this.updateVariantStockUseCase) {
+      this.updateVariantStockUseCase = new UpdateVariantStockUseCase(
+        this.getProductVariantRepository()
+      );
+    }
+    return this.updateVariantStockUseCase;
+  }
+
+  // Product Image Repository
+  getProductImageRepository(): DrizzleProductImageRepository {
+    if (!this.productImageRepository) {
+      this.productImageRepository = new DrizzleProductImageRepository();
+    }
+    return this.productImageRepository;
+  }
+
+  // Product Image Use Cases
+  getAddProductImageUseCase(): AddProductImageUseCase {
+    if (!this.addProductImageUseCase) {
+      this.addProductImageUseCase = new AddProductImageUseCase(
+        this.getProductImageRepository(),
+        this.getProductRepository()
+      );
+    }
+    return this.addProductImageUseCase;
+  }
+
+  getRemoveProductImageUseCase(): RemoveProductImageUseCase {
+    if (!this.removeProductImageUseCase) {
+      this.removeProductImageUseCase = new RemoveProductImageUseCase(
+        this.getProductImageRepository()
+      );
+    }
+    return this.removeProductImageUseCase;
+  }
+
   // Clear all instances (useful for testing)
   clear(): void {
     this.productRepository = undefined;
@@ -189,6 +329,10 @@ class Container {
     this.listOrdersUseCase = undefined;
     this.getOrderUseCase = undefined;
     this.updateOrderStatusUseCase = undefined;
+    this.dashboardRepository = undefined;
+    this.getDashboardMetricsUseCase = undefined;
+    this.getSalesTrendUseCase = undefined;
+    this.getRecentOrdersUseCase = undefined;
   }
 }
 

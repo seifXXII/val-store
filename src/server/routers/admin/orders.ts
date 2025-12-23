@@ -1,11 +1,12 @@
 import { container } from "@/application/container";
 import { z } from "zod";
-import { router, publicProcedure } from "../../trpc";
+import { router, adminProcedure } from "../../trpc";
 
 /**
  * Orders Router - Thin Adapter
  *
  * Delegates all business logic to use cases.
+ * Protected with admin-only access.
  */
 
 const listOrdersSchema = z
@@ -38,19 +39,19 @@ const updateOrderStatusSchema = z.object({
 
 export const ordersRouter = router({
   // List orders with filtering
-  list: publicProcedure.input(listOrdersSchema).query(async ({ input }) => {
+  list: adminProcedure.input(listOrdersSchema).query(async ({ input }) => {
     const useCase = container.getListOrdersUseCase();
     return useCase.execute(input || {});
   }),
 
   // Get single order by ID
-  getById: publicProcedure.input(getOrderSchema).query(async ({ input }) => {
+  getById: adminProcedure.input(getOrderSchema).query(async ({ input }) => {
     const useCase = container.getGetOrderUseCase();
     return useCase.execute(input);
   }),
 
   // Update order status
-  updateStatus: publicProcedure
+  updateStatus: adminProcedure
     .input(updateOrderStatusSchema)
     .mutation(async ({ input }) => {
       const useCase = container.getUpdateOrderStatusUseCase();
