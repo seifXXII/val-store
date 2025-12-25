@@ -120,10 +120,38 @@ export const userProfiles = pgTable("user_profiles", {
     .unique()
     .references(() => user.id, { onDelete: "cascade" }),
   role: userRoleEnum("role").default("customer").notNull(),
-  phone: varchar("phone", { length: 20 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// ============================================
+// CUSTOMERS TABLE (Real Human Identity)
+// ============================================
+
+/**
+ * Customer represents a real human, identified by phone number.
+ * Multiple user accounts can belong to the same customer.
+ */
+export const customers = pgTable(
+  "customers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    phone: varchar("phone", { length: 20 }).notNull().unique(),
+    preferredName: varchar("preferred_name", { length: 100 }),
+    isPhoneVerified: boolean("is_phone_verified").default(false).notNull(),
+    totalOrders: integer("total_orders").default(0).notNull(),
+    totalSpent: decimal("total_spent", { precision: 10, scale: 2 })
+      .default("0")
+      .notNull(),
+    loyaltyPoints: integer("loyalty_points").default(0).notNull(),
+    notes: text("notes"), // Admin notes
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    phoneIdx: uniqueIndex("idx_customers_phone").on(table.phone),
+  })
+);
 
 // ============================================
 // ADDRESSES TABLE

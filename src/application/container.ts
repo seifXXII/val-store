@@ -34,6 +34,9 @@ import { UpdateVariantStockUseCase } from "./use-cases/products/update-variant-s
 import { DrizzleProductImageRepository } from "@/infrastructure/database/repositories/product-image.repository";
 import { AddProductImageUseCase } from "./use-cases/products/add-product-image.use-case";
 import { RemoveProductImageUseCase } from "./use-cases/products/remove-product-image.use-case";
+import { ResendEmailService } from "@/infrastructure/services/resend-email.service";
+import { DrizzleCustomerRepository } from "@/infrastructure/database/repositories/customer.repository";
+import { GetOrCreateCustomerUseCase } from "./use-cases/customers/get-or-create-customer.use-case";
 
 class Container {
   private static instance: Container;
@@ -74,7 +77,14 @@ class Container {
   // Product Image dependencies
   private productImageRepository?: DrizzleProductImageRepository;
   private addProductImageUseCase?: AddProductImageUseCase;
+
+  // Email service
+  private emailService?: ResendEmailService;
   private removeProductImageUseCase?: RemoveProductImageUseCase;
+
+  // Customer dependencies
+  private customerRepository?: DrizzleCustomerRepository;
+  private getOrCreateCustomerUseCase?: GetOrCreateCustomerUseCase;
 
   private constructor() {}
 
@@ -315,6 +325,32 @@ class Container {
       );
     }
     return this.removeProductImageUseCase;
+  }
+
+  // Email Service
+  getEmailService(): ResendEmailService {
+    if (!this.emailService) {
+      this.emailService = new ResendEmailService();
+    }
+    return this.emailService;
+  }
+
+  // Customer Repository
+  getCustomerRepository(): DrizzleCustomerRepository {
+    if (!this.customerRepository) {
+      this.customerRepository = new DrizzleCustomerRepository();
+    }
+    return this.customerRepository;
+  }
+
+  // Get or Create Customer Use Case
+  getGetOrCreateCustomerUseCase(): GetOrCreateCustomerUseCase {
+    if (!this.getOrCreateCustomerUseCase) {
+      this.getOrCreateCustomerUseCase = new GetOrCreateCustomerUseCase(
+        this.getCustomerRepository()
+      );
+    }
+    return this.getOrCreateCustomerUseCase;
   }
 
   // Clear all instances (useful for testing)

@@ -72,7 +72,6 @@ async function seed() {
     await db.insert(userProfiles).values({
       userId: adminUserId,
       role: "super_admin",
-      phone: "+1234567890",
     });
     console.log("  ✅ Created admin profile with super_admin role");
 

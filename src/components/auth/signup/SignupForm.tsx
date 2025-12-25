@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Link from "next/link";
 import type { ExtendedSignUpEmail } from "@/types/auth";
+import { PhoneValueObject } from "@/domain/value-objects/phone.value-object";
 
 interface SignupFormData {
   email: string;
@@ -41,6 +42,15 @@ export function SignupForm() {
     }));
   };
 
+  const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow numbers and + (for international format)
+    const value = event.target.value.replace(/[^0-9+]/g, "");
+    setFormData((previousFormData) => ({
+      ...previousFormData,
+      phone: value,
+    }));
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -57,6 +67,19 @@ export function SignupForm() {
     setIsLoading(true);
 
     try {
+      // Validate and format phone number to E.164 format if provided
+      let formattedPhone: string | undefined;
+      if (formData.phone) {
+        formattedPhone = PhoneValueObject.toE164(formData.phone) ?? undefined;
+        if (!formattedPhone) {
+          toast.error(
+            "Invalid phone number. Please enter a valid phone number."
+          );
+          setIsLoading(false);
+          return;
+        }
+      }
+
       // Use properly typed signUp with custom fields (no any!)
       const { error: signUpError } = await (
         signUp.email as ExtendedSignUpEmail
@@ -64,7 +87,7 @@ export function SignupForm() {
         email: formData.email,
         password: formData.password,
         name: `${formData.firstName} ${formData.lastName}`,
-        phone: formData.phone || undefined,
+        phone: formattedPhone,
         birthday: formData.birthday || undefined,
       });
 
@@ -73,9 +96,9 @@ export function SignupForm() {
         return;
       }
 
-      // Success
-      toast.success("Your account has been created successfully.");
-      router.push("/login");
+      // Success - redirect to check email page with email param
+      toast.success("Account created! Please check your email to verify.");
+      router.push(`/check-email?email=${encodeURIComponent(formData.email)}`);
     } catch {
       toast.error("An unexpected error occurred");
     } finally {
@@ -124,14 +147,14 @@ export function SignupForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="phone">Phone (optional)</Label>
+        <Label htmlFor="phone">Phone</Label>
         <Input
           id="phone"
           name="phone"
           type="tel"
-          placeholder="+1 (555) 000-0000"
+          placeholder="1234567890"
           value={formData.phone}
-          onChange={handleChange}
+          onChange={handlePhoneChange}
         />
       </div>
 
@@ -160,7 +183,7 @@ export function SignupForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="birthday">Birthday (Optional)</Label>
+        <Label htmlFor="birthday">Birthday</Label>
         <Input
           id="birthday"
           name="birthday"

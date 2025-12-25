@@ -8,13 +8,26 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { vanillaTrpc } from "@/lib/trpc";
+import { PhoneValueObject } from "@/domain/value-objects/phone.value-object";
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // Email or phone
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Helper to detect if input looks like a phone number (mostly digits)
+  const isPhoneNumber = (value: string): boolean => {
+    const digitsOnly = value.replace(/[^0-9]/g, "");
+    // If more than 70% of characters are digits and has at least 7 digits
+    return (
+      digitsOnly.length >= 7 &&
+      digitsOnly.length / value.length > 0.7 &&
+      !value.includes("@")
+    );
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -22,6 +35,32 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
+      let email = identifier;
+
+      // If it looks like a phone number, look up the email
+      if (isPhoneNumber(identifier)) {
+        // Format phone to E.164 and look up email
+        const formattedPhone = PhoneValueObject.toE164(identifier);
+        if (!formattedPhone) {
+          setError("Invalid phone number");
+          setIsLoading(false);
+          return;
+        }
+
+        // Call tRPC to get email by phone
+        const result = await vanillaTrpc.auth.getEmailByPhone.query({
+          phone: identifier,
+        });
+
+        if (!result.email) {
+          setError("No account found with this phone number");
+          setIsLoading(false);
+          return;
+        }
+
+        email = result.email;
+      }
+
       const { error: signInError } = await signIn.email({
         email,
         password,
@@ -35,10 +74,22 @@ export function LoginForm() {
       // Success - redirect to home
       router.push("/");
       router.refresh();
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Handle input change - filter non-numbers if it looks like phone
+  const handleIdentifierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only filter if it's clearly a phone number (starts with numbers or +)
+    if (/^[+\d]/.test(value) && !value.includes("@")) {
+      // Allow only numbers and +
+      setIdentifier(value.replace(/[^0-9+]/g, ""));
+    } else {
+      setIdentifier(value);
     }
   };
 
@@ -51,13 +102,13 @@ export function LoginForm() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="identifier">Email or Phone</Label>
         <Input
-          id="email"
-          type="email"
-          placeholder="john@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          id="identifier"
+          type="text"
+          placeholder="john@example.com or 1234567890"
+          value={identifier}
+          onChange={handleIdentifierChange}
           required
         />
       </div>

@@ -71,7 +71,6 @@ export class DrizzleUserProfileRepository implements UserProfileRepositoryInterf
       .values({
         userId: profile.userId,
         role: profile.role,
-        phone: profile.phone,
       })
       .returning();
 
@@ -86,7 +85,6 @@ export class DrizzleUserProfileRepository implements UserProfileRepositoryInterf
       .update(userProfiles)
       .set({
         role: profile.role,
-        phone: profile.phone,
         updatedAt: new Date(),
       })
       .where(eq(userProfiles.id, profile.id))
@@ -119,8 +117,7 @@ export class DrizzleUserProfileRepository implements UserProfileRepositoryInterf
   private mapToEntity(dbProfile: {
     id: string;
     userId: string;
-    role: string;
-    phone: string | null;
+    role: "customer" | "worker" | "admin" | "super_admin";
     createdAt: Date;
     updatedAt: Date;
   }): UserProfileEntity {
@@ -128,9 +125,6 @@ export class DrizzleUserProfileRepository implements UserProfileRepositoryInterf
       dbProfile.id,
       dbProfile.userId,
       dbProfile.role as UserRole,
-      dbProfile.phone,
-      null, // shippingAddress - stored in addresses table
-      null, // billingAddress - stored in addresses table
       new Date(dbProfile.createdAt),
       new Date(dbProfile.updatedAt)
     );

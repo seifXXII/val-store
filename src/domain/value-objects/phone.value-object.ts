@@ -2,108 +2,110 @@
  * Phone Value Object
  *
  * Immutable value object for phone numbers.
- * Validates and formats phone numbers with international support.
+ * Uses libphonenumber-js for robust international phone validation.
  */
+
+import {
+  parsePhoneNumberFromString,
+  isValidPhoneNumber,
+  type PhoneNumber,
+} from "libphonenumber-js";
 
 export class PhoneValueObject {
   private readonly value: string;
+  private readonly phoneNumber: PhoneNumber;
 
-  constructor(phone: string) {
-    const cleaned = this.cleanPhone(phone);
+  constructor(phone: string, defaultCountry: string = "EG") {
+    const parsed = parsePhoneNumberFromString(phone, defaultCountry as never);
 
-    if (!this.isValidPhone(cleaned)) {
+    if (!parsed || !parsed.isValid()) {
       throw new Error(
-        "Invalid phone number. Please enter a valid phone number with country code (e.g., +1234567890)"
+        "Invalid phone number. Please enter a valid phone number."
       );
     }
 
-    this.value = this.formatPhone(cleaned);
+    this.phoneNumber = parsed;
+    // Store in E.164 format (international standard): +1234567890
+    this.value = parsed.format("E.164");
   }
 
   /**
-   * Get the formatted phone value
+   * Get the phone in E.164 format (+1234567890)
    */
   getValue(): string {
     return this.value;
   }
 
   /**
-   * Get phone without formatting (just digits and +)
+   * Get phone formatted for display based on country
+   * e.g., "(123) 456-7890" for US numbers
    */
-  getCleanValue(): string {
-    return this.value.replace(/[\s()-]/g, "");
+  getFormattedValue(): string {
+    return this.phoneNumber.formatNational();
+  }
+
+  /**
+   * Get international formatted phone
+   * e.g., "+1 123 456 7890"
+   */
+  getInternationalFormat(): string {
+    return this.phoneNumber.formatInternational();
+  }
+
+  /**
+   * Get the country code (e.g., "US", "GB")
+   */
+  getCountryCode(): string | undefined {
+    return this.phoneNumber.country;
+  }
+
+  /**
+   * Get the calling code (e.g., "1" for US)
+   */
+  getCallingCode(): string {
+    return this.phoneNumber.countryCallingCode;
   }
 
   /**
    * Check if phone is equal to another
    */
   equals(other: PhoneValueObject): boolean {
-    return this.getCleanValue() === other.getCleanValue();
-  }
-
-  /**
-   * Clean phone input - remove all non-digit characters except +
-   */
-  private cleanPhone(phone: string): string {
-    return phone.replace(/[^\d+]/g, "");
-  }
-
-  /**
-   * Validate phone format
-   * Supports:
-   * - International format: +1234567890 (10-15 digits after +)
-   * - National format: 1234567890 (7-15 digits)
-   */
-  private isValidPhone(phone: string): boolean {
-    // International format with + prefix
-    const internationalRegex = /^\+\d{10,15}$/;
-
-    // National format (no + prefix)
-    const nationalRegex = /^\d{7,15}$/;
-
-    return internationalRegex.test(phone) || nationalRegex.test(phone);
-  }
-
-  /**
-   * Format phone for display
-   * Keeps the + prefix if present, adds spaces for readability
-   */
-  private formatPhone(phone: string): string {
-    if (phone.startsWith("+")) {
-      // International format: +1 234 567 8901
-      const countryCode = phone.slice(0, 2);
-      const rest = phone.slice(2);
-
-      if (rest.length >= 10) {
-        return `${countryCode} ${rest.slice(0, 3)} ${rest.slice(3, 6)} ${rest.slice(6)}`;
-      }
-      return phone;
-    }
-
-    // National format: (123) 456-7890
-    if (phone.length === 10) {
-      return `(${phone.slice(0, 3)}) ${phone.slice(3, 6)}-${phone.slice(6)}`;
-    }
-
-    return phone;
+    return this.value === other.value;
   }
 
   /**
    * Create from string (factory method)
+   * @param phone - Phone number string (can be national or international format)
+   * @param defaultCountry - Default country code if not in international format
    */
-  static create(phone: string): PhoneValueObject {
-    return new PhoneValueObject(phone);
+  static create(
+    phone: string,
+    defaultCountry: string = "EG"
+  ): PhoneValueObject {
+    return new PhoneValueObject(phone, defaultCountry);
   }
 
   /**
    * Check if a string is a valid phone without throwing
    */
-  static isValid(phone: string): boolean {
+  static isValid(phone: string, defaultCountry: string = "EG"): boolean {
     try {
-      new PhoneValueObject(phone);
-      return true;
+      return isValidPhoneNumber(phone, defaultCountry as never);
     } catch {
       return false;
+    }
+  }
+
+  /**
+   * Parse and format a phone number to E.164 format
+   * Returns null if invalid
+   */
+  static toE164(phone: string, defaultCountry: string = "EG"): string | null {
+    try {
+      const parsed = parsePhoneNumberFromString(phone, defaultCountry as never);
+      return parsed?.isValid() ? parsed.format("E.164") : null;
+    } catch {
+      return null;
     }
   }
 }

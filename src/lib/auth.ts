@@ -1,28 +1,71 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db";
+import { container } from "@/application/container";
+import { userProfiles, customers } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: "pg", // PostgreSQL
+    provider: "pg",
   }),
+
+  // Email verification configuration
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      console.log("[Auth] Sending verification email to:", user.email);
+      console.log("[Auth] Verification URL:", url);
+      try {
+        const emailService = container.getEmailService();
+        await emailService.sendVerificationEmail(
+          user.email,
+          url,
+          user.name || undefined
+        );
+        console.log("[Auth] Verification email sent successfully");
+      } catch (error) {
+        console.error("[Auth] Failed to send verification email:", error);
+      }
+    },
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+  },
+
+  // Email and password auth configuration
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Set to true when email service is ready
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      console.log("[Auth] Sending password reset email to:", user.email);
+      try {
+        const emailService = container.getEmailService();
+        await emailService.sendPasswordResetEmail(
+          user.email,
+          url,
+          user.name || undefined
+        );
+        console.log("[Auth] Password reset email sent successfully");
+      } catch (error) {
+        console.error("[Auth] Failed to send password reset email:", error);
+      }
+    },
   },
+
+  // Extended user fields
   user: {
-    // Extend user model with additional fields
     additionalFields: {
       phone: {
         type: "string",
         required: false,
       },
       birthday: {
-        type: "date",
+        type: "string",
         required: false,
       },
     },
   },
+
+  // Social login providers
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -35,9 +78,49 @@ export const auth = betterAuth({
       enabled: !!process.env.FACEBOOK_CLIENT_ID,
     },
   },
+
+  // Session configuration
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // Update session every 24 hours
+  },
+
+  // Database hooks for custom logic after user creation
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          // Auto-create user_profiles entry with default "customer" role
+          await db
+            .insert(userProfiles)
+            .values({
+              userId: user.id,
+              role: "customer",
+            })
+            .onConflictDoNothing();
+
+          // Auto-create customer by phone (if phone provided)
+          const phone = (user as { phone?: string }).phone;
+          if (phone) {
+            const normalizedPhone = phone.replace(/[\s-]/g, "");
+
+            // Check if customer exists
+            const [existing] = await db
+              .select()
+              .from(customers)
+              .where(eq(customers.phone, normalizedPhone))
+              .limit(1);
+
+            if (!existing) {
+              await db.insert(customers).values({
+                phone: normalizedPhone,
+                preferredName: user.name || null,
+              });
+            }
+          }
+        },
+      },
+    },
   },
 });
 
