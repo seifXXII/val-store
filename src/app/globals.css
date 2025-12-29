@@ -44,6 +44,12 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Val Brand Colors - use as: bg-val-steel, text-val-accent, etc. */
+  --color-val-accent: var(--val-accent);
+  --color-val-accent-light: var(--val-accent-light);
+  --color-val-silver: var(--val-silver);
+  --color-val-steel: var(--val-steel);
 }
 
 :root {
@@ -79,6 +85,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Val Brand - Steel Blue Silver */
+  --val-accent: #94a3b8;
+  --val-accent-light: #cbd5e1;
+  --val-silver: #e2e8f0;
+  --val-steel: #1e293b;
 }
 
 .dark {
@@ -113,6 +125,12 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* Val Brand - Steel Blue Silver (Dark Mode) */
+  --val-accent: #94a3b8;
+  --val-accent-light: #cbd5e1;
+  --val-silver: #e2e8f0;
+  --val-steel: #1e293b;
 }
 
 @layer base {

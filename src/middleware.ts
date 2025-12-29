@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 
 /**
  * Next.js Middleware for Route Protection
@@ -7,51 +6,45 @@ import { auth } from "@/lib/auth";
  * Provides first-line defense for admin routes.
  * This runs at the edge before the page even loads.
  *
- * Note: Role check happens in the layout for full database access.
- * This middleware handles session validation only.
+ * Note: We check for session cookie existence here (fast, no HTTP calls).
+ * Full session validation and role checks happen in tRPC/page layer.
+ *
+ * Public routes: /, /collections/*, /products/* (customer-facing)
+ * Protected routes: /dashboard/*, /orders/* (admin only)
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Admin routes require authentication
-  if (
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/products") ||
-    pathname.startsWith("/orders")
-  ) {
-    try {
-      // Check for session using Better Auth
-      const session = await auth.api.getSession({
-        headers: request.headers,
-      });
+  // Note: /products is PUBLIC (customer product pages)
+  // Admin product management is under /dashboard/products
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/orders")) {
+    // Check for Better Auth session cookie (avoids HTTP call that can deadlock)
+    // Better Auth uses "better-auth.session_token" as the session cookie name
+    const sessionCookie = request.cookies.get("better-auth.session_token");
 
-      // No session = redirect to login
-      if (!session?.user) {
-        const loginUrl = new URL("/login", request.url);
-        loginUrl.searchParams.set("redirect", pathname);
-        loginUrl.searchParams.set("error", "unauthorized");
-        return NextResponse.redirect(loginUrl);
-      }
-
-      // Session exists - allow through (role check happens in layout)
-      return NextResponse.next();
-    } catch {
-      // Auth check failed - redirect to login
+    // No session cookie = redirect to login
+    if (!sessionCookie?.value) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
+      loginUrl.searchParams.set("error", "unauthorized");
       return NextResponse.redirect(loginUrl);
     }
+
+    // Session cookie exists - allow through (full validation in page/tRPC)
+    return NextResponse.next();
   }
 
   return NextResponse.next();
 }
 
 // Configure which routes the middleware applies to
+// /products is now PUBLIC for customer product detail pages
+// Admin product management is under /dashboard/products
 export const config = {
   matcher: [
-    // Admin routes
+    // Admin routes only - EXCLUDE api routes to prevent deadlock
     "/dashboard/:path*",
-    "/products/:path*",
     "/orders/:path*",
   ],
 };

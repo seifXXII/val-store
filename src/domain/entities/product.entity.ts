@@ -5,6 +5,9 @@
  * Contains business logic for pricing, availability, and discounts.
  */
 
+// Gender enum matching database enum
+export type Gender = "men" | "women" | "unisex" | "kids";
+
 export class ProductEntity {
   constructor(
     public readonly id: string,
@@ -19,7 +22,16 @@ export class ProductEntity {
     public readonly isActive: boolean,
     public readonly isFeatured: boolean,
     public readonly createdAt: Date,
-    public readonly updatedAt: Date
+    public readonly updatedAt: Date,
+    // Product detail fields
+    public readonly gender: Gender | null = null,
+    public readonly material: string | null = null,
+    public readonly careInstructions: string | null = null,
+    public readonly metaTitle: string | null = null,
+    public readonly metaDescription: string | null = null,
+    // Audit fields
+    public readonly createdBy: string | null = null,
+    public readonly updatedBy: string | null = null
   ) {}
 
   /**

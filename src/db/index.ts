@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
+import * as relations from "./relations";
 
 // Validate DATABASE_URL environment variable
 if (!process.env.DATABASE_URL) {
@@ -22,7 +23,7 @@ const client = postgres(connectionString, {
 });
 
 // Create Drizzle instance with schema
-export const db = drizzle(client, { schema });
+export const db = drizzle(client, { schema: { ...schema, ...relations } });
 
 // Export the client for potential direct use
 export { client };

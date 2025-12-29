@@ -37,6 +37,7 @@ import { RemoveProductImageUseCase } from "./use-cases/products/remove-product-i
 import { ResendEmailService } from "@/infrastructure/services/resend-email.service";
 import { DrizzleCustomerRepository } from "@/infrastructure/database/repositories/customer.repository";
 import { GetOrCreateCustomerUseCase } from "./use-cases/customers/get-or-create-customer.use-case";
+import { DrizzleSiteConfigRepository } from "@/infrastructure/database/repositories/site-config.repository";
 
 class Container {
   private static instance: Container;
@@ -85,6 +86,9 @@ class Container {
   // Customer dependencies
   private customerRepository?: DrizzleCustomerRepository;
   private getOrCreateCustomerUseCase?: GetOrCreateCustomerUseCase;
+
+  // Site Config dependencies (CMS)
+  private siteConfigRepository?: DrizzleSiteConfigRepository;
 
   private constructor() {}
 
@@ -353,6 +357,14 @@ class Container {
     return this.getOrCreateCustomerUseCase;
   }
 
+  // Site Config Repository (CMS)
+  getSiteConfigRepository(): DrizzleSiteConfigRepository {
+    if (!this.siteConfigRepository) {
+      this.siteConfigRepository = new DrizzleSiteConfigRepository();
+    }
+    return this.siteConfigRepository;
+  }
+
   // Clear all instances (useful for testing)
   clear(): void {
     this.productRepository = undefined;
@@ -369,6 +381,7 @@ class Container {
     this.getDashboardMetricsUseCase = undefined;
     this.getSalesTrendUseCase = undefined;
     this.getRecentOrdersUseCase = undefined;
+    this.siteConfigRepository = undefined;
   }
 }
 

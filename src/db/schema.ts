@@ -11,7 +11,6 @@ import {
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
 
 // ============================================
 // ENUMS
@@ -580,6 +579,142 @@ export const adminNotifications = pgTable(
 );
 
 // ============================================
+// CMS: SITE SETTINGS TABLE
+// ============================================
+
+/**
+ * Core site settings - strongly typed fields for store configuration.
+ * Single row table (singleton pattern).
+ */
+export const siteSettings = pgTable("site_settings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+
+  // Store Identity
+  storeName: varchar("store_name", { length: 255 })
+    .notNull()
+    .default("Val Store"),
+  storeTagline: varchar("store_tagline", { length: 255 }),
+  logoUrl: varchar("logo_url", { length: 500 }),
+  faviconUrl: varchar("favicon_url", { length: 500 }),
+
+  // Contact
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 50 }),
+
+  // Social Links
+  instagramUrl: varchar("instagram_url", { length: 255 }),
+  facebookUrl: varchar("facebook_url", { length: 255 }),
+  twitterUrl: varchar("twitter_url", { length: 255 }),
+  tiktokUrl: varchar("tiktok_url", { length: 255 }),
+
+  // Store Settings
+  currency: varchar("currency", { length: 3 }).notNull().default("USD"),
+  locale: varchar("locale", { length: 10 }).notNull().default("en-US"),
+  timezone: varchar("timezone", { length: 50 }).notNull().default("UTC"),
+
+  // SEO Defaults
+  defaultMetaTitle: varchar("default_meta_title", { length: 255 }),
+  defaultMetaDescription: text("default_meta_description"),
+
+  // Timestamps
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedBy: text("updated_by").references(() => user.id, {
+    onDelete: "set null",
+  }),
+});
+
+// ============================================
+// CMS: CONTENT SECTIONS TABLE
+// ============================================
+
+/**
+ * Flexible content sections with JSON content.
+ * Each section type has one active configuration.
+ * Content is validated via Zod schemas in application layer.
+ */
+export const contentSections = pgTable(
+  "content_sections",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sectionType: varchar("section_type", { length: 50 }).notNull().unique(),
+    content: text("content").notNull(), // JSON stringified, validated by Zod
+    displayOrder: integer("display_order").default(0).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    version: integer("version").default(1).notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    updatedBy: text("updated_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+  },
+  (table) => ({
+    sectionTypeIdx: uniqueIndex("idx_content_sections_type").on(
+      table.sectionType
+    ),
+    isActiveIdx: index("idx_content_sections_is_active").on(table.isActive),
+  })
+);
+
+// ============================================
+// CMS: CONTENT SECTIONS HISTORY TABLE
+// ============================================
+
+/**
+ * Version history for content sections.
+ * Automatically populated when content is updated.
+ * Enables one-click revert to previous versions.
+ */
+export const contentSectionsHistory = pgTable(
+  "content_sections_history",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sectionId: uuid("section_id")
+      .notNull()
+      .references(() => contentSections.id, { onDelete: "cascade" }),
+    sectionType: varchar("section_type", { length: 50 }).notNull(),
+    content: text("content").notNull(), // JSON stringified
+    version: integer("version").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdBy: text("created_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+  },
+  (table) => ({
+    sectionIdIdx: index("idx_content_history_section_id").on(table.sectionId),
+    versionIdx: index("idx_content_history_version").on(table.version),
+  })
+);
+
+// ============================================
+// CMS: FEATURED ITEMS TABLE
+// ============================================
+
+/**
+ * Featured products and categories for homepage sections.
+ * Managed by admin, displayed on storefront.
+ */
+export const featuredItems = pgTable(
+  "featured_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    itemType: varchar("item_type", { length: 20 }).notNull(), // 'product' | 'category'
+    itemId: uuid("item_id").notNull(), // References products.id or categories.id
+    section: varchar("section", { length: 50 }).notNull(), // 'homepage_featured', 'homepage_new_arrivals', etc.
+    displayOrder: integer("display_order").default(0).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    sectionIdx: index("idx_featured_section").on(
+      table.section,
+      table.isActive,
+      table.displayOrder
+    ),
+    itemIdx: index("idx_featured_item").on(table.itemType, table.itemId),
+  })
+);
+
+// ============================================
 // TYPE EXPORTS
 // ============================================
 
@@ -628,18 +763,22 @@ export type NewInventoryLog = typeof inventoryLogs.$inferInsert;
 export type AdminNotification = typeof adminNotifications.$inferSelect;
 export type NewAdminNotification = typeof adminNotifications.$inferInsert;
 
+// CMS Types
+export type SiteSettings = typeof siteSettings.$inferSelect;
+export type NewSiteSettings = typeof siteSettings.$inferInsert;
+
+export type ContentSection = typeof contentSections.$inferSelect;
+export type NewContentSection = typeof contentSections.$inferInsert;
+
+export type ContentSectionHistory = typeof contentSectionsHistory.$inferSelect;
+export type NewContentSectionHistory =
+  typeof contentSectionsHistory.$inferInsert;
+
+export type FeaturedItem = typeof featuredItems.$inferSelect;
+export type NewFeaturedItem = typeof featuredItems.$inferInsert;
+
 // ============================================
 // RELATIONS (for self-referencing and complex joins)
 // ============================================
 
-// Category relations - handles parent/child hierarchy
-export const categoryRelations = relations(categories, ({ one, many }) => ({
-  parent: one(categories, {
-    fields: [categories.parentId],
-    references: [categories.id],
-    relationName: "categoryHierarchy",
-  }),
-  children: many(categories, {
-    relationName: "categoryHierarchy",
-  }),
-}));
+// Moved to src/db/relations.ts to avoid circular initialization issues

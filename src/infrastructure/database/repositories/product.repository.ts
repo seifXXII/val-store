@@ -139,6 +139,11 @@ export class DrizzleProductRepository implements ProductRepositoryInterface {
         salePrice: product.salePrice?.toString() || null,
         isActive: product.isActive,
         isFeatured: product.isFeatured,
+        gender: product.gender as "men" | "women" | "unisex" | "kids" | null,
+        material: product.material,
+        careInstructions: product.careInstructions,
+        metaTitle: product.metaTitle,
+        metaDescription: product.metaDescription,
       })
       .returning();
 
@@ -165,6 +170,11 @@ export class DrizzleProductRepository implements ProductRepositoryInterface {
         salePrice: product.salePrice?.toString() || null,
         isActive: product.isActive,
         isFeatured: product.isFeatured,
+        gender: product.gender as "men" | "women" | "unisex" | "kids" | null,
+        material: product.material,
+        careInstructions: product.careInstructions,
+        metaTitle: product.metaTitle,
+        metaDescription: product.metaDescription,
         updatedAt: new Date(),
       })
       .where(eq(products.id, product.id))
@@ -297,6 +307,11 @@ export class DrizzleProductRepository implements ProductRepositoryInterface {
     isFeatured: boolean;
     createdAt: Date;
     updatedAt: Date;
+    gender?: string | null;
+    material?: string | null;
+    careInstructions?: string | null;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
     variants?: { stockQuantity: number | null }[];
     images?: { imageUrl: string }[];
   }): ProductEntity {
@@ -321,7 +336,14 @@ export class DrizzleProductRepository implements ProductRepositoryInterface {
       dbProduct.isActive,
       dbProduct.isFeatured,
       new Date(dbProduct.createdAt),
-      new Date(dbProduct.updatedAt)
+      new Date(dbProduct.updatedAt),
+      // Product detail fields
+      dbProduct.gender as "men" | "women" | "unisex" | "kids" | null,
+      dbProduct.material ?? null,
+      dbProduct.careInstructions ?? null,
+      dbProduct.metaTitle ?? null,
+      dbProduct.metaDescription ?? null
+      // Note: createdBy and updatedBy would need to be added to schema
     );
   }
 }

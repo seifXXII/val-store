@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { TRPCProvider } from "@/components/providers/trpc-provider";
-import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,6 +17,10 @@ export const metadata: Metadata = {
   description: "Your premier destination for quality clothing",
 };
 
+/**
+ * TEMPORARY: Simplified root layout for debugging
+ * Removed: TRPCProvider, AnnouncementBar, Navbar, Toaster
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,10 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
       >
-        <TRPCProvider>{children}</TRPCProvider>
-        <Toaster />
+        {children}
       </body>
     </html>
   );
