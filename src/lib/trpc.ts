@@ -1,4 +1,4 @@
-import { httpBatchLink } from "@trpc/client";
+import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import type { AppRouter } from "@/server";
 
@@ -19,6 +19,16 @@ export function getTRPCUrl() {
 }
 
 export const trpcClient = trpc.createClient({
+  links: [
+    httpBatchLink({
+      url: getTRPCUrl(),
+    }),
+  ],
+});
+
+// Vanilla client for imperative queries (not hooks)
+// Use this when you need to call tRPC outside of React Query hooks
+export const vanillaTrpc = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
       url: getTRPCUrl(),

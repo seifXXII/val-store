@@ -73,4 +73,19 @@ export interface ProductRepositoryInterface {
    * Check if a product slug exists
    */
   existsBySlug(slug: string): Promise<boolean>;
+
+  /**
+   * Check if a SKU exists
+   */
+  existsBySKU(sku: string): Promise<boolean>;
+
+  /**
+   * Toggle product active status
+   */
+  toggleStatus(productId: string): Promise<ProductEntity>;
+
+  /**
+   * Get products count
+   */
+  count(filters?: ProductFilters): Promise<number>;
 }

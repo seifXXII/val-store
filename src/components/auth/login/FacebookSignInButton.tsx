@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export function FacebookSignInButton() {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   const handleFacebookSignIn = async () => {
     setIsLoading(true);
@@ -17,11 +16,7 @@ export function FacebookSignInButton() {
         callbackURL: "/",
       });
     } catch {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to sign in with Facebook",
-      });
+      toast.error("Failed to sign in with Facebook");
       setIsLoading(false);
     }
   };

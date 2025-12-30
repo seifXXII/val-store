@@ -1,4 +1,5 @@
-import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { ServerAnnouncementBar } from "@/components/layout/ServerAnnouncementBar";
 
 export default function MainLayout({
   children,
@@ -7,8 +8,9 @@ export default function MainLayout({
 }) {
   return (
     <>
-      <Navbar />
-      {children}
+      <ServerAnnouncementBar />
+      <main className="min-h-screen">{children}</main>
+      <Footer />
     </>
   );
 }

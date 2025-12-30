@@ -1,29 +1,34 @@
 /**
  * UserProfile Entity
  *
- * Extends Better Auth's user table with e-commerce specific fields.
- * Manages user roles (Admin, Worker, Customer) for access control.
+ * Extends Better Auth's user table with role information.
+ * Phone is stored in the `user` table (Better Auth) and `customers` table.
+ * Addresses are stored in the `addresses` table.
  */
 
-export type UserRole = "customer" | "worker" | "admin";
+export type UserRole = "customer" | "worker" | "admin" | "super_admin";
 
 export class UserProfileEntity {
   constructor(
     public readonly id: string,
     public readonly userId: string, // FK to Better Auth user.id
     public readonly role: UserRole,
-    public readonly phone: string | null,
-    public readonly shippingAddress: string | null,
-    public readonly billingAddress: string | null,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {}
 
   /**
-   * Check if user is an admin
+   * Check if user is an admin (admin or super_admin)
    */
   isAdmin(): boolean {
-    return this.role === "admin";
+    return this.role === "admin" || this.role === "super_admin";
+  }
+
+  /**
+   * Check if user is a super admin
+   */
+  isSuperAdmin(): boolean {
+    return this.role === "super_admin";
   }
 
   /**
@@ -41,30 +46,23 @@ export class UserProfileEntity {
   }
 
   /**
-   * Check if user can access admin panel
+   * Check if user can access admin panel (admin, super_admin, or worker)
    */
   canAccessAdminPanel(): boolean {
     return this.isAdmin() || this.isWorker();
   }
 
   /**
-   * Check if user can process payments (admin and worker)
+   * Check if user can manage products (admin or super_admin only)
    */
-  canProcessPayments(): boolean {
-    return this.canAccessAdminPanel();
+  canManageProducts(): boolean {
+    return this.isAdmin();
   }
 
   /**
-   * Check if profile has complete shipping information
+   * Check if user can manage users (super_admin only)
    */
-  hasCompleteShippingInfo(): boolean {
-    return this.phone !== null && this.shippingAddress !== null;
-  }
-
-  /**
-   * Check if user can checkout
-   */
-  canCheckout(): boolean {
-    return this.hasCompleteShippingInfo();
+  canManageUsers(): boolean {
+    return this.isSuperAdmin();
   }
 }

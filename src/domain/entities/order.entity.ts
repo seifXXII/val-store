@@ -45,7 +45,13 @@ export class OrderEntity {
    * Check if order has been paid
    */
   isPaid(): boolean {
-    return this.paidAt !== null || this.status === "paid";
+    return (
+      this.paidAt !== null ||
+      this.status === "paid" ||
+      this.status === "processing" ||
+      this.status === "shipped" ||
+      this.status === "delivered"
+    );
   }
 
   /**

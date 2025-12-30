@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export function GoogleSignInButton() {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
@@ -17,11 +16,7 @@ export function GoogleSignInButton() {
         callbackURL: "/",
       });
     } catch {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to sign in with Google",
-      });
+      toast.error("Failed to sign in with Google");
       setIsLoading(false);
     }
   };
