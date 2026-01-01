@@ -38,6 +38,26 @@ import { ResendEmailService } from "@/infrastructure/services/resend-email.servi
 import { DrizzleCustomerRepository } from "@/infrastructure/database/repositories/customer.repository";
 import { GetOrCreateCustomerUseCase } from "./use-cases/customers/get-or-create-customer.use-case";
 import { DrizzleSiteConfigRepository } from "@/infrastructure/database/repositories/site-config.repository";
+import { DrizzleCartRepository } from "@/infrastructure/database/repositories/cart.repository";
+import { AddToCartUseCase } from "./use-cases/cart/add-to-cart.use-case";
+import { GetCartUseCase } from "./use-cases/cart/get-cart.use-case";
+import { UpdateCartItemUseCase } from "./use-cases/cart/update-cart-item.use-case";
+import { RemoveCartItemUseCase } from "./use-cases/cart/remove-cart-item.use-case";
+import { ClearCartUseCase } from "./use-cases/cart/clear-cart.use-case";
+import { CreateCheckoutSessionUseCase } from "./use-cases/checkout/create-checkout-session.use-case";
+import { DrizzleWishlistRepository } from "@/infrastructure/database/repositories/wishlist.repository";
+import { AddToWishlistUseCase } from "./use-cases/wishlist/add-to-wishlist.use-case";
+import { RemoveFromWishlistUseCase } from "./use-cases/wishlist/remove-from-wishlist.use-case";
+import { GetWishlistUseCase } from "./use-cases/wishlist/get-wishlist.use-case";
+import { CheckWishlistStatusUseCase } from "./use-cases/wishlist/check-wishlist-status.use-case";
+import { DrizzleAddressRepository } from "@/infrastructure/database/repositories/address.repository";
+import {
+  GetUserAddressesUseCase,
+  CreateAddressUseCase,
+  UpdateAddressUseCase,
+  DeleteAddressUseCase,
+  SetDefaultAddressUseCase,
+} from "./use-cases/address/address.use-cases";
 
 class Container {
   private static instance: Container;
@@ -89,6 +109,32 @@ class Container {
 
   // Site Config dependencies (CMS)
   private siteConfigRepository?: DrizzleSiteConfigRepository;
+
+  // Cart dependencies
+  private cartRepository?: DrizzleCartRepository;
+  private addToCartUseCase?: AddToCartUseCase;
+  private getCartUseCase?: GetCartUseCase;
+  private updateCartItemUseCase?: UpdateCartItemUseCase;
+  private removeCartItemUseCase?: RemoveCartItemUseCase;
+  private clearCartUseCase?: ClearCartUseCase;
+
+  // Checkout dependencies
+  private createCheckoutSessionUseCase?: CreateCheckoutSessionUseCase;
+
+  // Wishlist dependencies
+  private wishlistRepository?: DrizzleWishlistRepository;
+  private addToWishlistUseCase?: AddToWishlistUseCase;
+  private removeFromWishlistUseCase?: RemoveFromWishlistUseCase;
+  private getWishlistUseCase?: GetWishlistUseCase;
+  private checkWishlistStatusUseCase?: CheckWishlistStatusUseCase;
+
+  // Address dependencies
+  private addressRepository?: DrizzleAddressRepository;
+  private getUserAddressesUseCase?: GetUserAddressesUseCase;
+  private createAddressUseCase?: CreateAddressUseCase;
+  private updateAddressUseCase?: UpdateAddressUseCase;
+  private deleteAddressUseCase?: DeleteAddressUseCase;
+  private setDefaultAddressUseCase?: SetDefaultAddressUseCase;
 
   private constructor() {}
 
@@ -363,6 +409,161 @@ class Container {
       this.siteConfigRepository = new DrizzleSiteConfigRepository();
     }
     return this.siteConfigRepository;
+  }
+
+  // Cart Repository
+  getCartRepository(): DrizzleCartRepository {
+    if (!this.cartRepository) {
+      this.cartRepository = new DrizzleCartRepository();
+    }
+    return this.cartRepository;
+  }
+
+  // Cart Use Cases
+  getAddToCartUseCase(): AddToCartUseCase {
+    if (!this.addToCartUseCase) {
+      this.addToCartUseCase = new AddToCartUseCase(this.getCartRepository());
+    }
+    return this.addToCartUseCase;
+  }
+
+  getGetCartUseCase(): GetCartUseCase {
+    if (!this.getCartUseCase) {
+      this.getCartUseCase = new GetCartUseCase(this.getCartRepository());
+    }
+    return this.getCartUseCase;
+  }
+
+  getUpdateCartItemUseCase(): UpdateCartItemUseCase {
+    if (!this.updateCartItemUseCase) {
+      this.updateCartItemUseCase = new UpdateCartItemUseCase(
+        this.getCartRepository()
+      );
+    }
+    return this.updateCartItemUseCase;
+  }
+
+  getRemoveCartItemUseCase(): RemoveCartItemUseCase {
+    if (!this.removeCartItemUseCase) {
+      this.removeCartItemUseCase = new RemoveCartItemUseCase(
+        this.getCartRepository()
+      );
+    }
+    return this.removeCartItemUseCase;
+  }
+
+  getClearCartUseCase(): ClearCartUseCase {
+    if (!this.clearCartUseCase) {
+      this.clearCartUseCase = new ClearCartUseCase(this.getCartRepository());
+    }
+    return this.clearCartUseCase;
+  }
+
+  // Checkout Use Cases
+  getCreateCheckoutSessionUseCase(): CreateCheckoutSessionUseCase {
+    if (!this.createCheckoutSessionUseCase) {
+      this.createCheckoutSessionUseCase = new CreateCheckoutSessionUseCase(
+        this.getCartRepository()
+      );
+    }
+    return this.createCheckoutSessionUseCase;
+  }
+
+  // Wishlist Dependencies
+  getWishlistRepository(): DrizzleWishlistRepository {
+    if (!this.wishlistRepository) {
+      this.wishlistRepository = new DrizzleWishlistRepository();
+    }
+    return this.wishlistRepository;
+  }
+
+  getAddToWishlistUseCase(): AddToWishlistUseCase {
+    if (!this.addToWishlistUseCase) {
+      this.addToWishlistUseCase = new AddToWishlistUseCase(
+        this.getWishlistRepository()
+      );
+    }
+    return this.addToWishlistUseCase;
+  }
+
+  getRemoveFromWishlistUseCase(): RemoveFromWishlistUseCase {
+    if (!this.removeFromWishlistUseCase) {
+      this.removeFromWishlistUseCase = new RemoveFromWishlistUseCase(
+        this.getWishlistRepository()
+      );
+    }
+    return this.removeFromWishlistUseCase;
+  }
+
+  getGetWishlistUseCase(): GetWishlistUseCase {
+    if (!this.getWishlistUseCase) {
+      this.getWishlistUseCase = new GetWishlistUseCase(
+        this.getWishlistRepository()
+      );
+    }
+    return this.getWishlistUseCase;
+  }
+
+  getCheckWishlistStatusUseCase(): CheckWishlistStatusUseCase {
+    if (!this.checkWishlistStatusUseCase) {
+      this.checkWishlistStatusUseCase = new CheckWishlistStatusUseCase(
+        this.getWishlistRepository()
+      );
+    }
+    return this.checkWishlistStatusUseCase;
+  }
+
+  // Address Dependencies
+  getAddressRepository(): DrizzleAddressRepository {
+    if (!this.addressRepository) {
+      this.addressRepository = new DrizzleAddressRepository();
+    }
+    return this.addressRepository;
+  }
+
+  getGetUserAddressesUseCase(): GetUserAddressesUseCase {
+    if (!this.getUserAddressesUseCase) {
+      this.getUserAddressesUseCase = new GetUserAddressesUseCase(
+        this.getAddressRepository()
+      );
+    }
+    return this.getUserAddressesUseCase;
+  }
+
+  getCreateAddressUseCase(): CreateAddressUseCase {
+    if (!this.createAddressUseCase) {
+      this.createAddressUseCase = new CreateAddressUseCase(
+        this.getAddressRepository()
+      );
+    }
+    return this.createAddressUseCase;
+  }
+
+  getUpdateAddressUseCase(): UpdateAddressUseCase {
+    if (!this.updateAddressUseCase) {
+      this.updateAddressUseCase = new UpdateAddressUseCase(
+        this.getAddressRepository()
+      );
+    }
+    return this.updateAddressUseCase;
+  }
+
+  getDeleteAddressUseCase(): DeleteAddressUseCase {
+    if (!this.deleteAddressUseCase) {
+      this.deleteAddressUseCase = new DeleteAddressUseCase(
+        this.getAddressRepository()
+      );
+    }
+    return this.deleteAddressUseCase;
+  }
+
+  getSetDefaultAddressUseCase(): SetDefaultAddressUseCase {
+    if (!this.setDefaultAddressUseCase) {
+      this.setDefaultAddressUseCase = new SetDefaultAddressUseCase(
+        this.getAddressRepository()
+      );
+    }
+    return this.setDefaultAddressUseCase;
   }
 
   // Clear all instances (useful for testing)

@@ -95,6 +95,12 @@ importers:
       "@radix-ui/react-tooltip":
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      "@stripe/react-stripe-js":
+        specifier: ^5.4.1
+        version: 5.4.1(@stripe/stripe-js@8.6.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      "@stripe/stripe-js":
+        specifier: ^8.6.0
+        version: 8.6.0
       "@tanstack/react-query":
         specifier: ^5.90.12
         version: 5.90.12(react@19.2.1)
@@ -182,6 +188,9 @@ importers:
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      stripe:
+        specifier: ^20.1.0
+        version: 20.1.0(@types/node@20.19.26)
       tailwind-merge:
         specifier: ^3.4.0
         version: 3.4.0
@@ -194,6 +203,9 @@ importers:
       zod:
         specifier: ^4.1.13
         version: 4.1.13
+      zustand:
+        specifier: ^5.0.9
+        version: 5.0.9(@types/react@19.2.7)(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1))
     devDependencies:
       "@commitlint/cli":
         specifier: ^20.2.0
@@ -2470,6 +2482,23 @@ packages:
       {
         integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==,
       }
+
+  "@stripe/react-stripe-js@5.4.1":
+    resolution:
+      {
+        integrity: sha512-ipeYcAHa4EPmjwfv0lFE+YDVkOQ0TMKkFWamW+BqmnSkEln/hO8rmxGPPWcd9WjqABx6Ro8Xg4pAS7evCcR9cw==,
+      }
+    peerDependencies:
+      "@stripe/stripe-js": ">=8.0.0 <9.0.0"
+      react: ">=16.8.0 <20.0.0"
+      react-dom: ">=16.8.0 <20.0.0"
+
+  "@stripe/stripe-js@8.6.0":
+    resolution:
+      {
+        integrity: sha512-EB0/GGgs4hfezzkiMkinlRgWtjz8fSdwVQhwYS7Sg/RQrSvuNOz+ssPjD+lAzqaYTCB0zlbrt0fcqVziLJrufQ==,
+      }
+    engines: { node: ">=12.16" }
 
   "@swc/helpers@0.5.15":
     resolution:
@@ -5671,6 +5700,13 @@ packages:
         integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==,
       }
 
+  qs@6.14.1:
+    resolution:
+      {
+        integrity: sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==,
+      }
+    engines: { node: ">=0.6" }
+
   querystringify@2.2.0:
     resolution:
       {
@@ -6207,6 +6243,18 @@ packages:
       }
     engines: { node: ">=8" }
 
+  stripe@20.1.0:
+    resolution:
+      {
+        integrity: sha512-o1VNRuMkY76ZCq92U3EH3/XHm/WHp7AerpzDs4Zyo8uE5mFL4QUcv/2SudWsSnhBSp4moO2+ZoGCZ7mT8crPmQ==,
+      }
+    engines: { node: ">=16" }
+    peerDependencies:
+      "@types/node": ">=16"
+    peerDependenciesMeta:
+      "@types/node":
+        optional: true
+
   styled-jsx@5.1.6:
     resolution:
       {
@@ -6637,6 +6685,27 @@ packages:
       {
         integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==,
       }
+
+  zustand@5.0.9:
+    resolution:
+      {
+        integrity: sha512-ALBtUj0AfjJt3uNRQoL1tL2tMvj6Gp/6e39dnfT6uzpelGru8v1tPOGBzayOWbPJvujM8JojDk3E1LxeFisBNg==,
+      }
+    engines: { node: ">=12.20.0" }
+    peerDependencies:
+      "@types/react": ">=18.0.0"
+      immer: ">=9.0.6"
+      react: ">=18.0.0"
+      use-sync-external-store: ">=1.2.0"
+    peerDependenciesMeta:
+      "@types/react":
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
 
 snapshots:
   "@alloc/quick-lru@5.2.0": {}
@@ -8042,6 +8111,15 @@ snapshots:
   "@standard-schema/spec@1.0.0-beta.4": {}
 
   "@standard-schema/utils@0.3.0": {}
+
+  "@stripe/react-stripe-js@5.4.1(@stripe/stripe-js@8.6.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)":
+    dependencies:
+      "@stripe/stripe-js": 8.6.0
+      prop-types: 15.8.1
+      react: 19.2.1
+      react-dom: 19.2.1(react@19.2.1)
+
+  "@stripe/stripe-js@8.6.0": {}
 
   "@swc/helpers@0.5.15":
     dependencies:
@@ -9988,6 +10066,10 @@ snapshots:
 
   pure-rand@6.1.0: {}
 
+  qs@6.14.1:
+    dependencies:
+      side-channel: 1.1.0
+
   querystringify@2.2.0: {}
 
   queue-microtask@1.2.3: {}
@@ -10371,6 +10453,12 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
+  stripe@20.1.0(@types/node@20.19.26):
+    dependencies:
+      qs: 6.14.1
+    optionalDependencies:
+      "@types/node": 20.19.26
+
   styled-jsx@5.1.6(@babel/core@7.28.5)(react@19.2.1):
     dependencies:
       client-only: 0.0.1
@@ -10682,3 +10770,9 @@ snapshots:
       zod: 4.1.13
 
   zod@4.1.13: {}
+
+  zustand@5.0.9(@types/react@19.2.7)(react@19.2.1)(use-sync-external-store@1.6.0(react@19.2.1)):
+    optionalDependencies:
+      "@types/react": 19.2.7
+      react: 19.2.1
+      use-sync-external-store: 1.6.0(react@19.2.1)

@@ -2,8 +2,18 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { X, Search, User } from "lucide-react";
-import { Instagram, Facebook, Twitter } from "lucide-react";
+import {
+  X,
+  Search,
+  User,
+  LogIn,
+  LogOut,
+  Instagram,
+  Facebook,
+  Twitter,
+} from "lucide-react";
+import { signOut } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 interface NavLink {
   label: string;
@@ -14,7 +24,8 @@ interface NavLink {
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  navLinks: NavLink[];
+  navLinks?: NavLink[];
+  isLoggedIn?: boolean;
 }
 
 const shopCategories = [
@@ -43,7 +54,9 @@ const socialLinks = [
 export function MobileMenu({
   isOpen,
   onClose,
+  isLoggedIn = false,
 }: Omit<MobileMenuProps, "navLinks">) {
+  const router = useRouter();
   // Prevent body scroll when menu is open
   useEffect(() => {
     if (isOpen) {
@@ -157,14 +170,43 @@ export function MobileMenu({
             <Search className="h-5 w-5" />
             <span>Search</span>
           </Link>
-          <Link
-            href="/account"
-            className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
-            onClick={onClose}
-          >
-            <User className="h-5 w-5" />
-            <span>Account</span>
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <Link
+                href="/account"
+                className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors"
+                onClick={onClose}
+              >
+                <User className="h-5 w-5" />
+                <span>My Account</span>
+              </Link>
+              <button
+                onClick={async () => {
+                  await signOut({
+                    fetchOptions: {
+                      onSuccess: () => {
+                        onClose();
+                        router.push("/login");
+                      },
+                    },
+                  });
+                }}
+                className="flex items-center gap-3 text-gray-400 hover:text-red-400 transition-colors w-full"
+              >
+                <LogOut className="h-5 w-5" />
+                <span>Sign Out</span>
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center gap-3 text-gray-400 hover:text-val-accent transition-colors"
+              onClick={onClose}
+            >
+              <LogIn className="h-5 w-5" />
+              <span>Sign In</span>
+            </Link>
+          )}
         </div>
 
         {/* Social links */}

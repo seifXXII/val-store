@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ShoppingCart, User, Search, Menu } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, LogIn } from "lucide-react";
 import { MobileMenu } from "./MobileMenu";
+import { useSession } from "@/lib/auth-client";
+import { useCartStore } from "@/lib/stores/cart-store";
 
 const navLinks = [
   { label: "Shop", href: "/collections/all" },
@@ -14,6 +16,11 @@ const navLinks = [
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: session, isPending } = useSession();
+  const { openCart, getItemCount } = useCartStore();
+
+  const isLoggedIn = !!session?.user;
+  const itemCount = getItemCount();
 
   return (
     <>
@@ -34,7 +41,7 @@ export function Navbar() {
             </div>
 
             {/* Center: Logo */}
-            <Link href="/" className="flex-shrink-0">
+            <Link href="/" className="shrink-0">
               <span className="text-xl sm:text-2xl md:text-3xl font-bold tracking-widest text-white hover:text-val-accent transition-colors">
                 VAL
               </span>
@@ -48,34 +55,57 @@ export function Navbar() {
               >
                 <Search className="h-5 w-5" />
               </button>
-              <Link
-                href="/account"
-                className="text-gray-300 hover:text-val-accent transition-colors"
-              >
-                <User className="h-5 w-5" />
-              </Link>
-              <Link
-                href="/cart"
+
+              {/* Auth state */}
+              {isPending ? (
+                <div className="w-5 h-5 rounded-full bg-gray-700 animate-pulse" />
+              ) : isLoggedIn ? (
+                <Link
+                  href="/account"
+                  className="text-gray-300 hover:text-val-accent transition-colors"
+                  title={session.user.email}
+                >
+                  <User className="h-5 w-5" />
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="text-gray-300 hover:text-val-accent transition-colors flex items-center gap-1 text-sm"
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span className="hidden lg:inline">Sign In</span>
+                </Link>
+              )}
+
+              {/* Cart Button */}
+              <button
+                onClick={openCart}
                 className="text-gray-300 hover:text-val-accent transition-colors relative"
+                aria-label="Open cart"
               >
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-2 -right-2 bg-val-accent text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                  0
-                </span>
-              </Link>
+                {itemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-val-accent text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                    {itemCount > 99 ? "99+" : itemCount}
+                  </span>
+                )}
+              </button>
             </div>
 
             {/* Mobile: Cart + Menu */}
             <div className="flex md:hidden items-center gap-4">
-              <Link
-                href="/cart"
+              <button
+                onClick={openCart}
                 className="text-gray-300 hover:text-val-accent transition-colors relative"
+                aria-label="Open cart"
               >
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-2 -right-2 bg-val-accent text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                  0
-                </span>
-              </Link>
+                {itemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-val-accent text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                    {itemCount > 99 ? "99+" : itemCount}
+                  </span>
+                )}
+              </button>
               <button
                 className="text-gray-300 hover:text-val-accent transition-colors"
                 onClick={() => setIsMobileMenuOpen(true)}
@@ -91,6 +121,7 @@ export function Navbar() {
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
+        isLoggedIn={isLoggedIn}
       />
     </>
   );

@@ -1,0 +1,125 @@
+"use client";
+
+/**
+ * Wishlist Button
+ *
+ * Heart icon button to toggle wishlist status.
+ */
+
+import { Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { trpc } from "@/lib/trpc";
+import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+interface WishlistButtonProps {
+  productId: string;
+  variant?: "default" | "ghost" | "outline" | "secondary";
+  className?: string;
+}
+
+export function WishlistButton({
+  productId,
+  variant = "ghost",
+  className,
+}: WishlistButtonProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const utils = trpc.useUtils();
+
+  // Check status
+  const { data: isInWishlist } = trpc.public.wishlist.checkStatus.useQuery(
+    { productId },
+    {
+      enabled: !!session?.user,
+      initialData: false,
+    }
+  );
+
+  const addMutation = trpc.public.wishlist.addToWishlist.useMutation({
+    onMutate: async () => {
+      await utils.public.wishlist.checkStatus.cancel({ productId });
+      const previousStatus = utils.public.wishlist.checkStatus.getData({
+        productId,
+      });
+      utils.public.wishlist.checkStatus.setData({ productId }, true);
+      return { previousStatus };
+    },
+    onSuccess: () => {
+      utils.public.wishlist.getMyWishlist.invalidate();
+      toast("Added to wishlist");
+    },
+    onError: (err, newTodo, context) => {
+      utils.public.wishlist.checkStatus.setData(
+        { productId },
+        context?.previousStatus ?? false
+      );
+      toast.error("Failed to add to wishlist");
+    },
+    onSettled: () => {
+      utils.public.wishlist.checkStatus.invalidate({ productId });
+    },
+  });
+
+  const removeMutation = trpc.public.wishlist.removeFromWishlist.useMutation({
+    onMutate: async () => {
+      await utils.public.wishlist.checkStatus.cancel({ productId });
+      const previousStatus = utils.public.wishlist.checkStatus.getData({
+        productId,
+      });
+      utils.public.wishlist.checkStatus.setData({ productId }, false);
+      return { previousStatus };
+    },
+    onSuccess: () => {
+      utils.public.wishlist.getMyWishlist.invalidate();
+      toast("Removed from wishlist");
+    },
+    onError: (err, newTodo, context) => {
+      utils.public.wishlist.checkStatus.setData(
+        { productId },
+        context?.previousStatus ?? true
+      );
+      toast.error("Failed to remove from wishlist");
+    },
+    onSettled: () => {
+      utils.public.wishlist.checkStatus.invalidate({ productId });
+    },
+  });
+
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!session?.user) {
+      router.push(`/auth/login?callbackUrl=${window.location.pathname}`);
+      return;
+    }
+
+    if (isInWishlist) {
+      removeMutation.mutate({ productId });
+    } else {
+      addMutation.mutate({ productId });
+    }
+  };
+
+  return (
+    <Button
+      variant={variant}
+      size="icon"
+      className={cn("rounded-full", className)}
+      onClick={handleToggle}
+    >
+      <Heart
+        className={cn(
+          "h-5 w-5 transition-colors",
+          isInWishlist ? "fill-red-500 text-red-500" : "text-muted-foreground"
+        )}
+      />
+      <span className="sr-only">
+        {isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+      </span>
+    </Button>
+  );
+}

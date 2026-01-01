@@ -1,0 +1,92 @@
+/**
+ * Address Router
+ *
+ * tRPC router for address operations.
+ */
+
+import { z } from "zod";
+import { router, protectedProcedure } from "../../trpc";
+import { container } from "@/application/container";
+
+const addressSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  street: z.string().min(1, "Street address is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  zipCode: z.string().min(1, "ZIP code is required"),
+  country: z.string().min(1, "Country is required"),
+});
+
+export const addressRouter = router({
+  list: protectedProcedure.query(async ({ ctx }) => {
+    const useCase = container.getGetUserAddressesUseCase();
+    const addresses = await useCase.execute(ctx.user.id);
+    // Map DB fields to UI fields if necessary, currently they match roughly
+    // DB: addressLine1, addressLine2, postalCode, fullName
+    // UI expects: street, zipCode, name
+    return addresses.map((addr) => ({
+      id: addr.id,
+      name: addr.fullName,
+      street: addr.addressLine1,
+      city: addr.city,
+      state: addr.state,
+      zipCode: addr.postalCode,
+      country: addr.country,
+      isDefault: addr.isDefault,
+    }));
+  }),
+
+  create: protectedProcedure
+    .input(addressSchema)
+    .mutation(async ({ ctx, input }) => {
+      const useCase = container.getCreateAddressUseCase();
+      await useCase.execute({
+        userId: ctx.user.id,
+        fullName: input.name,
+        addressLine1: input.street,
+        city: input.city,
+        state: input.state,
+        postalCode: input.zipCode,
+        country: input.country,
+        phone: "", // TODO: Add phone to UI form
+        addressType: "shipping",
+      });
+      return { success: true };
+    }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        data: addressSchema,
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const useCase = container.getUpdateAddressUseCase();
+      await useCase.execute(input.id, ctx.user.id, {
+        fullName: input.data.name,
+        addressLine1: input.data.street,
+        city: input.data.city,
+        state: input.data.state,
+        postalCode: input.data.zipCode,
+        country: input.data.country,
+      });
+      return { success: true };
+    }),
+
+  delete: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const useCase = container.getDeleteAddressUseCase();
+      await useCase.execute(input.id, ctx.user.id);
+      return { success: true };
+    }),
+
+  setDefault: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const useCase = container.getSetDefaultAddressUseCase();
+      await useCase.execute(ctx.user.id, input.id);
+      return { success: true };
+    }),
+});

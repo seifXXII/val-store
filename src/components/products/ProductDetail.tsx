@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   ChevronLeft,
-  Heart,
   Minus,
   Plus,
   Share2,
@@ -14,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { WishlistButton } from "@/components/products/WishlistButton";
 
 interface ProductDetailProps {
   product: {
@@ -38,7 +38,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
     product.colors?.[0]?.name || null
   );
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -72,9 +71,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
           {/* Image Gallery */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="relative aspect-[3/4] bg-val-steel overflow-hidden">
+            <div className="relative aspect-3/4 bg-val-steel overflow-hidden">
               {/* Placeholder gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900" />
+              <div className="absolute inset-0 bg-linear-to-br from-gray-700 via-gray-800 to-gray-900" />
 
               {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
@@ -86,19 +85,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
               {/* Wishlist & Share */}
               <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
-                <button
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  className={`p-2 rounded-full bg-black/50 transition-colors ${
-                    isWishlisted
-                      ? "text-red-500"
-                      : "text-white hover:text-val-accent"
-                  }`}
-                  aria-label="Add to wishlist"
-                >
-                  <Heart
-                    className={`h-5 w-5 ${isWishlisted ? "fill-current" : ""}`}
-                  />
-                </button>
+                <WishlistButton
+                  productId={product.id}
+                  className="bg-black/50 text-white hover:text-val-accent"
+                />
                 <button
                   className="p-2 rounded-full bg-black/50 text-white hover:text-val-accent transition-colors"
                   aria-label="Share"
@@ -113,7 +103,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="aspect-square bg-gradient-to-br from-gray-700 to-gray-800 cursor-pointer opacity-70 hover:opacity-100 transition-opacity"
+                  className="aspect-square bg-linear-to-br from-gray-700 to-gray-800 cursor-pointer opacity-70 hover:opacity-100 transition-opacity"
                 />
               ))}
             </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { WishlistButton } from "@/components/products/WishlistButton";
 
 export interface ProductCardProps {
   id: string;
@@ -17,6 +17,7 @@ export interface ProductCardProps {
 }
 
 export function ProductCard({
+  id,
   name,
   slug,
   price,
@@ -31,12 +32,12 @@ export function ProductCard({
     <div className="group relative">
       {/* Image Container */}
       <Link href={`/products/${slug}`} className="block">
-        <div className="relative aspect-[3/4] overflow-hidden bg-val-steel">
+        <div className="relative aspect-3/4 overflow-hidden bg-val-steel">
           {/* Primary Image (placeholder gradient) */}
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 transition-opacity duration-300 group-hover:opacity-0" />
+          <div className="absolute inset-0 bg-linear-to-br from-gray-700 via-gray-800 to-gray-900 transition-opacity duration-300 group-hover:opacity-0" />
 
           {/* Secondary Image (placeholder gradient - slightly different) */}
-          <div className="absolute inset-0 bg-gradient-to-tl from-gray-600 via-gray-700 to-gray-800 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="absolute inset-0 bg-linear-to-tl from-gray-600 via-gray-700 to-gray-800 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
@@ -53,12 +54,12 @@ export function ProductCard({
           </div>
 
           {/* Wishlist Button */}
-          <button
-            className="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-val-accent z-10"
-            aria-label="Add to wishlist"
-          >
-            <Heart className="h-4 w-4" />
-          </button>
+          <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300">
+            <WishlistButton
+              productId={id}
+              className="bg-black/50 hover:bg-val-accent text-white"
+            />
+          </div>
 
           {/* Quick Add Button */}
           <div className="absolute bottom-0 inset-x-0 p-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-10">
