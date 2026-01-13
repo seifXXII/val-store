@@ -7,7 +7,7 @@
  */
 
 import { useState } from "react";
-import { useSession } from "@/lib/auth-client";
+import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,10 +21,20 @@ import {
 import { toast } from "sonner";
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
-  const user = session?.user;
+  const { data: user } = trpc.public.profile.me.useQuery();
+  const utils = trpc.useUtils();
 
   const [name, setName] = useState(user?.name || "");
+
+  const updateName = trpc.public.profile.updateName.useMutation({
+    onSuccess: () => {
+      utils.public.profile.me.invalidate();
+      toast("Profile updated");
+    },
+    onError: (err) => {
+      toast.error("Failed to update profile", { description: err.message });
+    },
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -32,9 +42,7 @@ export default function ProfilePage() {
     setIsLoading(true);
 
     try {
-      // TODO: Implement profile update API
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      toast("Profile updated");
+      await updateName.mutateAsync({ name });
     } catch {
       toast.error("Failed to update profile.");
     } finally {
@@ -74,8 +82,8 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : "Save Changes"}
+            <Button type="submit" disabled={isLoading || updateName.isPending}>
+              {updateName.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </form>
         </CardContent>

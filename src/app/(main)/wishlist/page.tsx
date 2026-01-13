@@ -7,6 +7,7 @@
  */
 
 import Link from "next/link";
+import Image from "next/image";
 import { Trash2, ShoppingCart } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/card";
 import { useCart } from "@/components/providers/cart-provider";
 import { type Product } from "@/db/schema";
+
 import { toast } from "sonner";
 
 export default function WishlistPage() {
@@ -88,15 +90,28 @@ export default function WishlistPage() {
       <h1 className="text-3xl font-bold mb-8">My Wishlist</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {wishlistItems.map(({ product }) => {
+          const p = product as unknown as Product & {
+            imageUrl: string;
+            imageAlt: string;
+          };
           if (!product) return null;
 
           return (
             <Card key={product.id} className="overflow-hidden flex flex-col">
               <div className="relative aspect-square">
-                {/* Placeholder image if no image available for now - TODO: fetch image */}
-                <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">
-                  No Image
-                </div>
+                {p.imageUrl ? (
+                  <Image
+                    src={p.imageUrl}
+                    alt={p.imageAlt ?? product.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">
+                    No Image
+                  </div>
+                )}
               </div>
               <CardHeader className="p-4">
                 <Link

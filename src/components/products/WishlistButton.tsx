@@ -30,31 +30,37 @@ export function WishlistButton({
   const utils = trpc.useUtils();
 
   // Check status
-  const { data: isInWishlist } = trpc.public.wishlist.checkStatus.useQuery(
+  const { data: wishlistStatus } = trpc.public.wishlist.checkStatus.useQuery(
     { productId },
     {
       enabled: !!session?.user,
-      initialData: false,
+      initialData: { inWishlist: false },
     }
   );
+
+  const isInWishlist = wishlistStatus?.inWishlist ?? false;
 
   const addMutation = trpc.public.wishlist.addToWishlist.useMutation({
     onMutate: async () => {
       await utils.public.wishlist.checkStatus.cancel({ productId });
       const previousStatus = utils.public.wishlist.checkStatus.getData({
         productId,
-      });
-      utils.public.wishlist.checkStatus.setData({ productId }, true);
+      }) as { inWishlist: boolean } | undefined;
+      utils.public.wishlist.checkStatus.setData(
+        { productId },
+        { inWishlist: true }
+      );
       return { previousStatus };
     },
     onSuccess: () => {
       utils.public.wishlist.getMyWishlist.invalidate();
+      utils.public.wishlist.getCount.invalidate();
       toast("Added to wishlist");
     },
-    onError: (err, newTodo, context) => {
+    onError: (_err, _variables, context) => {
       utils.public.wishlist.checkStatus.setData(
         { productId },
-        context?.previousStatus ?? false
+        context?.previousStatus ?? { inWishlist: false }
       );
       toast.error("Failed to add to wishlist");
     },
@@ -68,18 +74,22 @@ export function WishlistButton({
       await utils.public.wishlist.checkStatus.cancel({ productId });
       const previousStatus = utils.public.wishlist.checkStatus.getData({
         productId,
-      });
-      utils.public.wishlist.checkStatus.setData({ productId }, false);
+      }) as { inWishlist: boolean } | undefined;
+      utils.public.wishlist.checkStatus.setData(
+        { productId },
+        { inWishlist: false }
+      );
       return { previousStatus };
     },
     onSuccess: () => {
       utils.public.wishlist.getMyWishlist.invalidate();
+      utils.public.wishlist.getCount.invalidate();
       toast("Removed from wishlist");
     },
-    onError: (err, newTodo, context) => {
+    onError: (_err, _variables, context) => {
       utils.public.wishlist.checkStatus.setData(
         { productId },
-        context?.previousStatus ?? true
+        context?.previousStatus ?? { inWishlist: true }
       );
       toast.error("Failed to remove from wishlist");
     },
