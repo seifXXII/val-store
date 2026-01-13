@@ -5,7 +5,7 @@
  */
 
 import { db } from "@/db";
-import { wishlist, products } from "@/db/schema";
+import { wishlist, products, productImages } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { WishlistRepositoryInterface } from "@/domain/interfaces/repositories/wishlist.repository.interface";
 
@@ -29,18 +29,29 @@ export class DrizzleWishlistRepository implements WishlistRepositoryInterface {
   }
 
   async findByUserId(userId: string) {
-    // Join with products table to get product details
+    // Join with products and productImages (primary) to get product details + primary image
     const result = await db
       .select()
       .from(wishlist)
       .innerJoin(products, eq(wishlist.productId, products.id))
+      .leftJoin(
+        productImages,
+        and(
+          eq(productImages.productId, products.id),
+          eq(productImages.isPrimary, true)
+        )
+      )
       .where(eq(wishlist.userId, userId))
       .orderBy(desc(wishlist.createdAt));
 
     // Map result to match expected format
-    return result.map(({ wishlist, products }) => ({
+    return result.map(({ wishlist, products, product_images }) => ({
       ...wishlist,
-      product: products,
+      product: {
+        ...products,
+        imageUrl: product_images?.imageUrl ?? null,
+        imageAlt: productImages?.altText ?? products.name,
+      },
     }));
   }
 
