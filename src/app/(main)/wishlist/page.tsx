@@ -90,11 +90,11 @@ export default function WishlistPage() {
       <h1 className="text-3xl font-bold mb-8">My Wishlist</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {wishlistItems.map(({ product }) => {
+          if (!product) return null;
           const p = product as unknown as Product & {
             imageUrl: string;
             imageAlt: string;
           };
-          if (!product) return null;
 
           return (
             <Card key={product.id} className="overflow-hidden flex flex-col">

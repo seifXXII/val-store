@@ -6,7 +6,7 @@
  * Edit user profile information.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,12 @@ export default function ProfilePage() {
   const utils = trpc.useUtils();
 
   const [name, setName] = useState(user?.name || "");
+
+  useEffect(() => {
+    if (user?.name) {
+      setName(user.name);
+    }
+  }, [user?.name]);
 
   const updateName = trpc.public.profile.updateName.useMutation({
     onSuccess: () => {

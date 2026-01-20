@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { trpc } from "@/lib/trpc";
 
-export const dynamic = "force-dynamic";
-
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");

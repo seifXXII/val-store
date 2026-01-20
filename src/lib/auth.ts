@@ -3,7 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db";
 import { container } from "@/application/container";
 import { userProfiles, customers } from "@/db/schema";
-import { eq, SQLWrapper } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -69,7 +69,7 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // Update session every 24 hours
-    async generateSessionData(user: { id: string | SQLWrapper }) {
+    async generateSessionData(user: { id: string }) {
       // Pull role from user_profiles table and attach it to session
       const [profile] = await db
         .select({ role: userProfiles.role })

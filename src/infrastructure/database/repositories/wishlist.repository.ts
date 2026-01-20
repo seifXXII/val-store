@@ -50,7 +50,7 @@ export class DrizzleWishlistRepository implements WishlistRepositoryInterface {
       product: {
         ...products,
         imageUrl: product_images?.imageUrl ?? null,
-        imageAlt: productImages?.altText ?? products.name,
+        imageAlt: product_images?.altText ?? products.name,
       },
     }));
   }

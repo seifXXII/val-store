@@ -9,8 +9,6 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 
-export const dynamic = "force-dynamic";
-
 function CheckEmailContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
