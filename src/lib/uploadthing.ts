@@ -42,9 +42,18 @@ export const uploadRouter = {
     image: { maxFileSize: "4MB", maxFileCount: 10 },
   })
     .middleware(async () => {
-      const user = await getUser();
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
+      const user = session?.user;
       if (!user) throw new UploadThingError("Unauthorized");
-      // In production, add role check here
+
+      // Admin role check
+      const role = (session?.session as { role?: string })?.role;
+      if (role !== "admin" && role !== "super_admin") {
+        throw new UploadThingError("Admin access required");
+      }
+
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
@@ -62,8 +71,18 @@ export const uploadRouter = {
     image: { maxFileSize: "2MB", maxFileCount: 1 },
   })
     .middleware(async () => {
-      const user = await getUser();
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
+      const user = session?.user;
       if (!user) throw new UploadThingError("Unauthorized");
+
+      // Admin role check
+      const role = (session?.session as { role?: string })?.role;
+      if (role !== "admin" && role !== "super_admin") {
+        throw new UploadThingError("Admin access required");
+      }
+
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {

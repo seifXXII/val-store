@@ -103,7 +103,7 @@ export function WishlistButton({
     e.stopPropagation();
 
     if (!session?.user) {
-      router.push(`/auth/login?callbackUrl=${window.location.pathname}`);
+      router.push(`/login?redirect=${window.location.pathname}`);
       return;
     }
 
