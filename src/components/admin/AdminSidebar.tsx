@@ -32,6 +32,11 @@ const navItems = [
     icon: ShoppingCart,
   },
   {
+    title: "Coupons",
+    href: "/admin/coupons",
+    icon: Tag,
+  },
+  {
     title: "Settings",
     href: "/admin/settings",
     icon: Settings,
@@ -43,7 +48,6 @@ const comingSoonItems = [
   { title: "Inventory", icon: Warehouse },
   { title: "Customers", icon: Users },
   { title: "Reviews", icon: Star },
-  { title: "Coupons", icon: Tag },
   { title: "Analytics", icon: BarChart3 },
 ];
 

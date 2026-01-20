@@ -5,6 +5,7 @@ import { ordersRouter } from "./orders";
 import { variantsRouter } from "./variants";
 import { imagesRouter } from "./images";
 import { settingsRouter } from "./settings";
+import { adminCouponsRouter } from "./coupons";
 
 export const adminRouter = router({
   products: productsRouter,
@@ -13,4 +14,5 @@ export const adminRouter = router({
   variants: variantsRouter,
   images: imagesRouter,
   settings: settingsRouter,
+  coupons: adminCouponsRouter,
 });

@@ -496,6 +496,36 @@ export const coupons = pgTable(
 );
 
 // ============================================
+// COUPON USAGES TABLE (Per-user tracking)
+// ============================================
+
+export const couponUsages = pgTable(
+  "coupon_usages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    couponId: uuid("coupon_id")
+      .notNull()
+      .references(() => coupons.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    orderId: uuid("order_id").references(() => orders.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    couponIdIdx: index("idx_coupon_usages_coupon_id").on(table.couponId),
+    userIdIdx: index("idx_coupon_usages_user_id").on(table.userId),
+    uniqueUsageIdx: uniqueIndex("idx_coupon_usages_unique").on(
+      table.couponId,
+      table.userId,
+      table.orderId
+    ),
+  })
+);
+
+// ============================================
 // PAYMENTS TABLE
 // ============================================
 
@@ -753,6 +783,9 @@ export type NewReview = typeof reviews.$inferInsert;
 
 export type Coupon = typeof coupons.$inferSelect;
 export type NewCoupon = typeof coupons.$inferInsert;
+
+export type CouponUsage = typeof couponUsages.$inferSelect;
+export type NewCouponUsage = typeof couponUsages.$inferInsert;
 
 export type Payment = typeof payments.$inferSelect;
 export type NewPayment = typeof payments.$inferInsert;

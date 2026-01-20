@@ -17,6 +17,7 @@ import { wishlistRouter } from "./wishlist";
 import { addressRouter } from "./address";
 import { userRouter } from "./user";
 import { profileRouter } from "./profile";
+import { publicCouponsRouter } from "./coupons";
 
 export const publicRouter = router({
   products: publicProductsRouter,
@@ -29,4 +30,5 @@ export const publicRouter = router({
   address: addressRouter,
   user: userRouter,
   profile: profileRouter,
+  coupons: publicCouponsRouter,
 });
