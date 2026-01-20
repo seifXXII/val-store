@@ -1,32 +1,16 @@
 /**
- * All Products Collection Page (Server Component)
+ * All Products Collection Page
  *
- * Fetches all active products from the database.
+ * Uses client-side infinite scroll for product browsing.
  */
 
-import { CollectionPageLayout } from "@/components/collections/CollectionPageLayout";
-import { getCachedAllProducts } from "@/lib/cache";
+import { InfiniteProductGrid } from "@/components/products/InfiniteProductGrid";
 
-export default async function CollectionsAllPage() {
-  // Fetch all products from database (cached)
-  const products = await getCachedAllProducts(50);
-
-  // Transform to format expected by CollectionPageLayout
-  const productsForLayout = products.map((p) => ({
-    id: p.id,
-    name: p.name,
-    slug: p.slug,
-    price: p.basePrice,
-    salePrice: p.salePrice ?? undefined,
-    isOnSale: p.salePrice !== null && p.salePrice < p.basePrice,
-    isFeatured: p.isFeatured,
-  }));
-
+export default function CollectionsAllPage() {
   return (
-    <CollectionPageLayout
+    <InfiniteProductGrid
       title="All Products"
       description="Browse our complete collection of premium streetwear essentials."
-      products={productsForLayout}
     />
   );
 }

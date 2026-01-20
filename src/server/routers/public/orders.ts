@@ -15,30 +15,47 @@ import { eq, and } from "drizzle-orm";
 
 export const ordersRouter = router({
   /**
-   * Get current user's orders
+   * Get current user's orders with infinite scroll support
    */
   getMyOrders: protectedProcedure
     .input(
       z
         .object({
           limit: z.number().min(1).max(50).optional().default(10),
+          cursor: z.number().min(1).optional(),
         })
         .optional()
     )
     .query(async ({ ctx, input }) => {
       const orderRepository = container.getOrderRepository();
-      const recentOrders = await orderRepository.findRecentByUserId(
+      const page = input?.cursor ?? 1;
+      const limit = input?.limit ?? 10;
+
+      // Get all orders for the user
+      const allOrders = await orderRepository.findRecentByUserId(
         ctx.user.id,
-        input?.limit
+        1000 // Get all orders for pagination
       );
 
-      return recentOrders.map((order) => ({
+      const total = allOrders.length;
+      const totalPages = Math.ceil(total / limit);
+      const offset = (page - 1) * limit;
+
+      const orders = allOrders.slice(offset, offset + limit).map((order) => ({
         id: order.id,
         status: order.status,
         total: order.totalAmount,
         itemCount: order.items.length,
         createdAt: order.createdAt,
       }));
+
+      return {
+        orders,
+        total,
+        page,
+        limit,
+        totalPages,
+      };
     }),
 
   /**

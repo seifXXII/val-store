@@ -22,6 +22,7 @@ import { MoreVertical, Edit, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
+import Image from "next/image";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -125,9 +126,11 @@ export function ProductsTable() {
                 <TableRow key={product.id}>
                   <TableCell>
                     {product.primaryImage ? (
-                      <img
+                      <Image
                         src={product.primaryImage}
                         alt={product.name}
+                        width={48}
+                        height={48}
                         className="h-12 w-12 rounded-md object-cover"
                       />
                     ) : (

@@ -3,11 +3,11 @@
 /**
  * Orders List Page
  *
- * Display user's order history.
+ * Display user's order history with infinite scroll.
  */
 
 import Link from "next/link";
-import { Package, ChevronRight } from "lucide-react";
+import { Package, ChevronRight, Loader2 } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -26,9 +27,31 @@ const statusColors: Record<string, string> = {
   cancelled: "bg-red-100 text-red-800",
 };
 
+const ITEMS_PER_PAGE = 10;
+
 export default function OrdersPage() {
-  const { data: orders, isLoading } = trpc.public.orders.getMyOrders.useQuery({
-    limit: 50,
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    trpc.public.orders.getMyOrders.useInfiniteQuery(
+      { limit: ITEMS_PER_PAGE },
+      {
+        getNextPageParam: (lastPage) => {
+          if (lastPage.page < lastPage.totalPages) {
+            return lastPage.page + 1;
+          }
+          return undefined;
+        },
+        initialCursor: 1,
+      }
+    );
+
+  // Flatten all pages
+  const orders = data?.pages.flatMap((page) => page.orders) || [];
+  const total = data?.pages[0]?.total || 0;
+
+  // Infinite scroll
+  const { ref: sentinelRef } = useInfiniteScroll({
+    onLoadMore: () => fetchNextPage(),
+    enabled: hasNextPage && !isFetchingNextPage,
   });
 
   if (isLoading) {
@@ -60,7 +83,7 @@ export default function OrdersPage() {
       <div>
         <h2 className="text-2xl font-bold">Order History</h2>
         <p className="text-muted-foreground">
-          View and track your past orders.
+          View and track your past orders. Showing {orders.length} of {total}.
         </p>
       </div>
 
@@ -100,6 +123,29 @@ export default function OrdersPage() {
           </Link>
         ))}
       </div>
+
+      {/* Infinite scroll sentinel */}
+      {hasNextPage && (
+        <div
+          ref={sentinelRef}
+          className="flex items-center justify-center py-4"
+        >
+          {isFetchingNextPage ? (
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          ) : (
+            <span className="text-sm text-muted-foreground">
+              Scroll for more...
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* End of list */}
+      {!hasNextPage && orders.length > 0 && (
+        <p className="text-center text-sm text-muted-foreground py-4">
+          You&apos;ve reached the end
+        </p>
+      )}
     </div>
   );
 }

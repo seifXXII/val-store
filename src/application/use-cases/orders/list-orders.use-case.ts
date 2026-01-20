@@ -12,6 +12,8 @@ export interface ListOrdersInput {
   endDate?: Date;
   minTotal?: number;
   maxTotal?: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface OrderListItem {
@@ -28,24 +30,43 @@ export interface OrderListItem {
 export interface ListOrdersOutput {
   orders: OrderListItem[];
   total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export class ListOrdersUseCase {
   constructor(private readonly orderRepository: OrderRepositoryInterface) {}
 
   async execute(input: ListOrdersInput = {}): Promise<ListOrdersOutput> {
-    // Fetch orders from repository
-    const orders = await this.orderRepository.findAll(input);
+    const page = input.page ?? 1;
+    const limit = input.limit ?? 10;
+    const offset = (page - 1) * limit;
+
+    // Fetch orders from repository (without pagination for now - slice in memory)
+    const allOrders = await this.orderRepository.findAll({
+      userId: input.userId,
+      status: input.status,
+      startDate: input.startDate,
+      endDate: input.endDate,
+    });
 
     // Get total count
-    const total = await this.orderRepository.count(input);
+    const total = allOrders.length;
+    const totalPages = Math.ceil(total / limit);
+
+    // Apply pagination
+    const paginatedOrders = allOrders.slice(offset, offset + limit);
 
     // Map to DTOs
-    const orderDTOs = orders.map((order) => this.mapToDTO(order));
+    const orderDTOs = paginatedOrders.map((order) => this.mapToDTO(order));
 
     return {
       orders: orderDTOs,
       total,
+      page,
+      limit,
+      totalPages,
     };
   }
 
