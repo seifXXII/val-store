@@ -9,6 +9,9 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../../trpc";
 import { container } from "@/application/container";
 import { TRPCError } from "@trpc/server";
+import { db } from "@/db";
+import { orders, payments } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
 
 export const ordersRouter = router({
   /**
@@ -24,12 +27,12 @@ export const ordersRouter = router({
     )
     .query(async ({ ctx, input }) => {
       const orderRepository = container.getOrderRepository();
-      const orders = await orderRepository.findRecentByUserId(
+      const recentOrders = await orderRepository.findRecentByUserId(
         ctx.user.id,
         input?.limit
       );
 
-      return orders.map((order) => ({
+      return recentOrders.map((order) => ({
         id: order.id,
         status: order.status,
         total: order.totalAmount,
@@ -75,5 +78,67 @@ export const ordersRouter = router({
         shippedAt: order.shippedAt,
         deliveredAt: order.deliveredAt,
       };
+    }),
+
+  /**
+   * Get order number for the current user by order id (for checkout success page)
+   */
+  getOrderNumberById: protectedProcedure
+    .input(z.object({ orderId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const row = await db.query.orders.findFirst({
+        where: and(
+          eq(orders.id, input.orderId),
+          eq(orders.userId, ctx.user.id)
+        ),
+        columns: {
+          id: true,
+          orderNumber: true,
+        },
+      });
+
+      if (!row) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Order not found",
+        });
+      }
+
+      return {
+        orderId: row.id,
+        orderNumber: row.orderNumber,
+      };
+    }),
+
+  /**
+   * Get order number for the current user by Stripe checkout session id.
+   * We store the Stripe session id in payments.transactionId at session creation time.
+   */
+  getOrderNumberByStripeSession: protectedProcedure
+    .input(z.object({ sessionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const row = await db
+        .select({
+          orderId: orders.id,
+          orderNumber: orders.orderNumber,
+        })
+        .from(payments)
+        .innerJoin(orders, eq(payments.orderId, orders.id))
+        .where(
+          and(
+            eq(payments.transactionId, input.sessionId),
+            eq(orders.userId, ctx.user.id)
+          )
+        )
+        .limit(1);
+
+      if (!row[0]) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Order not found",
+        });
+      }
+
+      return row[0];
     }),
 });

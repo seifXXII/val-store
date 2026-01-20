@@ -18,49 +18,33 @@ import {
 const navItems = [
   {
     title: "Dashboard",
-    href: "/dashboard",
+    href: "/admin",
     icon: LayoutDashboard,
   },
   {
     title: "Products",
-    href: "/products",
+    href: "/admin/products",
     icon: Package,
   },
   {
     title: "Orders",
-    href: "/orders",
+    href: "/admin/orders",
     icon: ShoppingCart,
   },
   {
-    title: "Inventory",
-    href: "/inventory",
-    icon: Warehouse,
-  },
-  {
-    title: "Customers",
-    href: "/customers",
-    icon: Users,
-  },
-  {
-    title: "Reviews",
-    href: "/reviews",
-    icon: Star,
-  },
-  {
-    title: "Coupons",
-    href: "/coupons",
-    icon: Tag,
-  },
-  {
-    title: "Analytics",
-    href: "/analytics",
-    icon: BarChart3,
-  },
-  {
     title: "Settings",
-    href: "/dashboard/settings",
+    href: "/admin/settings",
     icon: Settings,
   },
+];
+
+// Coming Soon features (displayed but disabled)
+const comingSoonItems = [
+  { title: "Inventory", icon: Warehouse },
+  { title: "Customers", icon: Users },
+  { title: "Reviews", icon: Star },
+  { title: "Coupons", icon: Tag },
+  { title: "Analytics", icon: BarChart3 },
 ];
 
 export function AdminSidebar() {
@@ -70,10 +54,7 @@ export function AdminSidebar() {
     <div className="flex h-full w-64 flex-col border-r bg-background">
       {/* Logo */}
       <div className="flex h-16 items-center border-b px-6">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 font-semibold"
-        >
+        <Link href="/admin" className="flex items-center gap-2 font-semibold">
           <Package className="h-6 w-6" />
           <span>Val Store Admin</span>
         </Link>
@@ -82,8 +63,12 @@ export function AdminSidebar() {
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
         {navItems.map((item) => {
+          // Special case: Dashboard should only be active on exact /admin match
+          // Other items should be active on prefix match (e.g., /admin/products/123)
           const isActive =
-            pathname === item.href || pathname?.startsWith(item.href + "/");
+            item.href === "/admin"
+              ? pathname === "/admin"
+              : pathname === item.href || pathname?.startsWith(item.href + "/");
           const Icon = item.icon;
 
           return (
@@ -102,6 +87,25 @@ export function AdminSidebar() {
             </Link>
           );
         })}
+
+        {/* Coming Soon Section */}
+        <div className="pt-4">
+          <p className="px-3 text-xs font-medium text-muted-foreground/50 uppercase tracking-wider">
+            Coming Soon
+          </p>
+          {comingSoonItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.title}
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground/50 cursor-not-allowed"
+              >
+                <Icon className="h-4 w-4" />
+                <span>{item.title}</span>
+              </div>
+            );
+          })}
+        </div>
       </nav>
 
       {/* Footer */}

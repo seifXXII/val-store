@@ -21,15 +21,23 @@ const listProductsSchema = z.object({
   categoryId: z.string().uuid().optional(),
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),
+  limit: z.number().min(1).max(100).optional().default(10),
+  cursor: z.number().min(1).optional(), // Page number as cursor for infinite scroll
 });
 
 export const productsRouter = router({
-  // List all products
+  // List all products with infinite scroll support
   list: adminProcedure
     .input(listProductsSchema.optional())
     .query(async ({ input }) => {
       const useCase = container.getListProductsUseCase();
-      return useCase.execute(input || {});
+      // Use cursor as page number, default to 1
+      const page = input?.cursor ?? 1;
+      return useCase.execute({
+        ...input,
+        page,
+        limit: input?.limit ?? 10,
+      });
     }),
 
   // Get single product by ID

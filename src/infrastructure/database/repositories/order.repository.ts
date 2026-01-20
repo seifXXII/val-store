@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { orders, orderItems } from "@/db/schema";
+import { orders, orderItems, payments } from "@/db/schema";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 import {
   OrderRepositoryInterface,
@@ -68,13 +68,71 @@ export class DrizzleOrderRepository implements OrderRepositoryInterface {
   }
 
   /**
-   * Create a new order - NOT IMPLEMENTED
-   * Requires proper address handling and complete schema mapping
+   * Create a new order
    */
-  async create(): Promise<OrderEntity> {
-    throw new Error(
-      "Order creation not implemented - schema mapping needs address IDs"
-    );
+  async create(order: OrderEntity): Promise<OrderEntity> {
+    const now = new Date();
+
+    const datePart = now.toISOString().slice(0, 10).replaceAll("-", "");
+    const randomPart = Math.random().toString(36).slice(2, 8).toUpperCase();
+    const orderNumber = `VAL-${datePart}-${randomPart}`;
+
+    await db.transaction(async (tx) => {
+      await tx.insert(orders).values({
+        id: order.id,
+        orderNumber,
+        userId: order.userId,
+        status: order.status,
+        subtotal: order.subtotal.toFixed(2),
+        taxAmount: order.tax.toFixed(2),
+        shippingAmount: order.shippingCost.toFixed(2),
+        discountAmount: "0",
+        totalAmount: order.totalAmount.toFixed(2),
+        currency: "EGP",
+        shippingAddressId: order.shippingAddress,
+        billingAddressId: order.billingAddress,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      if (order.items.length > 0) {
+        await tx.insert(orderItems).values(
+          order.items.map((item) => ({
+            orderId: order.id,
+            productId: item.productId,
+            variantId: null,
+            productName: item.productName,
+            variantDetails: null,
+            quantity: item.quantity,
+            unitPrice: item.price.toFixed(2),
+            totalPrice: (item.price * item.quantity).toFixed(2),
+            createdAt: now,
+          }))
+        );
+      }
+
+      await tx.insert(payments).values({
+        orderId: order.id,
+        paymentMethod:
+          order.paymentMethod === "cash_on_delivery"
+            ? "cash_on_delivery"
+            : "stripe",
+        paymentStatus: "pending",
+        amount: order.totalAmount.toFixed(2),
+        currency: "EGP",
+        transactionId: null,
+        paymentGatewayResponse: null,
+        createdAt: now,
+        updatedAt: now,
+      });
+    });
+
+    const created = await this.findById(order.id);
+    if (!created) {
+      throw new Error("Failed to create order");
+    }
+
+    return created;
   }
 
   /**

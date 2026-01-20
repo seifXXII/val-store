@@ -1,24 +1,36 @@
 "use client";
 
-/**
- * Checkout Success Page
- *
- * Displayed after successful Stripe checkout.
- */
-
 import { Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle, Package, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { trpc } from "@/lib/trpc";
 
 export const dynamic = "force-dynamic";
 
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const orderId = searchParams.get("order_id");
   const clearCart = useCartStore((state) => state.clearCart);
+
+  const orderNumberByIdQuery = trpc.public.orders.getOrderNumberById.useQuery(
+    { orderId: orderId ?? "" },
+    { enabled: Boolean(orderId) }
+  );
+
+  const orderNumberBySessionQuery =
+    trpc.public.orders.getOrderNumberByStripeSession.useQuery(
+      { sessionId: sessionId ?? "" },
+      { enabled: Boolean(sessionId) && !orderId }
+    );
+
+  const orderNumber =
+    orderNumberByIdQuery.data?.orderNumber ??
+    orderNumberBySessionQuery.data?.orderNumber ??
+    null;
 
   // Clear local cart on success
   useEffect(() => {
@@ -37,15 +49,15 @@ function CheckoutSuccessContent() {
         <h1 className="mb-4 text-3xl font-bold">Thank you for your order!</h1>
 
         <p className="mb-6 text-muted-foreground">
-          Your payment was successful and your order is being processed.
-          You&apos;ll receive a confirmation email shortly.
+          Your order has been placed successfully. You&apos;ll receive a
+          confirmation email shortly.
         </p>
 
-        {sessionId && (
+        {orderNumber ? (
           <p className="mb-6 text-sm text-muted-foreground">
-            Order reference: {sessionId.slice(-12).toUpperCase()}
+            Order number: {orderNumber}
           </p>
-        )}
+        ) : null}
 
         <div className="mb-8 rounded-lg bg-muted p-6">
           <div className="mb-2 flex items-center justify-center gap-2">

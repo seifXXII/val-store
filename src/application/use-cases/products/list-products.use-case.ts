@@ -13,6 +13,8 @@ export interface ListProductsInput {
   categoryId?: string;
   minPrice?: number;
   maxPrice?: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface ProductListItem {
@@ -33,24 +35,44 @@ export interface ProductListItem {
 export interface ListProductsOutput {
   products: ProductListItem[];
   total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export class ListProductsUseCase {
   constructor(private readonly productRepository: ProductRepositoryInterface) {}
 
   async execute(input: ListProductsInput = {}): Promise<ListProductsOutput> {
-    // 1. Fetch products from repository
-    const products = await this.productRepository.findAll(input);
+    const page = input.page ?? 1;
+    const limit = input.limit ?? 10;
+    const offset = (page - 1) * limit;
+
+    // 1. Fetch products from repository (filter only, no pagination in repo yet)
+    const allProducts = await this.productRepository.findAll({
+      isActive: input.isActive,
+      isFeatured: input.isFeatured,
+      categoryId: input.categoryId,
+    });
 
     // 2. Get total count
-    const total = await this.productRepository.count(input);
+    const total = allProducts.length;
+    const totalPages = Math.ceil(total / limit);
 
-    // 3. Map to DTOs
-    const productDTOs = products.map((product) => this.mapToDTO(product));
+    // 3. Apply pagination (slice for now - could be DB-level later)
+    const paginatedProducts = allProducts.slice(offset, offset + limit);
+
+    // 4. Map to DTOs
+    const productDTOs = paginatedProducts.map((product) =>
+      this.mapToDTO(product)
+    );
 
     return {
       products: productDTOs,
       total,
+      page,
+      limit,
+      totalPages,
     };
   }
 

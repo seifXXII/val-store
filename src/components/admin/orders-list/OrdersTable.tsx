@@ -86,7 +86,7 @@ export function OrdersTable() {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Link href={`/orders/${order.id}`}>
+                  <Link href={`/admin/orders/${order.id}`}>
                     <Button variant="ghost" size="sm">
                       <Eye className="h-4 w-4" />
                     </Button>

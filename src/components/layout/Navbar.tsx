@@ -125,7 +125,7 @@ export function Navbar() {
               {/* Admin Button */}
               {isAdmin && (
                 <Link
-                  href="/dashboard"
+                  href="/admin"
                   className="text-red-400 hover:text-red-300 transition-colors flex items-center gap-1 text-xs font-semibold uppercase"
                 >
                   <Shield className="h-4 w-4" />
