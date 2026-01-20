@@ -7,10 +7,15 @@
 
 import { CartRepositoryInterface } from "@/domain/interfaces/repositories/cart.repository.interface";
 import { stripeService } from "@/infrastructure/services/stripe.service";
+import { CreateOrderUseCase } from "./create-order.use-case";
+import { db } from "@/db";
+import { payments } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export interface CreateCheckoutSessionInput {
   userId: string;
   email: string;
+  shippingAddressId: string;
 }
 
 export interface CreateCheckoutSessionOutput {
@@ -19,22 +24,29 @@ export interface CreateCheckoutSessionOutput {
 }
 
 export class CreateCheckoutSessionUseCase {
-  constructor(private readonly cartRepository: CartRepositoryInterface) {}
+  constructor(
+    private readonly cartRepository: CartRepositoryInterface,
+    private readonly createOrderUseCase: CreateOrderUseCase
+  ) {}
 
   async execute(
     input: CreateCheckoutSessionInput
   ): Promise<CreateCheckoutSessionOutput> {
-    const { userId, email } = input;
+    const { userId, email, shippingAddressId } = input;
 
-    // Get cart items
+    // Ensure cart exists (CreateOrderUseCase also checks, but we want to avoid creating sessions for empty carts)
     const cartItems = await this.cartRepository.findByUserId(userId);
 
     if (cartItems.length === 0) {
       throw new Error("Cart is empty");
     }
 
-    // Generate a temporary order ID for tracking
-    const tempOrderId = crypto.randomUUID();
+    // Create a pending order in DB first, then use its ID for Stripe metadata
+    const { order } = await this.createOrderUseCase.execute({
+      userId,
+      shippingAddressId,
+      paymentMethod: "stripe",
+    });
 
     // Build success/cancel URLs
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -50,11 +62,25 @@ export class CreateCheckoutSessionUseCase {
         quantity: item.quantity,
         imageUrl: item.productImage || undefined,
       })),
-      orderId: tempOrderId,
+      orderId: order.id,
       customerEmail: email,
       successUrl,
       cancelUrl,
+      metadata: {
+        userId,
+      },
     });
+
+    await db
+      .update(payments)
+      .set({
+        transactionId: session.sessionId,
+        paymentGatewayResponse: JSON.stringify({
+          stripeSessionId: session.sessionId,
+        }),
+        updatedAt: new Date(),
+      })
+      .where(eq(payments.orderId, order.id));
 
     return {
       sessionId: session.sessionId,

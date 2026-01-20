@@ -65,6 +65,24 @@ export const auth = betterAuth({
     },
   },
 
+  // Session configuration
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // Update session every 24 hours
+    async generateSessionData(user: { id: string }) {
+      // Pull role from user_profiles table and attach it to session
+      const [profile] = await db
+        .select({ role: userProfiles.role })
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, user.id))
+        .limit(1);
+
+      return {
+        role: profile?.role ?? "customer",
+      } as const;
+    },
+  },
+
   // Social login providers
   socialProviders: {
     google: {
@@ -77,12 +95,6 @@ export const auth = betterAuth({
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET || "",
       enabled: !!process.env.FACEBOOK_CLIENT_ID,
     },
-  },
-
-  // Session configuration
-  session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 days
-    updateAge: 60 * 60 * 24, // Update session every 24 hours
   },
 
   // Database hooks for custom logic after user creation

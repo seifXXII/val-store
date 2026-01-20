@@ -36,6 +36,7 @@ interface Address {
   state: string;
   zipCode: string;
   country: string;
+  phone: string;
   isDefault: boolean;
 }
 
@@ -92,6 +93,7 @@ export default function AddressesPage() {
       state: formData.get("state") as string,
       zipCode: formData.get("zipCode") as string,
       country: formData.get("country") as string,
+      phone: formData.get("phone") as string,
     };
 
     if (editingAddress) {
@@ -170,7 +172,6 @@ export default function AddressesPage() {
                     id="state"
                     name="state"
                     defaultValue={editingAddress?.state}
-                    required
                   />
                 </div>
               </div>
@@ -181,7 +182,6 @@ export default function AddressesPage() {
                     id="zipCode"
                     name="zipCode"
                     defaultValue={editingAddress?.zipCode}
-                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -190,9 +190,17 @@ export default function AddressesPage() {
                     id="country"
                     name="country"
                     defaultValue={editingAddress?.country || "Egypt"}
-                    required
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  defaultValue={editingAddress?.phone}
+                  required
+                />
               </div>
               <Button
                 type="submit"
@@ -262,7 +270,10 @@ export default function AddressesPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setEditingAddress(address);
+                      setEditingAddress({
+                        ...address,
+                        phone: address.phone ?? "",
+                      });
                       setIsDialogOpen(true);
                     }}
                   >

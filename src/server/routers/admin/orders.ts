@@ -17,6 +17,8 @@ const listOrdersSchema = z
     endDate: z.date().optional(),
     minTotal: z.number().optional(),
     maxTotal: z.number().optional(),
+    limit: z.number().min(1).max(100).optional().default(10),
+    cursor: z.number().min(1).optional(), // Page number as cursor
   })
   .optional();
 
@@ -38,10 +40,15 @@ const updateOrderStatusSchema = z.object({
 });
 
 export const ordersRouter = router({
-  // List orders with filtering
+  // List orders with filtering and pagination
   list: adminProcedure.input(listOrdersSchema).query(async ({ input }) => {
     const useCase = container.getListOrdersUseCase();
-    return useCase.execute(input || {});
+    const page = input?.cursor ?? 1;
+    return useCase.execute({
+      ...input,
+      page,
+      limit: input?.limit ?? 10,
+    });
   }),
 
   // Get single order by ID

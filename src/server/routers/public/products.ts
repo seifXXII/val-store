@@ -12,40 +12,68 @@ import { container } from "@/application/container";
 
 export const publicProductsRouter = router({
   /**
-   * List active products for storefront
+   * List active products for storefront with infinite scroll support
    */
   list: publicProcedure
     .input(
       z
         .object({
           categoryId: z.string().uuid().optional(),
-          limit: z.number().min(1).max(50).optional().default(20),
-          offset: z.number().min(0).optional().default(0),
+          gender: z.string().optional(),
+          isFeatured: z.boolean().optional(),
+          isOnSale: z.boolean().optional(),
+          limit: z.number().min(1).max(50).optional().default(12),
+          cursor: z.number().min(1).optional(), // Page number
         })
         .optional()
     )
     .query(async ({ input }) => {
       const repo = container.getProductRepository();
-      const products = await repo.findAll({
+      const page = input?.cursor ?? 1;
+      const limit = input?.limit ?? 12;
+      const offset = (page - 1) * limit;
+
+      let allProducts = await repo.findAll({
         isActive: true,
         categoryId: input?.categoryId,
+        isFeatured: input?.isFeatured,
       });
 
+      // Filter by gender if provided
+      if (input?.gender) {
+        allProducts = allProducts.filter((p) => p.gender === input.gender);
+      }
+
+      // Filter by on sale if requested
+      if (input?.isOnSale) {
+        allProducts = allProducts.filter(
+          (p) => p.salePrice !== null && p.salePrice < p.basePrice
+        );
+      }
+
+      const total = allProducts.length;
+      const totalPages = Math.ceil(total / limit);
+
       // Return only public-safe data
-      return products
-        .slice(input?.offset ?? 0, (input?.offset ?? 0) + (input?.limit ?? 20))
-        .map((p) => ({
-          id: p.id,
-          name: p.name,
-          slug: p.slug,
-          description: p.description,
-          basePrice: p.basePrice,
-          salePrice: p.salePrice,
-          categoryId: p.categoryId,
-          gender: p.gender,
-          isFeatured: p.isFeatured,
-          // Note: costPrice, sku, and other admin fields are NOT included
-        }));
+      const products = allProducts.slice(offset, offset + limit).map((p) => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        description: p.description,
+        basePrice: p.basePrice,
+        salePrice: p.salePrice,
+        categoryId: p.categoryId,
+        gender: p.gender,
+        isFeatured: p.isFeatured,
+      }));
+
+      return {
+        products,
+        total,
+        page,
+        limit,
+        totalPages,
+      };
     }),
 
   /**
@@ -123,33 +151,49 @@ export const publicProductsRouter = router({
     }),
 
   /**
-   * Search products
+   * Search products with infinite scroll support
    */
   search: publicProcedure
     .input(
       z.object({
         query: z.string().min(1),
-        limit: z.number().min(1).max(50).optional().default(20),
+        limit: z.number().min(1).max(50).optional().default(12),
+        cursor: z.number().min(1).optional(),
       })
     )
     .query(async ({ input }) => {
       const repo = container.getProductRepository();
+      const page = input.cursor ?? 1;
+      const limit = input.limit ?? 12;
+      const offset = (page - 1) * limit;
+
       const allProducts = await repo.findAll({ isActive: true });
 
       // Simple search - filter by name/description containing query
       const query = input.query.toLowerCase();
-      const results = allProducts.filter(
+      const allResults = allProducts.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
           (p.description && p.description.toLowerCase().includes(query))
       );
 
-      return results.slice(0, input.limit).map((p) => ({
+      const total = allResults.length;
+      const totalPages = Math.ceil(total / limit);
+
+      const products = allResults.slice(offset, offset + limit).map((p) => ({
         id: p.id,
         name: p.name,
         slug: p.slug,
         basePrice: p.basePrice,
         salePrice: p.salePrice,
       }));
+
+      return {
+        products,
+        total,
+        page,
+        limit,
+        totalPages,
+      };
     }),
 });

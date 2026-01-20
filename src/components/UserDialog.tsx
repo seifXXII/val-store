@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { User, LogOut, Settings, ShoppingBag } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface UserDialogProps {
   user?: {
@@ -46,10 +47,10 @@ export function UserDialog({ user }: UserDialogProps) {
     return (
       <div className="flex gap-2">
         <Button variant="outline" asChild>
-          <a href="/login">Sign in</a>
+          <Link href="/login">Sign in</Link>
         </Button>
         <Button asChild>
-          <a href="/signup">Sign up</a>
+          <Link href="/signup">Sign up</Link>
         </Button>
       </div>
     );
@@ -90,17 +91,17 @@ export function UserDialog({ user }: UserDialogProps) {
           {/* Quick Actions */}
           <div className="space-y-2">
             <Button variant="outline" className="w-full justify-start" asChild>
-              <a href="/orders">
+              <Link href="/account/orders">
                 <ShoppingBag className="mr-2 h-4 w-4" />
                 My Orders
-              </a>
+              </Link>
             </Button>
 
             <Button variant="outline" className="w-full justify-start" asChild>
-              <a href="/settings">
+              <Link href="/account/profile">
                 <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </a>
+                My Profile
+              </Link>
             </Button>
 
             {user.role === "admin" || user.role === "super_admin" ? (
@@ -109,10 +110,10 @@ export function UserDialog({ user }: UserDialogProps) {
                 className="w-full justify-start"
                 asChild
               >
-                <a href="/admin">
+                <Link href="/admin">
                   <Settings className="mr-2 h-4 w-4" />
                   Admin Dashboard
-                </a>
+                </Link>
               </Button>
             ) : null}
           </div>

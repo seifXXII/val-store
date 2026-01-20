@@ -45,6 +45,7 @@ import { UpdateCartItemUseCase } from "./use-cases/cart/update-cart-item.use-cas
 import { RemoveCartItemUseCase } from "./use-cases/cart/remove-cart-item.use-case";
 import { ClearCartUseCase } from "./use-cases/cart/clear-cart.use-case";
 import { CreateCheckoutSessionUseCase } from "./use-cases/checkout/create-checkout-session.use-case";
+import { CreateOrderUseCase } from "./use-cases/checkout/create-order.use-case";
 import { DrizzleWishlistRepository } from "@/infrastructure/database/repositories/wishlist.repository";
 import { AddToWishlistUseCase } from "./use-cases/wishlist/add-to-wishlist.use-case";
 import { RemoveFromWishlistUseCase } from "./use-cases/wishlist/remove-from-wishlist.use-case";
@@ -120,6 +121,7 @@ class Container {
 
   // Checkout dependencies
   private createCheckoutSessionUseCase?: CreateCheckoutSessionUseCase;
+  private createOrderUseCase?: CreateOrderUseCase;
 
   // Wishlist dependencies
   private wishlistRepository?: DrizzleWishlistRepository;
@@ -463,10 +465,21 @@ class Container {
   getCreateCheckoutSessionUseCase(): CreateCheckoutSessionUseCase {
     if (!this.createCheckoutSessionUseCase) {
       this.createCheckoutSessionUseCase = new CreateCheckoutSessionUseCase(
-        this.getCartRepository()
+        this.getCartRepository(),
+        this.getCreateOrderUseCase()
       );
     }
     return this.createCheckoutSessionUseCase;
+  }
+
+  getCreateOrderUseCase(): CreateOrderUseCase {
+    if (!this.createOrderUseCase) {
+      this.createOrderUseCase = new CreateOrderUseCase(
+        this.getOrderRepository(),
+        this.getCartRepository()
+      );
+    }
+    return this.createOrderUseCase;
   }
 
   // Wishlist Dependencies

@@ -50,7 +50,7 @@ export function RecentOrders() {
             orders.map((order) => (
               <Link
                 key={order.id}
-                href={`/orders/${order.id}`}
+                href={`/admin/orders/${order.id}`}
                 className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
               >
                 <div className="space-y-1">

@@ -12,9 +12,10 @@ const addressSchema = z.object({
   name: z.string().min(1, "Name is required"),
   street: z.string().min(1, "Street address is required"),
   city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zipCode: z.string().min(1, "ZIP code is required"),
-  country: z.string().min(1, "Country is required"),
+  state: z.string().optional(),
+  zipCode: z.string().optional(),
+  country: z.string().optional(),
+  phone: z.string().min(1, "Phone is required"),
 });
 
 export const addressRouter = router({
@@ -32,6 +33,7 @@ export const addressRouter = router({
       state: addr.state,
       zipCode: addr.postalCode,
       country: addr.country,
+      phone: addr.phone,
       isDefault: addr.isDefault,
     }));
   }),
@@ -45,10 +47,10 @@ export const addressRouter = router({
         fullName: input.name,
         addressLine1: input.street,
         city: input.city,
-        state: input.state,
-        postalCode: input.zipCode,
-        country: input.country,
-        phone: "", // TODO: Add phone to UI form
+        state: input.state ?? "",
+        postalCode: input.zipCode ?? "",
+        country: input.country ?? "",
+        phone: input.phone,
         addressType: "shipping",
       });
       return { success: true };
@@ -67,9 +69,10 @@ export const addressRouter = router({
         fullName: input.data.name,
         addressLine1: input.data.street,
         city: input.data.city,
-        state: input.data.state,
-        postalCode: input.data.zipCode,
-        country: input.data.country,
+        state: input.data.state ?? "",
+        postalCode: input.data.zipCode ?? "",
+        country: input.data.country ?? "",
+        phone: input.data.phone,
       });
       return { success: true };
     }),

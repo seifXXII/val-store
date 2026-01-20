@@ -37,6 +37,7 @@ export interface CreateCheckoutSessionInput {
   customerEmail?: string;
   successUrl: string;
   cancelUrl: string;
+  metadata?: Record<string, string>;
 }
 
 export interface CreateCheckoutSessionResult {
@@ -81,14 +82,21 @@ export class StripeService {
   async createCheckoutSession(
     input: CreateCheckoutSessionInput
   ): Promise<CreateCheckoutSessionResult> {
-    const { lineItems, orderId, customerEmail, successUrl, cancelUrl } = input;
+    const {
+      lineItems,
+      orderId,
+      customerEmail,
+      successUrl,
+      cancelUrl,
+      metadata = {},
+    } = input;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
       line_items: lineItems.map((item) => ({
         price_data: {
-          currency: "usd",
+          currency: "egp",
           product_data: {
             name: item.productName,
             images: item.imageUrl ? [item.imageUrl] : [],
@@ -105,6 +113,7 @@ export class StripeService {
       cancel_url: cancelUrl,
       metadata: {
         orderId,
+        ...metadata,
       },
     });
 

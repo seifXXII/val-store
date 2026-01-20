@@ -2,9 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ShoppingCart, User, Search, Menu, LogIn } from "lucide-react";
+import {
+  ShoppingCart,
+  User,
+  Search,
+  Menu,
+  LogIn,
+  Shield,
+  Heart,
+} from "lucide-react";
 import { MobileMenu } from "./MobileMenu";
-import { useSession } from "@/lib/auth-client";
+import { trpc } from "@/lib/trpc";
 import { useCartStore } from "@/lib/stores/cart-store";
 
 const navLinks = [
@@ -16,11 +24,20 @@ const navLinks = [
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { data: session, isPending } = useSession();
+  const { data: user, isLoading } = trpc.public.user.getSession.useQuery();
   const { openCart, getItemCount } = useCartStore();
 
-  const isLoggedIn = !!session?.user;
+  const isLoggedIn = !!user;
+  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
   const itemCount = getItemCount();
+  const { data: wishlistCountData } = trpc.public.wishlist.getCount.useQuery(
+    undefined,
+    {
+      initialData: { count: 0 },
+    }
+  );
+
+  const wishlistCount = wishlistCountData?.count ?? 0;
 
   return (
     <>
@@ -57,13 +74,13 @@ export function Navbar() {
               </button>
 
               {/* Auth state */}
-              {isPending ? (
+              {isLoading ? (
                 <div className="w-5 h-5 rounded-full bg-gray-700 animate-pulse" />
               ) : isLoggedIn ? (
                 <Link
                   href="/account"
                   className="text-gray-300 hover:text-val-accent transition-colors"
-                  title={session.user.email}
+                  title={user?.email}
                 >
                   <User className="h-5 w-5" />
                 </Link>
@@ -76,6 +93,20 @@ export function Navbar() {
                   <span className="hidden lg:inline">Sign In</span>
                 </Link>
               )}
+
+              {/* Wishlist Button */}
+              <Link
+                href="/wishlist"
+                className="text-gray-300 hover:text-val-accent transition-colors relative"
+                aria-label="Wishlist"
+              >
+                <Heart className="h-5 w-5" />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-val-accent text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                    {wishlistCount > 99 ? "99+" : wishlistCount}
+                  </span>
+                )}
+              </Link>
 
               {/* Cart Button */}
               <button
@@ -90,6 +121,17 @@ export function Navbar() {
                   </span>
                 )}
               </button>
+
+              {/* Admin Button */}
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="text-red-400 hover:text-red-300 transition-colors flex items-center gap-1 text-xs font-semibold uppercase"
+                >
+                  <Shield className="h-4 w-4" />
+                  <span className="hidden xl:inline">Admin</span>
+                </Link>
+              )}
             </div>
 
             {/* Mobile: Cart + Menu */}

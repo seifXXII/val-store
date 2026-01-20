@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripeService } from "@/infrastructure/services/stripe.service";
 import { ResendEmailService } from "@/infrastructure/services/resend-email.service";
 import { db } from "@/db";
-import { cartItems } from "@/db/schema";
+import { cartItems, orders, payments } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 const emailService = new ResendEmailService();
@@ -51,6 +51,34 @@ export async function POST(request: NextRequest) {
         orderId: metadata?.orderId,
         paymentStatus: session.payment_status,
       });
+
+      // Persist payment + order status
+      if (metadata?.orderId && session.payment_status === "paid") {
+        try {
+          await db
+            .update(orders)
+            .set({ status: "paid", updatedAt: new Date() })
+            .where(eq(orders.id, metadata.orderId));
+
+          await db
+            .update(payments)
+            .set({
+              paymentStatus: "completed",
+              paymentGatewayResponse: JSON.stringify({
+                stripePaymentIntentId:
+                  typeof session.payment_intent === "string"
+                    ? session.payment_intent
+                    : null,
+              }),
+              updatedAt: new Date(),
+            })
+            .where(eq(payments.orderId, metadata.orderId));
+
+          console.log("Order marked paid:", metadata.orderId);
+        } catch (error) {
+          console.error("Failed to update order/payment:", error);
+        }
+      }
 
       // Send order confirmation email
       if (customerEmail && session.payment_status === "paid") {

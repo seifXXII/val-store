@@ -52,7 +52,7 @@ export class OrderStatus {
    */
   canTransitionTo(newStatus: OrderStatusValue): boolean {
     const transitions: Record<OrderStatusValue, OrderStatusValue[]> = {
-      pending: ["processing", "cancelled"],
+      pending: ["processing", "paid", "cancelled"],
       processing: ["paid", "cancelled"],
       paid: ["shipped", "refunded"],
       shipped: ["delivered", "cancelled"],

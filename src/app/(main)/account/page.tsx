@@ -18,10 +18,11 @@ export default function AccountDashboard() {
   const user = session?.user;
 
   // Fetch recent orders
-  const { data: recentOrders } = trpc.public.orders.getMyOrders.useQuery(
+  const { data: ordersData } = trpc.public.orders.getMyOrders.useQuery(
     { limit: 3 },
     { enabled: !!user }
   );
+  const recentOrders = ordersData?.orders;
 
   return (
     <div className="space-y-6">
@@ -41,7 +42,7 @@ export default function AccountDashboard() {
           href="/account/orders"
           icon={Package}
           label="Orders"
-          value={recentOrders?.length ?? 0}
+          value={ordersData?.total ?? 0}
           description="View order history"
         />
         <QuickLinkCard

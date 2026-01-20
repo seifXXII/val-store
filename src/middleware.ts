@@ -10,15 +10,13 @@ import { NextRequest, NextResponse } from "next/server";
  * Full session validation and role checks happen in tRPC/page layer.
  *
  * Public routes: /, /collections/*, /products/* (customer-facing)
- * Protected routes: /dashboard/*, /orders/* (admin only)
+ * Protected routes: /admin/* (admin only)
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Admin routes require authentication
-  // Note: /products is PUBLIC (customer product pages)
-  // Admin product management is under /dashboard/products
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/orders")) {
+  if (pathname.startsWith("/admin")) {
     // Check for Better Auth session cookie (avoids HTTP call that can deadlock)
     // Better Auth uses "better-auth.session_token" as the session cookie name
     const sessionCookie = request.cookies.get("better-auth.session_token");
@@ -39,12 +37,9 @@ export async function middleware(request: NextRequest) {
 }
 
 // Configure which routes the middleware applies to
-// /products is now PUBLIC for customer product detail pages
-// Admin product management is under /dashboard/products
 export const config = {
   matcher: [
     // Admin routes only - EXCLUDE api routes to prevent deadlock
-    "/dashboard/:path*",
-    "/orders/:path*",
+    "/admin/:path*",
   ],
 };
