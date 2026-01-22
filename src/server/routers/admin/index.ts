@@ -9,6 +9,7 @@ import { adminCouponsRouter } from "./coupons";
 import { adminReviewsRouter } from "./reviews";
 import { adminInventoryRouter } from "./inventory";
 import { adminCustomersRouter } from "./customers";
+import { adminNotificationsRouter } from "./notifications";
 
 export const adminRouter = router({
   products: productsRouter,
@@ -21,4 +22,5 @@ export const adminRouter = router({
   reviews: adminReviewsRouter,
   inventory: adminInventoryRouter,
   customers: adminCustomersRouter,
+  notifications: adminNotificationsRouter,
 });

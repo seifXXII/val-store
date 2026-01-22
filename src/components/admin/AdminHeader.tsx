@@ -1,16 +1,11 @@
 "use client";
 
 import { UserDialog } from "@/components/UserDialog";
-import { Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
+import { AdminNotifications } from "./AdminNotifications";
 
 export function AdminHeader() {
   const { data: session } = useSession();
-
-  // TODO: Replace with actual notification query when notification system is implemented
-  // For now, no red dot since there's no notification system
-  const unreadNotificationCount = 0;
 
   // Transform session to user props expected by UserDialog
   const user = session?.user
@@ -31,12 +26,7 @@ export function AdminHeader() {
 
       <div className="flex items-center gap-4">
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          {unreadNotificationCount > 0 && (
-            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-600" />
-          )}
-        </Button>
+        <AdminNotifications />
 
         {/* User Menu */}
         <UserDialog user={user} />

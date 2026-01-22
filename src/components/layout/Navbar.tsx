@@ -14,6 +14,7 @@ import {
 import { MobileMenu } from "./MobileMenu";
 import { trpc } from "@/lib/trpc";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { UserNotificationsBell } from "@/components/UserNotificationsBell";
 
 const navLinks = [
   { label: "Shop", href: "/collections/all" },
@@ -107,6 +108,9 @@ export function Navbar() {
                   </span>
                 )}
               </Link>
+
+              {/* Notifications */}
+              <UserNotificationsBell />
 
               {/* Cart Button */}
               <button

@@ -82,6 +82,19 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "new_customer",
 ]);
 
+// User notification type enum
+export const userNotificationTypeEnum = pgEnum("user_notification_type", [
+  "wishlist_sale",
+  "item_available",
+  "order_update",
+  "price_drop",
+  "order_confirmed",
+  "order_shipped",
+  "order_delivered",
+  "order_cancelled",
+  "refund_processed",
+]);
+
 // ============================================
 // BETTER AUTH TABLES
 // ============================================
@@ -609,6 +622,35 @@ export const adminNotifications = pgTable(
 );
 
 // ============================================
+// USER NOTIFICATIONS TABLE
+// ============================================
+
+export const userNotifications = pgTable(
+  "user_notifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    notificationType: userNotificationTypeEnum("notification_type").notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    message: text("message").notNull(),
+    productId: uuid("product_id").references(() => products.id, {
+      onDelete: "set null",
+    }),
+    isRead: boolean("is_read").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("idx_user_notifications_user_id").on(table.userId),
+    isReadIdx: index("idx_user_notifications_is_read").on(table.isRead),
+    createdAtIdx: index("idx_user_notifications_created_at").on(
+      table.createdAt
+    ),
+  })
+);
+
+// ============================================
 // CMS: SITE SETTINGS TABLE
 // ============================================
 
@@ -795,6 +837,9 @@ export type NewInventoryLog = typeof inventoryLogs.$inferInsert;
 
 export type AdminNotification = typeof adminNotifications.$inferSelect;
 export type NewAdminNotification = typeof adminNotifications.$inferInsert;
+
+export type UserNotification = typeof userNotifications.$inferSelect;
+export type NewUserNotification = typeof userNotifications.$inferInsert;
 
 // CMS Types
 export type SiteSettings = typeof siteSettings.$inferSelect;
