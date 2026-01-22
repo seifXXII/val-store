@@ -186,6 +186,7 @@ export const publicProductsRouter = router({
         slug: p.slug,
         basePrice: p.basePrice,
         salePrice: p.salePrice,
+        image: p.images?.[0] ?? null,
       }));
 
       return {
