@@ -37,6 +37,11 @@ const navItems = [
     icon: Tag,
   },
   {
+    title: "Reviews",
+    href: "/admin/reviews",
+    icon: Star,
+  },
+  {
     title: "Settings",
     href: "/admin/settings",
     icon: Settings,
@@ -47,7 +52,6 @@ const navItems = [
 const comingSoonItems = [
   { title: "Inventory", icon: Warehouse },
   { title: "Customers", icon: Users },
-  { title: "Reviews", icon: Star },
   { title: "Analytics", icon: BarChart3 },
 ];
 

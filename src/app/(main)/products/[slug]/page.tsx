@@ -7,6 +7,7 @@
 
 import { ProductDetail } from "@/components/products/ProductDetail";
 import { RelatedProducts } from "@/components/products/RelatedProducts";
+import { ProductReviews } from "@/components/products/ProductReviews";
 import { notFound } from "next/navigation";
 import { getCachedProductBySlug, getCachedRelatedProducts } from "@/lib/cache";
 
@@ -71,6 +72,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
   return (
     <>
       <ProductDetail product={productForDetail} />
+      <div className="container py-8">
+        <ProductReviews productId={product.id} />
+      </div>
       {relatedProducts.length > 0 && (
         <RelatedProducts products={relatedProducts} />
       )}
