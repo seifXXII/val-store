@@ -75,8 +75,9 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 | `pnpm start`      | Start production server      |
 | `pnpm lint`       | Run ESLint                   |
 | `pnpm type-check` | Run TypeScript type checking |
-| `pnpm vitest`     | Run tests in watch mode      |
-| `pnpm vitest run` | Run tests once               |
+| `pnpm test`       | Run tests once               |
+| `pnpm test:watch` | Run tests in watch mode      |
+| `pnpm test:ui`    | Run tests with UI            |
 | `pnpm db:push`    | Push schema to database      |
 | `pnpm db:studio`  | Open Drizzle Studio          |
 | `pnpm seed`       | Seed the database            |
