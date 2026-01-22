@@ -42,6 +42,11 @@ const navItems = [
     icon: Star,
   },
   {
+    title: "Inventory",
+    href: "/admin/inventory",
+    icon: Warehouse,
+  },
+  {
     title: "Settings",
     href: "/admin/settings",
     icon: Settings,
@@ -50,7 +55,6 @@ const navItems = [
 
 // Coming Soon features (displayed but disabled)
 const comingSoonItems = [
-  { title: "Inventory", icon: Warehouse },
   { title: "Customers", icon: Users },
   { title: "Analytics", icon: BarChart3 },
 ];

@@ -7,6 +7,7 @@ import { imagesRouter } from "./images";
 import { settingsRouter } from "./settings";
 import { adminCouponsRouter } from "./coupons";
 import { adminReviewsRouter } from "./reviews";
+import { adminInventoryRouter } from "./inventory";
 
 export const adminRouter = router({
   products: productsRouter,
@@ -17,4 +18,5 @@ export const adminRouter = router({
   settings: settingsRouter,
   coupons: adminCouponsRouter,
   reviews: adminReviewsRouter,
+  inventory: adminInventoryRouter,
 });
