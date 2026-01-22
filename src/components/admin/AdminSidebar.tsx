@@ -51,13 +51,15 @@ const navItems = [
     href: "/admin/settings",
     icon: Settings,
   },
+  {
+    title: "Customers",
+    href: "/admin/customers",
+    icon: Users,
+  },
 ];
 
 // Coming Soon features (displayed but disabled)
-const comingSoonItems = [
-  { title: "Customers", icon: Users },
-  { title: "Analytics", icon: BarChart3 },
-];
+const comingSoonItems = [{ title: "Analytics", icon: BarChart3 }];
 
 export function AdminSidebar() {
   const pathname = usePathname();

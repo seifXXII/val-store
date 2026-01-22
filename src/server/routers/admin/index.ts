@@ -8,6 +8,7 @@ import { settingsRouter } from "./settings";
 import { adminCouponsRouter } from "./coupons";
 import { adminReviewsRouter } from "./reviews";
 import { adminInventoryRouter } from "./inventory";
+import { adminCustomersRouter } from "./customers";
 
 export const adminRouter = router({
   products: productsRouter,
@@ -19,4 +20,5 @@ export const adminRouter = router({
   coupons: adminCouponsRouter,
   reviews: adminReviewsRouter,
   inventory: adminInventoryRouter,
+  customers: adminCustomersRouter,
 });
