@@ -83,9 +83,8 @@ export async function ServerFeaturedProducts({
           <div className="text-center mt-12">
             <Link href="/collections/all">
               <Button
-                variant="outline"
                 size="lg"
-                className="border-white/20 text-white hover:bg-white hover:text-black px-8"
+                className="bg-white text-black hover:bg-val-silver px-8 py-6 text-base font-medium tracking-wide"
               >
                 View All Products
               </Button>
