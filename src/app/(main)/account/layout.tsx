@@ -37,7 +37,7 @@ export default function AccountLayout({
   }
 
   if (!session?.user) {
-    redirect("/auth/login?callbackUrl=/account");
+    redirect("/login?redirect=/account");
   }
 
   return (

@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Val Store
+
+Premium streetwear e-commerce platform built with Next.js 15, TypeScript, and modern best practices.
+
+## Tech Stack
+
+- **Framework:** Next.js 15 with App Router
+- **Language:** TypeScript
+- **Database:** PostgreSQL with Drizzle ORM
+- **Authentication:** Better Auth
+- **Payments:** Stripe + Cash on Delivery
+- **Styling:** Tailwind CSS 4 + shadcn/ui
+- **State:** Zustand
+- **API:** tRPC
+- **File Uploads:** UploadThing
+- **Testing:** Vitest
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 22+
+- pnpm 10+
+- PostgreSQL database
+
+### Installation
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/seifXXII/val-store.git
+cd val-store
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Copy environment variables:
 
-## Learn More
+```bash
+cp .env.example .env.local
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Update `.env.local` with your values
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. Run database migrations:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm db:push
+```
 
-## Deploy on Vercel
+6. Seed the database (optional):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm seed
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+7. Start the development server:
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view the app.
+
+## Scripts
+
+| Script            | Description                  |
+| ----------------- | ---------------------------- |
+| `pnpm dev`        | Start development server     |
+| `pnpm build`      | Build for production         |
+| `pnpm start`      | Start production server      |
+| `pnpm lint`       | Run ESLint                   |
+| `pnpm type-check` | Run TypeScript type checking |
+| `pnpm test`       | Run tests once               |
+| `pnpm test:watch` | Run tests in watch mode      |
+| `pnpm test:ui`    | Run tests with UI            |
+| `pnpm db:push`    | Push schema to database      |
+| `pnpm db:studio`  | Open Drizzle Studio          |
+| `pnpm seed`       | Seed the database            |
+
+## Project Structure
+
+```
+src/
+├── app/                 # Next.js App Router pages
+│   ├── (auth)/          # Auth pages (login, register, etc.)
+│   ├── (main)/          # Storefront pages
+│   ├── admin/           # Admin dashboard
+│   └── api/             # API routes
+├── components/          # React components
+├── domain/              # Domain entities and interfaces
+├── application/         # Use cases and business logic
+├── infrastructure/      # Database repositories
+├── lib/                 # Utilities and configs
+└── server/              # tRPC routers
+```
+
+## Environment Variables
+
+See `.env.example` for required environment variables.
+
+## License
+
+Private project - All rights reserved.

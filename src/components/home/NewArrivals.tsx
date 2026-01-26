@@ -145,9 +145,8 @@ export function NewArrivals({
         <div className="text-center mt-10">
           <Link href="/collections/new">
             <Button
-              variant="outline"
               size="lg"
-              className="border-white/20 text-white hover:bg-white hover:text-black px-8"
+              className="bg-white text-black hover:bg-val-silver px-8 py-6 text-base font-medium tracking-wide"
             >
               View All New Arrivals
             </Button>

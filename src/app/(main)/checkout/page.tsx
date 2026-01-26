@@ -21,10 +21,33 @@ import { ShoppingBag } from "lucide-react";
 
 type PaymentMethod = "stripe" | "cash_on_delivery";
 
-function OrderSummaryCard() {
+function OrderSummaryCard({
+  couponCode,
+  setCouponCode,
+  appliedCoupon,
+  onApplyCoupon,
+  onRemoveCoupon,
+  isValidating,
+  couponError,
+}: {
+  couponCode: string;
+  setCouponCode: (code: string) => void;
+  appliedCoupon: {
+    code: string;
+    discountAmount: number;
+    discountType: string;
+    discountValue: string;
+  } | null;
+  onApplyCoupon: () => void;
+  onRemoveCoupon: () => void;
+  isValidating: boolean;
+  couponError: string | null;
+}) {
   const items = useCartStore((state) => state.items);
   const subtotal = useCartStore((state) => state.getSubtotal());
   const itemCount = useCartStore((state) => state.getItemCount());
+  const discount = appliedCoupon?.discountAmount ?? 0;
+  const total = subtotal - discount;
 
   if (items.length === 0) {
     return (
@@ -79,18 +102,73 @@ function OrderSummaryCard() {
           </div>
         ))}
 
+        {/* Coupon Input */}
+        <div className="border-t pt-4">
+          <Label className="text-sm font-medium">Coupon Code</Label>
+          {appliedCoupon ? (
+            <div className="flex items-center justify-between mt-2 p-2 bg-green-50 dark:bg-green-950 rounded-md border border-green-200 dark:border-green-800">
+              <div className="flex items-center gap-2">
+                <span className="font-mono font-semibold text-green-700 dark:text-green-400">
+                  {appliedCoupon.code}
+                </span>
+                <span className="text-sm text-green-600 dark:text-green-500">
+                  (
+                  {appliedCoupon.discountType === "percentage"
+                    ? `${appliedCoupon.discountValue}% off`
+                    : `-$${appliedCoupon.discountValue}`}
+                  )
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onRemoveCoupon}
+                className="text-red-500 hover:text-red-700"
+              >
+                Remove
+              </Button>
+            </div>
+          ) : (
+            <div className="flex gap-2 mt-2">
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                placeholder="Enter code"
+                className="flex-1 px-3 py-2 border rounded-md text-sm uppercase"
+              />
+              <Button
+                variant="outline"
+                onClick={onApplyCoupon}
+                disabled={!couponCode.trim() || isValidating}
+              >
+                {isValidating ? "..." : "Apply"}
+              </Button>
+            </div>
+          )}
+          {couponError && (
+            <p className="text-sm text-red-500 mt-1">{couponError}</p>
+          )}
+        </div>
+
         <div className="border-t pt-4 space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
             <span>${subtotal.toFixed(2)}</span>
           </div>
+          {appliedCoupon && (
+            <div className="flex justify-between text-sm text-green-600">
+              <span>Discount</span>
+              <span>-${discount.toFixed(2)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Shipping</span>
             <span className="text-green-600">Free</span>
           </div>
           <div className="flex justify-between font-semibold text-lg pt-2 border-t">
             <span>Total</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>${total.toFixed(2)}</span>
           </div>
         </div>
       </CardContent>
@@ -103,6 +181,51 @@ export default function CheckoutPage() {
 
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>("cash_on_delivery");
+
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    couponId: string;
+    discountAmount: number;
+    discountType: string;
+    discountValue: string;
+  } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  const subtotal = useCartStore((state) => state.getSubtotal());
+
+  const validateCoupon = trpc.public.coupons.validate.useMutation({
+    onSuccess: (result) => {
+      if (result.valid && "code" in result) {
+        setAppliedCoupon({
+          code: result.code,
+          couponId: result.couponId,
+          discountAmount: result.discountAmount ?? 0,
+          discountType: result.discountType,
+          discountValue: result.discountValue,
+        });
+        setCouponCode("");
+        setCouponError(null);
+      } else if (!result.valid && "error" in result) {
+        setCouponError(result.error ?? "Invalid coupon");
+      }
+    },
+    onError: (err) => {
+      setCouponError(err.message);
+    },
+  });
+
+  const handleApplyCoupon = () => {
+    if (!couponCode.trim()) return;
+    setCouponError(null);
+    validateCoupon.mutate({ code: couponCode, subtotal });
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError(null);
+  };
 
   const { data: addresses = [], isLoading: isLoadingAddresses } =
     trpc.public.address.list.useQuery();
@@ -197,7 +320,15 @@ export default function CheckoutPage() {
         </div>
 
         {/* Order Summary */}
-        <OrderSummaryCard />
+        <OrderSummaryCard
+          couponCode={couponCode}
+          setCouponCode={setCouponCode}
+          appliedCoupon={appliedCoupon}
+          onApplyCoupon={handleApplyCoupon}
+          onRemoveCoupon={handleRemoveCoupon}
+          isValidating={validateCoupon.isPending}
+          couponError={couponError}
+        />
 
         <Card>
           <CardHeader>

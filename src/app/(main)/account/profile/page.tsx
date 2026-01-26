@@ -102,7 +102,7 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent>
           <Button variant="outline" asChild>
-            <a href="/auth/forgot-password">Change Password</a>
+            <a href="/forgot-password">Change Password</a>
           </Button>
         </CardContent>
       </Card>

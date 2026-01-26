@@ -46,8 +46,8 @@ export function BrandStory({
             ))}
             <Link href={ctaLink} className="inline-block mt-8">
               <Button
-                variant="outline"
-                className="border-white/20 text-white hover:bg-white hover:text-black"
+                size="lg"
+                className="bg-white text-black hover:bg-val-silver px-8 py-6 text-base font-medium tracking-wide"
               >
                 {ctaText}
               </Button>

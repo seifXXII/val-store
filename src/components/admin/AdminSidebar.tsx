@@ -32,20 +32,34 @@ const navItems = [
     icon: ShoppingCart,
   },
   {
+    title: "Coupons",
+    href: "/admin/coupons",
+    icon: Tag,
+  },
+  {
+    title: "Reviews",
+    href: "/admin/reviews",
+    icon: Star,
+  },
+  {
+    title: "Inventory",
+    href: "/admin/inventory",
+    icon: Warehouse,
+  },
+  {
     title: "Settings",
     href: "/admin/settings",
     icon: Settings,
   },
+  {
+    title: "Customers",
+    href: "/admin/customers",
+    icon: Users,
+  },
 ];
 
 // Coming Soon features (displayed but disabled)
-const comingSoonItems = [
-  { title: "Inventory", icon: Warehouse },
-  { title: "Customers", icon: Users },
-  { title: "Reviews", icon: Star },
-  { title: "Coupons", icon: Tag },
-  { title: "Analytics", icon: BarChart3 },
-];
+const comingSoonItems = [{ title: "Analytics", icon: BarChart3 }];
 
 export function AdminSidebar() {
   const pathname = usePathname();

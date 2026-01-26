@@ -8,6 +8,7 @@
 import { z } from "zod";
 import { router, adminProcedure } from "../../trpc";
 import { container } from "@/application/container";
+import { revalidateTag } from "next/cache";
 import {
   heroContentSchema,
   announcementContentSchema,
@@ -152,6 +153,11 @@ export const settingsRouter = router({
         },
         ctx.user.id
       );
+
+      // Invalidate cache for this section
+      revalidateTag(`cms-${input.sectionType}`, "max");
+      revalidateTag("cms-sections", "max");
+
       return {
         ...updated.toObject(),
         content: JSON.parse(updated.content),
