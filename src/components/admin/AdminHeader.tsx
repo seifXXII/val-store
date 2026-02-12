@@ -3,6 +3,7 @@
 import { UserDialog } from "@/components/UserDialog";
 import { useSession } from "@/lib/auth-client";
 import { AdminNotifications } from "./AdminNotifications";
+import { AdminThemeToggle } from "./AdminThemeToggle";
 
 export function AdminHeader() {
   const { data: session } = useSession();
@@ -24,7 +25,10 @@ export function AdminHeader() {
         <h2 className="text-lg font-semibold">Admin Panel</h2>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
+        {/* Theme Toggle */}
+        <AdminThemeToggle />
+
         {/* Notifications */}
         <AdminNotifications />
 
