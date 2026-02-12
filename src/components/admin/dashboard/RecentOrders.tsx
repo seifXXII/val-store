@@ -37,7 +37,7 @@ export function RecentOrders() {
     <Card className="col-span-3">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Recent Orders</CardTitle>
-        <Link href="/orders">
+        <Link href="/admin/orders">
           <Button variant="ghost" size="sm">
             View All
             <ArrowRight className="ml-2 h-4 w-4" />

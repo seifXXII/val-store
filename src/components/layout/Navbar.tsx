@@ -14,6 +14,8 @@ import {
 import { MobileMenu } from "./MobileMenu";
 import { trpc } from "@/lib/trpc";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { UserNotificationsBell } from "@/components/UserNotificationsBell";
+import { SearchDialog, useSearchShortcut } from "@/components/SearchDialog";
 
 const navLinks = [
   { label: "Shop", href: "/collections/all" },
@@ -24,6 +26,7 @@ const navLinks = [
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { data: user, isLoading } = trpc.public.user.getSession.useQuery();
   const { openCart, getItemCount } = useCartStore();
 
@@ -33,11 +36,15 @@ export function Navbar() {
   const { data: wishlistCountData } = trpc.public.wishlist.getCount.useQuery(
     undefined,
     {
+      enabled: isLoggedIn,
       initialData: { count: 0 },
     }
   );
 
   const wishlistCount = wishlistCountData?.count ?? 0;
+
+  // Cmd/Ctrl+K shortcut for search
+  useSearchShortcut(() => setIsSearchOpen(true));
 
   return (
     <>
@@ -67,10 +74,16 @@ export function Navbar() {
             {/* Right: Icons (Desktop) */}
             <div className="hidden md:flex items-center gap-5 flex-1 justify-end">
               <button
-                className="text-gray-300 hover:text-val-accent transition-colors"
+                onClick={() => setIsSearchOpen(true)}
+                className="text-gray-300 hover:text-val-accent transition-colors flex items-center gap-1.5"
                 aria-label="Search"
               >
                 <Search className="h-5 w-5" />
+                <span className="hidden lg:flex items-center gap-1 text-xs text-gray-500">
+                  <kbd className="bg-gray-800 px-1.5 py-0.5 rounded text-[10px]">
+                    ⌘K
+                  </kbd>
+                </span>
               </button>
 
               {/* Auth state */}
@@ -96,7 +109,7 @@ export function Navbar() {
 
               {/* Wishlist Button */}
               <Link
-                href="/wishlist"
+                href="/account/wishlist"
                 className="text-gray-300 hover:text-val-accent transition-colors relative"
                 aria-label="Wishlist"
               >
@@ -107,6 +120,9 @@ export function Navbar() {
                   </span>
                 )}
               </Link>
+
+              {/* Notifications */}
+              <UserNotificationsBell />
 
               {/* Cart Button */}
               <button
@@ -165,6 +181,8 @@ export function Navbar() {
         onClose={() => setIsMobileMenuOpen(false)}
         isLoggedIn={isLoggedIn}
       />
+
+      <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
     </>
   );
 }

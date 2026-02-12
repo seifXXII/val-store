@@ -6,6 +6,7 @@
 
 "use client";
 
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { ShoppingBag, ArrowLeft, ArrowRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,16 @@ import { CartItem } from "@/components/cart/CartItem";
 import { CartSummary } from "@/components/cart/CartSummary";
 import { useCart } from "@/components/providers/cart-provider";
 
+const subscribe = () => () => {};
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 export default function CartPage() {
+  const hasMounted = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot
+  );
   const {
     items,
     isLoading,
@@ -27,6 +37,27 @@ export default function CartPage() {
     clearCart,
   } = useCart();
 
+  if (!hasMounted || isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-8">
+          Your Cart
+        </h1>
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-24 bg-white/[0.06] rounded-lg animate-pulse"
+              />
+            ))}
+          </div>
+          <div className="h-64 bg-white/[0.06] rounded-lg animate-pulse" />
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 text-center">
@@ -39,33 +70,16 @@ export default function CartPage() {
           your purchase.
         </p>
         <div className="flex gap-4">
-          <Button variant="outline" asChild className="border-white/20">
+          <Button
+            variant="outline"
+            asChild
+            className="border-white/10 text-gray-300 hover:bg-white/[0.04] hover:text-white"
+          >
             <Link href="/signup">Create Account</Link>
           </Button>
           <Button asChild className="bg-val-accent hover:bg-val-accent/90">
             <Link href="/login?redirect=/cart">Sign In</Link>
           </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-8">
-          Your Cart
-        </h1>
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-24 bg-gray-800/50 rounded-lg animate-pulse"
-              />
-            ))}
-          </div>
-          <div className="h-64 bg-gray-800/50 rounded-lg animate-pulse" />
         </div>
       </div>
     );
@@ -114,7 +128,7 @@ export default function CartPage() {
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Cart Items */}
         <div className="lg:col-span-2">
-          <div className="rounded-lg border border-white/10 bg-gray-900/30 p-4">
+          <div className="rounded-lg border border-white/10 bg-zinc-900 p-4">
             {items.map((item) => (
               <CartItem
                 key={item.id}
@@ -128,7 +142,11 @@ export default function CartPage() {
 
           {/* Continue Shopping */}
           <div className="mt-6">
-            <Button variant="outline" asChild className="border-white/20">
+            <Button
+              variant="outline"
+              asChild
+              className="border-white/10 text-gray-300 hover:bg-white/[0.04] hover:text-white"
+            >
               <Link href="/collections/all">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Continue Shopping

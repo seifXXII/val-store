@@ -26,6 +26,28 @@ export interface RecentOrder {
   createdAt: Date;
 }
 
+export interface TopProduct {
+  productId: string | null;
+  productName: string;
+  totalQuantity: number;
+  totalRevenue: number;
+}
+
+export interface OrderStatusCount {
+  status: string;
+  count: number;
+}
+
+export interface AnalyticsData {
+  totalRevenue: number;
+  totalOrders: number;
+  avgOrderValue: number;
+  totalCustomers: number;
+  revenueTrend: SalesTrendItem[];
+  topProducts: TopProduct[];
+  ordersByStatus: OrderStatusCount[];
+}
+
 export interface DashboardRepositoryInterface {
   /**
    * Get key metrics for the dashboard (last 30 days)
@@ -41,4 +63,9 @@ export interface DashboardRepositoryInterface {
    * Get recent orders for the dashboard
    */
   getRecentOrders(limit?: number): Promise<RecentOrder[]>;
+
+  /**
+   * Get analytics data for the analytics page
+   */
+  getAnalytics(days: number): Promise<AnalyticsData>;
 }

@@ -31,7 +31,7 @@ export function CartSummary({
   const total = subtotal + shipping + tax;
 
   return (
-    <div className="space-y-4 rounded-lg border border-white/10 bg-gray-900/50 p-4">
+    <div className="space-y-4 rounded-lg border border-white/10 bg-zinc-900 p-4">
       <h3 className="text-lg font-semibold text-white">Order Summary</h3>
 
       <div className="space-y-2 text-sm">

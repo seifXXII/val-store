@@ -18,7 +18,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Edit, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
+import {
+  MoreVertical,
+  Edit,
+  Trash2,
+  Loader2,
+  Eye,
+  EyeOff,
+  ExternalLink,
+} from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
@@ -181,6 +189,15 @@ export function ProductsTable() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/products/${product.slug}`}
+                            target="_blank"
+                          >
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            View on Store
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link href={`/admin/products/${product.id}`}>
                             <Edit className="mr-2 h-4 w-4" />

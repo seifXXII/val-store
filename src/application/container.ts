@@ -28,6 +28,7 @@ import { DrizzleDashboardRepository } from "@/infrastructure/database/repositori
 import { GetDashboardMetricsUseCase } from "./use-cases/dashboard/get-metrics.use-case";
 import { GetSalesTrendUseCase } from "./use-cases/dashboard/get-sales-trend.use-case";
 import { GetRecentOrdersUseCase } from "./use-cases/dashboard/get-recent-orders.use-case";
+import { GetAnalyticsUseCase } from "./use-cases/dashboard/get-analytics.use-case";
 import { DrizzleProductVariantRepository } from "@/infrastructure/database/repositories/product-variant.repository";
 import { AddProductVariantUseCase } from "./use-cases/products/add-product-variant.use-case";
 import { UpdateVariantStockUseCase } from "./use-cases/products/update-variant-stock.use-case";
@@ -90,6 +91,7 @@ class Container {
   private getDashboardMetricsUseCase?: GetDashboardMetricsUseCase;
   private getSalesTrendUseCase?: GetSalesTrendUseCase;
   private getRecentOrdersUseCase?: GetRecentOrdersUseCase;
+  private getAnalyticsUseCase?: GetAnalyticsUseCase;
 
   // Product Variant dependencies
   private productVariantRepository?: DrizzleProductVariantRepository;
@@ -321,6 +323,15 @@ class Container {
       );
     }
     return this.getRecentOrdersUseCase;
+  }
+
+  getGetAnalyticsUseCase(): GetAnalyticsUseCase {
+    if (!this.getAnalyticsUseCase) {
+      this.getAnalyticsUseCase = new GetAnalyticsUseCase(
+        this.getDashboardRepository()
+      );
+    }
+    return this.getAnalyticsUseCase;
   }
 
   // Product Variant Repository

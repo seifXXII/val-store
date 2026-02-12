@@ -82,6 +82,19 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "new_customer",
 ]);
 
+// User notification type enum
+export const userNotificationTypeEnum = pgEnum("user_notification_type", [
+  "wishlist_sale",
+  "item_available",
+  "order_update",
+  "price_drop",
+  "order_confirmed",
+  "order_shipped",
+  "order_delivered",
+  "order_cancelled",
+  "refund_processed",
+]);
+
 // ============================================
 // BETTER AUTH TABLES
 // ============================================
@@ -496,6 +509,36 @@ export const coupons = pgTable(
 );
 
 // ============================================
+// COUPON USAGES TABLE (Per-user tracking)
+// ============================================
+
+export const couponUsages = pgTable(
+  "coupon_usages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    couponId: uuid("coupon_id")
+      .notNull()
+      .references(() => coupons.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    orderId: uuid("order_id").references(() => orders.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    couponIdIdx: index("idx_coupon_usages_coupon_id").on(table.couponId),
+    userIdIdx: index("idx_coupon_usages_user_id").on(table.userId),
+    uniqueUsageIdx: uniqueIndex("idx_coupon_usages_unique").on(
+      table.couponId,
+      table.userId,
+      table.orderId
+    ),
+  })
+);
+
+// ============================================
 // PAYMENTS TABLE
 // ============================================
 
@@ -575,6 +618,35 @@ export const adminNotifications = pgTable(
     ),
     isReadIdx: index("idx_notifications_is_read").on(table.isRead),
     createdAtIdx: index("idx_notifications_created_at").on(table.createdAt),
+  })
+);
+
+// ============================================
+// USER NOTIFICATIONS TABLE
+// ============================================
+
+export const userNotifications = pgTable(
+  "user_notifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    notificationType: userNotificationTypeEnum("notification_type").notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    message: text("message").notNull(),
+    productId: uuid("product_id").references(() => products.id, {
+      onDelete: "set null",
+    }),
+    isRead: boolean("is_read").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("idx_user_notifications_user_id").on(table.userId),
+    isReadIdx: index("idx_user_notifications_is_read").on(table.isRead),
+    createdAtIdx: index("idx_user_notifications_created_at").on(
+      table.createdAt
+    ),
   })
 );
 
@@ -754,6 +826,9 @@ export type NewReview = typeof reviews.$inferInsert;
 export type Coupon = typeof coupons.$inferSelect;
 export type NewCoupon = typeof coupons.$inferInsert;
 
+export type CouponUsage = typeof couponUsages.$inferSelect;
+export type NewCouponUsage = typeof couponUsages.$inferInsert;
+
 export type Payment = typeof payments.$inferSelect;
 export type NewPayment = typeof payments.$inferInsert;
 
@@ -762,6 +837,9 @@ export type NewInventoryLog = typeof inventoryLogs.$inferInsert;
 
 export type AdminNotification = typeof adminNotifications.$inferSelect;
 export type NewAdminNotification = typeof adminNotifications.$inferInsert;
+
+export type UserNotification = typeof userNotifications.$inferSelect;
+export type NewUserNotification = typeof userNotifications.$inferInsert;
 
 // CMS Types
 export type SiteSettings = typeof siteSettings.$inferSelect;

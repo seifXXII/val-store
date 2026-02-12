@@ -1,5 +1,6 @@
 import { router, adminProcedure } from "../../trpc";
 import { container } from "@/application/container";
+import { z } from "zod";
 
 /**
  * Dashboard Router - Admin Dashboard Metrics
@@ -28,4 +29,12 @@ export const dashboardRouter = router({
     const useCase = container.getGetRecentOrdersUseCase();
     return useCase.execute();
   }),
+
+  // Get analytics data
+  getAnalytics: adminProcedure
+    .input(z.object({ days: z.number().min(1).max(365).default(30) }))
+    .query(async ({ input }) => {
+      const useCase = container.getGetAnalyticsUseCase();
+      return useCase.execute(input.days);
+    }),
 });

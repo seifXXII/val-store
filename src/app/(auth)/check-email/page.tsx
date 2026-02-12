@@ -54,24 +54,24 @@ function CheckEmailContent() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md text-center">
+      <Card className="w-full max-w-md text-center bg-zinc-900 border-white/10 text-white">
         <CardHeader>
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-            <Mail className="h-8 w-8 text-primary" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-val-accent/10">
+            <Mail className="h-8 w-8 text-val-accent" />
           </div>
-          <CardTitle>Check your email</CardTitle>
+          <CardTitle className="text-white">Check your email</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-muted-foreground">
+          <p className="text-gray-400">
             We&apos;ve sent a verification link to{" "}
             {email ? (
-              <strong className="text-foreground">{email}</strong>
+              <strong className="text-white">{email}</strong>
             ) : (
               "your email"
             )}
             . Please check your inbox and click the link to verify.
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-500">
             Didn&apos;t receive the email? Check your spam folder or click below
             to resend.
           </p>
@@ -81,7 +81,7 @@ function CheckEmailContent() {
               onClick={handleResendEmail}
               disabled={isResending || resendCooldown > 0}
               variant="secondary"
-              className="w-full"
+              className="w-full bg-white/[0.06] border border-white/10 text-white hover:bg-white/[0.1]"
             >
               {isResending ? (
                 <>
@@ -99,7 +99,11 @@ function CheckEmailContent() {
             </Button>
           )}
 
-          <Button asChild variant="outline" className="w-full">
+          <Button
+            asChild
+            variant="outline"
+            className="w-full border-white/10 text-white hover:bg-white/[0.06]"
+          >
             <Link href="/login">Back to login</Link>
           </Button>
         </CardContent>

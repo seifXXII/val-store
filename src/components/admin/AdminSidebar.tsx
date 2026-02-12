@@ -13,6 +13,7 @@ import {
   Warehouse,
   Star,
   Tag,
+  ExternalLink,
 } from "lucide-react";
 
 const navItems = [
@@ -32,19 +33,35 @@ const navItems = [
     icon: ShoppingCart,
   },
   {
+    title: "Coupons",
+    href: "/admin/coupons",
+    icon: Tag,
+  },
+  {
+    title: "Reviews",
+    href: "/admin/reviews",
+    icon: Star,
+  },
+  {
+    title: "Inventory",
+    href: "/admin/inventory",
+    icon: Warehouse,
+  },
+  {
     title: "Settings",
     href: "/admin/settings",
     icon: Settings,
   },
-];
-
-// Coming Soon features (displayed but disabled)
-const comingSoonItems = [
-  { title: "Inventory", icon: Warehouse },
-  { title: "Customers", icon: Users },
-  { title: "Reviews", icon: Star },
-  { title: "Coupons", icon: Tag },
-  { title: "Analytics", icon: BarChart3 },
+  {
+    title: "Customers",
+    href: "/admin/customers",
+    icon: Users,
+  },
+  {
+    title: "Analytics",
+    href: "/admin/analytics",
+    icon: BarChart3,
+  },
 ];
 
 export function AdminSidebar() {
@@ -87,29 +104,18 @@ export function AdminSidebar() {
             </Link>
           );
         })}
-
-        {/* Coming Soon Section */}
-        <div className="pt-4">
-          <p className="px-3 text-xs font-medium text-muted-foreground/50 uppercase tracking-wider">
-            Coming Soon
-          </p>
-          {comingSoonItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={item.title}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground/50 cursor-not-allowed"
-              >
-                <Icon className="h-4 w-4" />
-                <span>{item.title}</span>
-              </div>
-            );
-          })}
-        </div>
       </nav>
 
       {/* Footer */}
-      <div className="border-t p-4">
+      <div className="border-t p-4 space-y-2">
+        <Link
+          href="/"
+          target="_blank"
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ExternalLink className="h-4 w-4" />
+          View Store
+        </Link>
         <p className="text-xs text-muted-foreground">Logged in as Admin</p>
       </div>
     </div>

@@ -8,23 +8,15 @@
 
 import Link from "next/link";
 import { Package, ChevronRight, Loader2 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 
 const statusColors: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800",
-  processing: "bg-blue-100 text-blue-800",
-  shipped: "bg-purple-100 text-purple-800",
-  delivered: "bg-green-100 text-green-800",
-  cancelled: "bg-red-100 text-red-800",
+  pending: "bg-yellow-500/15 text-yellow-400 border border-yellow-500/20",
+  processing: "bg-blue-500/15 text-blue-400 border border-blue-500/20",
+  shipped: "bg-purple-500/15 text-purple-400 border border-purple-500/20",
+  delivered: "bg-green-500/15 text-green-400 border border-green-500/20",
+  cancelled: "bg-red-500/15 text-red-400 border border-red-500/20",
 };
 
 const ITEMS_PER_PAGE = 10;
@@ -58,7 +50,10 @@ export default function OrdersPage() {
     return (
       <div className="space-y-4">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-24 bg-muted rounded-lg animate-pulse" />
+          <div
+            key={i}
+            className="h-24 bg-white/[0.06] rounded-lg animate-pulse"
+          />
         ))}
       </div>
     );
@@ -66,60 +61,65 @@ export default function OrdersPage() {
 
   if (!orders || orders.length === 0) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground mb-4">No orders yet.</p>
-          <Link href="/" className="text-primary hover:underline">
-            Start shopping
-          </Link>
-        </CardContent>
-      </Card>
+      <div className="bg-zinc-900 border border-white/10 rounded-lg py-12 text-center">
+        <Package className="h-12 w-12 mx-auto text-gray-600 mb-4" />
+        <p className="text-gray-400 mb-4">No orders yet.</p>
+        <Link
+          href="/collections/all"
+          className="text-val-accent hover:underline"
+        >
+          Start shopping
+        </Link>
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Order History</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-2xl font-bold text-white">Order History</h2>
+        <p className="text-gray-400">
           View and track your past orders. Showing {orders.length} of {total}.
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {orders.map((order) => (
           <Link key={order.id} href={`/account/orders/${order.id}`}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">
-                    Order #{order.id.slice(-8)}
-                  </CardTitle>
-                  <Badge className={statusColors[order.status] || ""}>
-                    {order.status}
-                  </Badge>
+            <div className="bg-zinc-900 border border-white/10 rounded-lg p-4 hover:border-white/20 transition-colors cursor-pointer">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-base font-semibold text-white">
+                  Order #{order.id.slice(-8)}
+                </h3>
+                <span
+                  className={`text-xs font-medium px-2.5 py-1 rounded-full capitalize ${
+                    statusColors[order.status] || "bg-white/10 text-gray-400"
+                  }`}
+                >
+                  {order.status}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">
+                    {new Date(order.createdAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {order.itemCount} item{order.itemCount !== 1 ? "s" : ""}
+                  </p>
                 </div>
-                <CardDescription>
-                  {new Date(order.createdAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      {order.itemCount} item{order.itemCount !== 1 ? "s" : ""}
-                    </p>
-                    <p className="font-semibold">${order.total.toFixed(2)}</p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                <div className="flex items-center gap-3">
+                  <p className="font-semibold text-white">
+                    ${order.total.toFixed(2)}
+                  </p>
+                  <ChevronRight className="h-5 w-5 text-gray-600" />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </Link>
         ))}
       </div>
@@ -131,18 +131,16 @@ export default function OrdersPage() {
           className="flex items-center justify-center py-4"
         >
           {isFetchingNextPage ? (
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
           ) : (
-            <span className="text-sm text-muted-foreground">
-              Scroll for more...
-            </span>
+            <span className="text-sm text-gray-500">Scroll for more...</span>
           )}
         </div>
       )}
 
       {/* End of list */}
       {!hasNextPage && orders.length > 0 && (
-        <p className="text-center text-sm text-muted-foreground py-4">
+        <p className="text-center text-sm text-gray-500 py-4">
           You&apos;ve reached the end
         </p>
       )}
