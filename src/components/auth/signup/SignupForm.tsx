@@ -110,7 +110,9 @@ export function SignupForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="firstName">First name</Label>
+          <Label htmlFor="firstName" className="text-gray-300">
+            First name
+          </Label>
           <Input
             id="firstName"
             name="firstName"
@@ -118,10 +120,13 @@ export function SignupForm() {
             value={formData.firstName}
             onChange={handleChange}
             required
+            className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="lastName">Last name</Label>
+          <Label htmlFor="lastName" className="text-gray-300">
+            Last name
+          </Label>
           <Input
             id="lastName"
             name="lastName"
@@ -129,12 +134,15 @@ export function SignupForm() {
             value={formData.lastName}
             onChange={handleChange}
             required
+            className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="text-gray-300">
+          Email
+        </Label>
         <Input
           id="email"
           name="email"
@@ -143,11 +151,14 @@ export function SignupForm() {
           value={formData.email}
           onChange={handleChange}
           required
+          className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="phone">Phone</Label>
+        <Label htmlFor="phone" className="text-gray-300">
+          Phone
+        </Label>
         <Input
           id="phone"
           name="phone"
@@ -155,11 +166,14 @@ export function SignupForm() {
           placeholder="1234567890"
           value={formData.phone}
           onChange={handlePhoneChange}
+          className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="text-gray-300">
+          Password
+        </Label>
         <PasswordInput
           id="password"
           name="password"
@@ -167,11 +181,14 @@ export function SignupForm() {
           value={formData.password}
           onChange={handleChange}
           required
+          className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword">Confirm password</Label>
+        <Label htmlFor="confirmPassword" className="text-gray-300">
+          Confirm password
+        </Label>
         <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
@@ -179,27 +196,38 @@ export function SignupForm() {
           value={formData.confirmPassword}
           onChange={handleChange}
           required
+          className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="birthday">Birthday</Label>
+        <Label htmlFor="birthday" className="text-gray-300">
+          Birthday
+        </Label>
         <Input
           id="birthday"
           name="birthday"
           type="date"
           value={formData.birthday}
           onChange={handleChange}
+          className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
         />
       </div>
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
+      <Button
+        type="submit"
+        className="w-full bg-val-accent text-white hover:bg-val-accent-light hover:text-black transition-colors"
+        disabled={isLoading}
+      >
         {isLoading ? "Creating account..." : "Create account"}
       </Button>
 
-      <div className="mt-4 text-center text-sm">
+      <div className="mt-4 text-center text-sm text-gray-400">
         Already have an account?{" "}
-        <Link href="/login" className="text-blue-600 hover:underline">
+        <Link
+          href="/login"
+          className="text-val-accent hover:text-val-accent-light transition-colors"
+        >
           Sign in
         </Link>
       </div>

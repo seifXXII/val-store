@@ -14,6 +14,11 @@ import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+// UUID v4 format check — prevents queries with mock/placeholder IDs (e.g. "na1")
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isValidUUID = (id: string) => UUID_RE.test(id);
+
 interface WishlistButtonProps {
   productId: string;
   variant?: "default" | "ghost" | "outline" | "secondary";
@@ -29,11 +34,14 @@ export function WishlistButton({
   const router = useRouter();
   const utils = trpc.useUtils();
 
+  // Only query when user is logged in AND productId is a real UUID
+  const isRealProduct = isValidUUID(productId);
+
   // Check status
   const { data: wishlistStatus } = trpc.public.wishlist.checkStatus.useQuery(
     { productId },
     {
-      enabled: !!session?.user,
+      enabled: !!session?.user && isRealProduct,
       initialData: { inWishlist: false },
     }
   );
@@ -104,6 +112,11 @@ export function WishlistButton({
 
     if (!session?.user) {
       router.push(`/login?redirect=${window.location.pathname}`);
+      return;
+    }
+
+    if (!isRealProduct) {
+      toast.error("This product is not available for wishlisting yet.");
       return;
     }
 

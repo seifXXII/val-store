@@ -9,7 +9,7 @@
 import { useState } from "react";
 import { useSession } from "@/lib/auth-client";
 import { trpc } from "@/lib/trpc";
-import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import {
   Bell,
   Check,
@@ -47,15 +46,15 @@ const NOTIFICATION_ICONS: Record<string, typeof Bell> = {
 };
 
 const NOTIFICATION_COLORS: Record<string, string> = {
-  wishlist_sale: "text-green-600 bg-green-100",
-  item_available: "text-blue-600 bg-blue-100",
-  order_update: "text-orange-600 bg-orange-100",
-  price_drop: "text-purple-600 bg-purple-100",
-  order_confirmed: "text-blue-600 bg-blue-100",
-  order_shipped: "text-indigo-600 bg-indigo-100",
-  order_delivered: "text-green-600 bg-green-100",
-  order_cancelled: "text-red-600 bg-red-100",
-  refund_processed: "text-amber-600 bg-amber-100",
+  wishlist_sale: "text-green-400 bg-green-500/10",
+  item_available: "text-blue-400 bg-blue-500/10",
+  order_update: "text-orange-400 bg-orange-500/10",
+  price_drop: "text-purple-400 bg-purple-500/10",
+  order_confirmed: "text-blue-400 bg-blue-500/10",
+  order_shipped: "text-indigo-400 bg-indigo-500/10",
+  order_delivered: "text-green-400 bg-green-500/10",
+  order_cancelled: "text-red-400 bg-red-500/10",
+  refund_processed: "text-amber-400 bg-amber-500/10",
 };
 
 export function UserNotificationsBell() {
@@ -97,40 +96,38 @@ export function UserNotificationsBell() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <button className="text-gray-300 hover:text-val-accent transition-colors relative">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <Badge
-              variant="destructive"
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-            >
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
               {unreadCount > 9 ? "9+" : unreadCount}
-            </Badge>
+            </span>
           )}
-        </Button>
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent
+        align="end"
+        className="w-80 bg-zinc-900 border-white/10 text-white"
+      >
         <div className="flex items-center justify-between px-3 py-2">
-          <span className="font-semibold">Notifications</span>
+          <span className="font-semibold text-white">Notifications</span>
           {unreadCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs"
+            <button
+              className="text-xs text-val-accent hover:text-val-accent-light transition-colors flex items-center gap-1"
               onClick={() => markAllAsReadMutation.mutate()}
             >
-              <Check className="h-3 w-3 mr-1" />
+              <Check className="h-3 w-3" />
               Mark all read
-            </Button>
+            </button>
           )}
         </div>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-white/10" />
         {isLoading ? (
-          <div className="p-4 text-center text-sm text-muted-foreground">
-            Loading...
+          <div className="p-8 flex items-center justify-center">
+            <Spinner className="size-5 text-gray-400" />
           </div>
         ) : notifications.length === 0 ? (
-          <div className="p-4 text-center text-sm text-muted-foreground">
+          <div className="p-4 text-center text-sm text-gray-400">
             No notifications yet
           </div>
         ) : (
@@ -139,13 +136,13 @@ export function UserNotificationsBell() {
               const Icon = NOTIFICATION_ICONS[n.notificationType] || Bell;
               const colorClass =
                 NOTIFICATION_COLORS[n.notificationType] ||
-                "text-muted-foreground bg-muted";
+                "text-gray-400 bg-white/[0.06]";
 
               return (
                 <DropdownMenuItem
                   key={n.id}
-                  className={`flex gap-3 p-3 cursor-pointer ${
-                    !n.isRead ? "bg-muted/50" : ""
+                  className={`flex gap-3 p-3 cursor-pointer hover:!bg-white/[0.06] focus:!bg-white/[0.06] ${
+                    !n.isRead ? "bg-white/[0.04]" : ""
                   }`}
                   asChild
                 >
@@ -163,15 +160,15 @@ export function UserNotificationsBell() {
                     <div className="flex-1 min-w-0">
                       <p
                         className={`text-sm truncate ${
-                          !n.isRead ? "font-medium" : ""
+                          !n.isRead ? "font-medium text-white" : "text-gray-300"
                         }`}
                       >
                         {n.title}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="text-xs text-gray-500 truncate">
                         {n.message}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-gray-600 mt-1">
                         {formatDistanceToNow(new Date(n.createdAt), {
                           addSuffix: true,
                         })}
@@ -185,11 +182,11 @@ export function UserNotificationsBell() {
         )}
         {notifications.length > 0 && (
           <>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-white/10" />
             <div className="p-2">
               <Link
                 href="/account/notifications"
-                className="text-sm text-primary hover:underline block text-center"
+                className="text-sm text-val-accent hover:text-val-accent-light transition-colors block text-center"
               >
                 View all notifications
               </Link>

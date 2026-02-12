@@ -20,16 +20,16 @@ export default function AccountLayout({
 
   if (isPending) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-10">
         <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-48 mb-8" />
+          <div className="h-8 bg-white/[0.06] rounded w-48 mb-8" />
           <div className="flex gap-8">
             <div className="w-64 space-y-2">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-12 bg-muted rounded" />
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-12 bg-white/[0.06] rounded-lg" />
               ))}
             </div>
-            <div className="flex-1 h-96 bg-muted rounded" />
+            <div className="flex-1 h-96 bg-white/[0.06] rounded-lg" />
           </div>
         </div>
       </div>
@@ -41,8 +41,7 @@ export default function AccountLayout({
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">My Account</h1>
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex flex-col md:flex-row gap-8">
         <AccountSidebar />
         <main className="flex-1 min-w-0">{children}</main>

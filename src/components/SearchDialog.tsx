@@ -4,13 +4,13 @@
  * Search Dialog
  *
  * Global search dialog triggered by Cmd/Ctrl+K or clicking search icon.
+ * Styled for dark theme to match the storefront.
  */
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Search, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useDebounce } from "@/lib/hooks/use-debounce";
@@ -30,7 +30,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     { enabled: debouncedQuery.length >= 2 }
   );
 
-  // Reset query when dialog closes - handle in onOpenChange callback
+  // Reset query when dialog closes
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (!open) {
@@ -60,17 +60,21 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden">
+      <DialogContent
+        className="sm:max-w-lg p-0 gap-0 overflow-hidden bg-zinc-900 border-white/10 text-white"
+        showCloseButton={false}
+      >
         {/* Visually hidden title for screen reader accessibility */}
         <DialogTitle className="sr-only">Search Products</DialogTitle>
+
         {/* Search Input */}
-        <div className="flex items-center border-b px-3">
-          <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-          <Input
+        <div className="flex items-center border-b border-white/10 px-4">
+          <Search className="h-4 w-4 text-gray-400 shrink-0" />
+          <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search products..."
-            className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-12"
+            className="flex-1 h-12 bg-transparent border-0 outline-none text-white placeholder:text-gray-500 px-3 text-sm"
             autoFocus
             onKeyDown={(e) => {
               if (e.key === "Enter" && query.trim()) {
@@ -78,21 +82,23 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
               }
             }}
           />
-          {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isLoading && (
+            <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+          )}
         </div>
 
         {/* Results */}
         <div className="max-h-80 overflow-y-auto">
           {debouncedQuery.length < 2 ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">
+            <div className="p-8 text-center text-sm text-gray-500">
               Type at least 2 characters to search
             </div>
           ) : isLoading ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">
+            <div className="p-8 text-center text-sm text-gray-500">
               Searching...
             </div>
           ) : !data?.products.length ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">
+            <div className="p-8 text-center text-sm text-gray-500">
               No products found for &ldquo;{debouncedQuery}&rdquo;
             </div>
           ) : (
@@ -102,9 +108,9 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                   <button
                     key={product.id}
                     onClick={() => handleSelect(product.slug)}
-                    className="w-full flex items-center gap-3 p-2 rounded-md hover:bg-muted transition-colors text-left"
+                    className="w-full flex items-center gap-3 p-2 rounded-md hover:bg-white/[0.08] transition-colors text-left"
                   >
-                    <div className="relative h-12 w-12 bg-muted rounded-md overflow-hidden shrink-0">
+                    <div className="relative h-12 w-12 bg-white/[0.08] rounded-md overflow-hidden shrink-0">
                       {product.image ? (
                         <Image
                           src={product.image}
@@ -113,29 +119,29 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs">
+                        <div className="h-full w-full flex items-center justify-center text-gray-600 text-xs">
                           No img
                         </div>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-sm truncate">
+                      <p className="font-medium text-sm text-white truncate">
                         {product.name}
                       </p>
                       <div className="flex items-center gap-2 text-sm">
                         {product.salePrice ? (
                           <>
-                            <span className="text-green-600">
+                            <span className="text-green-400">
                               $
                               {parseFloat(String(product.salePrice)).toFixed(2)}
                             </span>
-                            <span className="text-muted-foreground line-through text-xs">
+                            <span className="text-gray-500 line-through text-xs">
                               $
                               {parseFloat(String(product.basePrice)).toFixed(2)}
                             </span>
                           </>
                         ) : (
-                          <span>
+                          <span className="text-gray-300">
                             ${parseFloat(String(product.basePrice)).toFixed(2)}
                           </span>
                         )}
@@ -145,10 +151,10 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                 ))}
               </div>
               {data.total > data.products.length && (
-                <div className="border-t p-2">
+                <div className="border-t border-white/10 p-2">
                   <button
                     onClick={handleViewAll}
-                    className="w-full py-2 text-sm text-primary hover:underline"
+                    className="w-full py-2 text-sm text-val-accent hover:text-val-accent-light transition-colors"
                   >
                     View all {data.total} results →
                   </button>
@@ -159,15 +165,15 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
         </div>
 
         {/* Footer hint */}
-        <div className="border-t px-3 py-2 text-xs text-muted-foreground flex gap-4">
+        <div className="border-t border-white/10 px-3 py-2 text-xs text-gray-500 flex gap-4">
           <span>
-            <kbd className="bg-muted px-1.5 py-0.5 rounded text-[10px]">
+            <kbd className="bg-white/[0.08] text-gray-400 px-1.5 py-0.5 rounded text-[10px]">
               Enter
             </kbd>{" "}
             to search
           </span>
           <span>
-            <kbd className="bg-muted px-1.5 py-0.5 rounded text-[10px]">
+            <kbd className="bg-white/[0.08] text-gray-400 px-1.5 py-0.5 rounded text-[10px]">
               Esc
             </kbd>{" "}
             to close

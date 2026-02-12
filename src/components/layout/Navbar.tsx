@@ -36,6 +36,7 @@ export function Navbar() {
   const { data: wishlistCountData } = trpc.public.wishlist.getCount.useQuery(
     undefined,
     {
+      enabled: isLoggedIn,
       initialData: { count: 0 },
     }
   );
@@ -108,7 +109,7 @@ export function Navbar() {
 
               {/* Wishlist Button */}
               <Link
-                href="/wishlist"
+                href="/account/wishlist"
                 className="text-gray-300 hover:text-val-accent transition-colors relative"
                 aria-label="Wishlist"
               >

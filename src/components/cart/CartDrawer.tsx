@@ -39,7 +39,7 @@ export function CartDrawer() {
     <Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
       <SheetContent
         side="right"
-        className="flex w-full flex-col bg-gray-950 border-white/10 sm:max-w-md"
+        className="flex w-full flex-col bg-zinc-950 border-l border-white/10 sm:max-w-md"
       >
         <SheetHeader className="border-b border-white/10 px-4 py-4">
           <SheetTitle className="flex items-center gap-2 text-white">
@@ -63,7 +63,7 @@ export function CartDrawer() {
             <Button
               onClick={closeCart}
               asChild
-              className="bg-val-accent hover:bg-val-accent/90"
+              className="bg-val-accent hover:bg-val-accent/90 text-black font-medium"
             >
               <Link href="/collections/all">
                 Continue Shopping
@@ -105,7 +105,7 @@ export function CartDrawer() {
 
                 {/* Checkout Button */}
                 <Button
-                  className="w-full bg-val-accent hover:bg-val-accent/90 text-white font-medium"
+                  className="w-full bg-val-accent hover:bg-val-accent/90 text-black font-medium"
                   size="lg"
                   asChild
                   disabled={isSyncing}
@@ -120,7 +120,7 @@ export function CartDrawer() {
                 {/* View Cart Button */}
                 <Button
                   variant="outline"
-                  className="w-full border-white/20 text-white hover:bg-white/10"
+                  className="w-full border-white/10 text-gray-300 hover:bg-white/[0.04] hover:text-white"
                   asChild
                 >
                   <Link href="/cart" onClick={closeCart}>

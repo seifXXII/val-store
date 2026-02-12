@@ -96,13 +96,15 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+        <div className="rounded-md bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
           {error}
         </div>
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="identifier">Email or Phone</Label>
+        <Label htmlFor="identifier" className="text-gray-300">
+          Email or Phone
+        </Label>
         <Input
           id="identifier"
           type="text"
@@ -110,15 +112,18 @@ export function LoginForm() {
           value={identifier}
           onChange={handleIdentifierChange}
           required
+          className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
         />
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password" className="text-gray-300">
+            Password
+          </Label>
           <Link
             href="/forgot-password"
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-val-accent hover:text-val-accent-light transition-colors"
           >
             Forgot password?
           </Link>
@@ -131,13 +136,20 @@ export function LoginForm() {
         />
       </div>
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
+      <Button
+        type="submit"
+        className="w-full bg-val-accent text-white hover:bg-val-accent-light hover:text-black transition-colors"
+        disabled={isLoading}
+      >
         {isLoading ? "Signing in..." : "Sign in"}
       </Button>
 
-      <div className="mt-4 text-center text-sm">
+      <div className="mt-4 text-center text-sm text-gray-400">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-blue-600 hover:underline">
+        <Link
+          href="/signup"
+          className="text-val-accent hover:text-val-accent-light transition-colors"
+        >
           Sign up
         </Link>
       </div>

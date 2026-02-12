@@ -53,7 +53,7 @@ function VerifyEmailContent() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-zinc-900 border-white/10 text-white">
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2">
             {status === "loading" && (
@@ -77,20 +77,25 @@ function VerifyEmailContent() {
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center space-y-4">
-          <p className="text-muted-foreground">{message}</p>
+          <p className="text-gray-400">{message}</p>
 
           {status === "success" && (
-            <p className="text-sm text-muted-foreground">
-              Redirecting to home...
-            </p>
+            <p className="text-sm text-gray-500">Redirecting to home...</p>
           )}
 
           {status === "error" && (
             <div className="space-y-2">
-              <Button asChild className="w-full">
+              <Button
+                asChild
+                className="w-full bg-white text-black hover:bg-gray-200"
+              >
                 <Link href="/signup">Try signing up again</Link>
               </Button>
-              <Button asChild variant="outline" className="w-full">
+              <Button
+                asChild
+                variant="outline"
+                className="w-full border-white/10 text-white hover:bg-white/[0.06]"
+              >
                 <Link href="/login">Go to login</Link>
               </Button>
             </div>
