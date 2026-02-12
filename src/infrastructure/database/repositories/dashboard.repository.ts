@@ -5,13 +5,22 @@
  */
 
 import { db } from "@/db";
-import { orders, reviews, productVariants, user } from "@/db/schema";
+import {
+  orders,
+  reviews,
+  productVariants,
+  user,
+  orderItems,
+} from "@/db/schema";
 import { sql, desc, gte, eq } from "drizzle-orm";
 import {
   DashboardRepositoryInterface,
   DashboardMetrics,
   SalesTrendItem,
   RecentOrder,
+  AnalyticsData,
+  TopProduct,
+  OrderStatusCount,
 } from "@/domain/interfaces/repositories/dashboard.repository.interface";
 
 export class DrizzleDashboardRepository implements DashboardRepositoryInterface {
@@ -125,5 +134,107 @@ export class DrizzleDashboardRepository implements DashboardRepositoryInterface 
     );
 
     return ordersWithCustomers;
+  }
+
+  /**
+   * Get analytics data for the analytics page
+   */
+  async getAnalytics(days: number): Promise<AnalyticsData> {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    // Run all queries in parallel for performance
+    const [
+      revenueAndOrders,
+      revenueTrend,
+      topProducts,
+      statusBreakdown,
+      customerCount,
+    ] = await Promise.all([
+      // 1. Total revenue & order count for the period
+      db
+        .select({
+          totalRevenue: sql<string>`COALESCE(SUM(${orders.totalAmount}), 0)`,
+          totalOrders: sql<number>`COUNT(*)`,
+        })
+        .from(orders)
+        .where(gte(orders.createdAt, startDate))
+        .then(([r]) => r),
+
+      // 2. Revenue trend by day
+      db
+        .select({
+          date: sql<string>`DATE(${orders.createdAt})`,
+          total: sql<string>`SUM(${orders.totalAmount})`,
+          count: sql<number>`COUNT(*)`,
+        })
+        .from(orders)
+        .where(gte(orders.createdAt, startDate))
+        .groupBy(sql`DATE(${orders.createdAt})`)
+        .orderBy(sql`DATE(${orders.createdAt})`),
+
+      // 3. Top 5 products by quantity sold
+      db
+        .select({
+          productId: orderItems.productId,
+          productName: orderItems.productName,
+          totalQuantity: sql<number>`SUM(${orderItems.quantity})::int`,
+          totalRevenue: sql<string>`SUM(${orderItems.totalPrice})`,
+        })
+        .from(orderItems)
+        .innerJoin(orders, eq(orderItems.orderId, orders.id))
+        .where(gte(orders.createdAt, startDate))
+        .groupBy(orderItems.productId, orderItems.productName)
+        .orderBy(sql`SUM(${orderItems.quantity}) DESC`)
+        .limit(5),
+
+      // 4. Orders by status
+      db
+        .select({
+          status: orders.status,
+          count: sql<number>`COUNT(*)::int`,
+        })
+        .from(orders)
+        .where(gte(orders.createdAt, startDate))
+        .groupBy(orders.status),
+
+      // 5. Unique customers
+      db
+        .select({
+          count: sql<number>`COUNT(DISTINCT ${orders.userId})::int`,
+        })
+        .from(orders)
+        .where(gte(orders.createdAt, startDate))
+        .then(([r]) => r),
+    ]);
+
+    const totalRevenue = parseFloat(revenueAndOrders.totalRevenue || "0");
+    const totalOrders = revenueAndOrders.totalOrders || 0;
+
+    return {
+      totalRevenue,
+      totalOrders,
+      avgOrderValue: totalOrders > 0 ? totalRevenue / totalOrders : 0,
+      totalCustomers: customerCount.count || 0,
+      revenueTrend: revenueTrend.map((row) => ({
+        date: row.date,
+        revenue: parseFloat(row.total || "0"),
+        orders: row.count,
+      })),
+      topProducts: topProducts.map(
+        (row): TopProduct => ({
+          productId: row.productId,
+          productName: row.productName,
+          totalQuantity: row.totalQuantity || 0,
+          totalRevenue: parseFloat(row.totalRevenue || "0"),
+        })
+      ),
+      ordersByStatus: statusBreakdown.map(
+        (row): OrderStatusCount => ({
+          status: row.status,
+          count: row.count || 0,
+        })
+      ),
+    };
   }
 }
