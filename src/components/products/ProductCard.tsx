@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WishlistButton } from "@/components/products/WishlistButton";
@@ -22,6 +23,7 @@ export function ProductCard({
   slug,
   price,
   salePrice,
+  primaryImage,
   isNew = false,
   isOnSale = false,
 }: ProductCardProps) {
@@ -33,11 +35,19 @@ export function ProductCard({
       {/* Image Container */}
       <Link href={`/products/${slug}`} className="block">
         <div className="relative aspect-3/4 overflow-hidden bg-val-steel">
-          {/* Primary Image (placeholder gradient) */}
-          <div className="absolute inset-0 bg-linear-to-br from-gray-700 via-gray-800 to-gray-900 transition-opacity duration-300 group-hover:opacity-0" />
-
-          {/* Secondary Image (placeholder gradient - slightly different) */}
-          <div className="absolute inset-0 bg-linear-to-tl from-gray-600 via-gray-700 to-gray-800 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          {/* Product Image or gradient fallback */}
+          {primaryImage ? (
+            <Image
+              src={primaryImage}
+              alt={name}
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              unoptimized
+            />
+          ) : (
+            <div className="absolute inset-0 bg-linear-to-br from-gray-700 via-gray-800 to-gray-900" />
+          )}
 
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">

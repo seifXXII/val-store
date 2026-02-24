@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 interface PromoBannerProps {
@@ -21,18 +22,16 @@ export function PromoBanner({
       <div className="max-w-7xl mx-auto grid md:grid-cols-2">
         {/* Image Side */}
         <div className="relative aspect-square md:aspect-auto md:min-h-[400px]">
-          {/* Placeholder gradient (replace with actual image) */}
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900" />
-          {/* Decorative pattern overlay */}
-          <div className="absolute inset-0 opacity-10">
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 20px)",
-              }}
-            />
-          </div>
+          <Image
+            src="https://picsum.photos/seed/promo-winter/800/800"
+            alt={headline}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
+            unoptimized
+          />
+          {/* Subtle overlay */}
+          <div className="absolute inset-0 bg-black/20" />
         </div>
 
         {/* Content Side */}

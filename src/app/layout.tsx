@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Val Store - Premium Clothing",
+  title: "Valkyrie - Premium Clothing",
   description: "Your premier destination for quality clothing",
 };
 

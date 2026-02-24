@@ -61,9 +61,9 @@ export function InfiniteProductGrid({
         {/* Header skeleton */}
         <div className="py-12 md:py-16 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-            <div className="h-8 w-48 bg-white/[0.12] rounded animate-pulse mb-4" />
-            <div className="h-4 w-96 max-w-full bg-white/[0.12] rounded animate-pulse mb-4" />
-            <div className="h-4 w-24 bg-white/[0.12] rounded animate-pulse" />
+            <div className="h-8 w-48 bg-white/12 rounded animate-pulse mb-4" />
+            <div className="h-4 w-96 max-w-full bg-white/12 rounded animate-pulse mb-4" />
+            <div className="h-4 w-24 bg-white/12 rounded animate-pulse" />
           </div>
         </div>
         {/* Product grid skeleton */}
@@ -71,9 +71,9 @@ export function InfiniteProductGrid({
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="space-y-3">
-                <div className="aspect-3/4 bg-white/[0.12] rounded-lg animate-pulse" />
-                <div className="h-4 w-3/4 bg-white/[0.12] rounded animate-pulse" />
-                <div className="h-4 w-1/4 bg-white/[0.12] rounded animate-pulse" />
+                <div className="aspect-3/4 bg-white/12 rounded-lg animate-pulse" />
+                <div className="h-4 w-3/4 bg-white/12 rounded animate-pulse" />
+                <div className="h-4 w-1/4 bg-white/12 rounded animate-pulse" />
               </div>
             ))}
           </div>
@@ -111,6 +111,7 @@ export function InfiniteProductGrid({
                 slug={product.slug}
                 price={product.basePrice}
                 salePrice={product.salePrice ?? undefined}
+                primaryImage={product.primaryImage ?? undefined}
                 isOnSale={
                   product.salePrice !== null &&
                   product.salePrice < product.basePrice

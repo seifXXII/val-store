@@ -17,7 +17,7 @@ export function SignupCard() {
           Create an account
         </CardTitle>
         <CardDescription className="text-gray-400">
-          Enter your information to create your Val Store account
+          Enter your information to create your Valkyrie account
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

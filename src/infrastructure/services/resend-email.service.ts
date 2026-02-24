@@ -27,8 +27,8 @@ export class ResendEmailService implements EmailServiceInterface {
     }
     this.resend = new Resend(apiKey);
     this.fromEmail =
-      process.env.EMAIL_FROM || "Val Store <noreply@valstore.com>";
-    this.appName = process.env.NEXT_PUBLIC_APP_NAME || "Val Store";
+      process.env.EMAIL_FROM || "Valkyrie <noreply@valstore.com>";
+    this.appName = process.env.NEXT_PUBLIC_APP_NAME || "Valkyrie";
     this.baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   }
 

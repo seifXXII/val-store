@@ -6,16 +6,16 @@ import { Heart, Shield, Leaf, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata = {
-  title: "About Us | Val Store",
+  title: "About Us | Valkyrie",
   description:
-    "Learn about Val Store and our mission to bring premium streetwear to everyone.",
+    "Learn about Valkyrie and our mission to bring premium streetwear to everyone.",
 };
 
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-3xl mx-auto text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">About Val Store</h1>
+        <h1 className="text-4xl font-bold mb-4">About Valkyrie</h1>
         <p className="text-lg text-muted-foreground">
           Premium streetwear for the modern individual. We believe fashion
           should be accessible, sustainable, and expressive.
@@ -79,10 +79,10 @@ export default function AboutPage() {
       <div className="prose dark:prose-invert max-w-3xl mx-auto">
         <h2>Our Story</h2>
         <p>
-          Val Store was founded with a simple mission: to make premium
-          streetwear accessible to everyone. What started as a small online
-          boutique has grown into a destination for fashion-forward individuals
-          seeking quality, style, and authenticity.
+          Valkyrie was founded with a simple mission: to make premium streetwear
+          accessible to everyone. What started as a small online boutique has
+          grown into a destination for fashion-forward individuals seeking
+          quality, style, and authenticity.
         </p>
 
         <h2>Our Promise</h2>
@@ -97,7 +97,7 @@ export default function AboutPage() {
         <p>
           Follow us on social media to stay up to date with new drops, style
           inspiration, and exclusive offers. We love seeing how you style your
-          Val Store pieces – tag us in your photos!
+          Valkyrie pieces – tag us in your photos!
         </p>
       </div>
     </div>

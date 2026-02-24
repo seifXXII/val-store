@@ -67,7 +67,7 @@ export class DrizzleSiteConfigRepository implements ISiteConfigRepository {
     const [created] = await db
       .insert(siteSettings)
       .values({
-        storeName: "Val Store",
+        storeName: "Valkyrie",
         currency: "USD",
         locale: "en-US",
         timezone: "UTC",

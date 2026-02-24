@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { User, LogOut, Settings, ShoppingBag } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface UserDialogProps {
@@ -27,7 +26,6 @@ interface UserDialogProps {
 
 export function UserDialog({ user }: UserDialogProps) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
 
   const handleLogout = async () => {
     // Sign out from Better Auth (clears server session)
@@ -36,8 +34,8 @@ export function UserDialog({ user }: UserDialogProps) {
         onSuccess: () => {
           // Clear any client-side data
           localStorage.removeItem("user");
-          // Redirect to login
-          router.push("/login");
+          // Full page reload to avoid React hooks ordering issues
+          window.location.href = "/login";
         },
       },
     });

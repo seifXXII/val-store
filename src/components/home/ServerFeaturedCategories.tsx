@@ -6,6 +6,7 @@
  */
 
 import Link from "next/link";
+import Image from "next/image";
 import { container } from "@/application/container";
 import { getCachedCategories } from "@/lib/cache";
 
@@ -18,10 +19,12 @@ function CategoryCard({
   name,
   slug,
   productCount,
+  index,
 }: {
   name: string;
   slug: string;
   productCount?: number;
+  index: number;
 }) {
   return (
     <Link
@@ -29,12 +32,19 @@ function CategoryCard({
       className="group relative block overflow-hidden"
     >
       {/* Image container with aspect ratio */}
-      <div className="relative aspect-[3/4] bg-val-steel overflow-hidden">
-        {/* Placeholder gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 transition-transform duration-500 group-hover:scale-105" />
+      <div className="relative aspect-3/4 bg-val-steel overflow-hidden">
+        {/* Category image from picsum */}
+        <Image
+          src={`https://picsum.photos/seed/category-${index}/600/800`}
+          alt={name}
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          unoptimized
+        />
 
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent transition-colors duration-300 group-hover:from-black/50" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent transition-colors duration-300 group-hover:from-black/50" />
 
         {/* Content */}
         <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -105,12 +115,13 @@ export async function ServerFeaturedCategories({
 
         {/* Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          {featuredCategories.map((category) => (
+          {featuredCategories.map((category, index) => (
             <CategoryCard
               key={category.id}
               name={category.name}
               slug={category.slug}
               productCount={category.productCount}
+              index={index}
             />
           ))}
         </div>

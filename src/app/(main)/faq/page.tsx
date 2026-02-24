@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/accordion";
 
 export const metadata = {
-  title: "FAQ | Val Store",
-  description: "Frequently asked questions about Val Store.",
+  title: "FAQ | Valkyrie",
+  description: "Frequently asked questions about Valkyrie.",
 };
 
 const faqs = [

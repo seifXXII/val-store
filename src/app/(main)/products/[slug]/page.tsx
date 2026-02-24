@@ -66,6 +66,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     slug: p.slug,
     price: p.basePrice,
     salePrice: p.salePrice ?? undefined,
+    primaryImage: p.primaryImage ?? undefined,
     isOnSale: p.salePrice !== null && p.salePrice < p.basePrice,
   }));
 

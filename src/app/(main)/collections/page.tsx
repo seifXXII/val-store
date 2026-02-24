@@ -83,9 +83,9 @@ function CollectionSection({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {[...Array(PREVIEW_LIMIT)].map((_, i) => (
             <div key={i} className="space-y-3">
-              <div className="aspect-3/4 bg-white/[0.08] rounded-lg animate-pulse" />
-              <div className="h-4 w-3/4 bg-white/[0.08] rounded animate-pulse" />
-              <div className="h-4 w-1/4 bg-white/[0.08] rounded animate-pulse" />
+              <div className="aspect-3/4 bg-white/8 rounded-lg animate-pulse" />
+              <div className="h-4 w-3/4 bg-white/8 rounded animate-pulse" />
+              <div className="h-4 w-1/4 bg-white/8 rounded animate-pulse" />
             </div>
           ))}
         </div>
@@ -99,6 +99,7 @@ function CollectionSection({
               slug={product.slug}
               price={product.basePrice}
               salePrice={product.salePrice ?? undefined}
+              primaryImage={product.primaryImage ?? undefined}
               isOnSale={
                 product.salePrice !== null &&
                 product.salePrice < product.basePrice
@@ -108,7 +109,7 @@ function CollectionSection({
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] py-12 text-center">
+        <div className="rounded-xl border border-white/10 bg-white/3 py-12 text-center">
           <p className="text-gray-500 text-sm">
             No products in this collection yet.
           </p>
@@ -137,7 +138,7 @@ export default function CollectionsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-12">
         <Link
           href="/collections/all"
-          className="group flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:border-white/25 hover:bg-white/[0.06]"
+          className="group flex items-center justify-between rounded-xl border border-white/10 bg-white/3 p-6 transition-all duration-300 hover:border-white/25 hover:bg-white/6"
         >
           <div>
             <h2 className="text-lg md:text-xl font-semibold text-white mb-1">

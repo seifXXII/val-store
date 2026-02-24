@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ShoppingCart,
   User,
@@ -66,9 +67,14 @@ export function Navbar() {
 
             {/* Center: Logo */}
             <Link href="/" className="shrink-0">
-              <span className="text-xl sm:text-2xl md:text-3xl font-bold tracking-widest text-white hover:text-val-accent transition-colors">
-                VAL
-              </span>
+              <Image
+                src="/logo/VAL-LOGO.png"
+                alt="Valkyrie"
+                width={140}
+                height={40}
+                className="h-8 sm:h-9 md:h-10 w-auto object-contain"
+                priority
+              />
             </Link>
 
             {/* Right: Icons (Desktop) */}

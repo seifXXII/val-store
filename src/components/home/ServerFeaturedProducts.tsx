@@ -30,6 +30,7 @@ export async function ServerFeaturedProducts({
     basePrice: number;
     salePrice: number | null;
     isFeatured: boolean;
+    primaryImage: string | null;
   }[] = [];
 
   // Try to fetch featured products with caching
@@ -64,6 +65,7 @@ export async function ServerFeaturedProducts({
                 slug={product.slug}
                 price={product.basePrice}
                 salePrice={product.salePrice ?? undefined}
+                primaryImage={product.primaryImage ?? undefined}
                 isOnSale={
                   product.salePrice !== null &&
                   product.salePrice < product.basePrice

@@ -91,6 +91,7 @@ export function InfiniteSearchGrid({ query }: InfiniteSearchGridProps) {
             slug={product.slug}
             price={product.basePrice}
             salePrice={product.salePrice ?? undefined}
+            primaryImage={product.primaryImage ?? undefined}
             isOnSale={
               product.salePrice !== null &&
               product.salePrice < product.basePrice

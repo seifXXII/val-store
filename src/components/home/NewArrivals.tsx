@@ -4,70 +4,9 @@ import { useRef } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  ProductCard,
-  ProductCardProps,
-} from "@/components/products/ProductCard";
-
-// Mock data for new arrivals (will be replaced with tRPC query)
-const mockNewArrivals: ProductCardProps[] = [
-  {
-    id: "na1",
-    name: "Midnight Bomber Jacket",
-    slug: "midnight-bomber-jacket",
-    price: 195,
-    isNew: true,
-  },
-  {
-    id: "na2",
-    name: "Urban Tech Joggers",
-    slug: "urban-tech-joggers",
-    price: 95,
-    isNew: true,
-  },
-  {
-    id: "na3",
-    name: "Minimal Logo Tee",
-    slug: "minimal-logo-tee",
-    price: 45,
-    isNew: true,
-  },
-  {
-    id: "na4",
-    name: "Wool Blend Beanie",
-    slug: "wool-blend-beanie",
-    price: 35,
-    isNew: true,
-  },
-  {
-    id: "na5",
-    name: "Structured Cap",
-    slug: "structured-cap",
-    price: 40,
-    isNew: true,
-  },
-  {
-    id: "na6",
-    name: "Premium Zip Hoodie",
-    slug: "premium-zip-hoodie",
-    price: 140,
-    isNew: true,
-  },
-  {
-    id: "na7",
-    name: "Canvas Tote Bag",
-    slug: "canvas-tote-bag",
-    price: 55,
-    isNew: true,
-  },
-  {
-    id: "na8",
-    name: "Relaxed Fit Jeans",
-    slug: "relaxed-fit-jeans",
-    price: 110,
-    isNew: true,
-  },
-];
+import { ProductCard } from "@/components/products/ProductCard";
+import { trpc } from "@/lib/trpc";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface NewArrivalsProps {
   title?: string;
@@ -80,9 +19,12 @@ export function NewArrivals({
 }: NewArrivalsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // TODO: Replace with tRPC query
-  // const { data: products } = trpc.products.getNewArrivals.useQuery({ limit: 8, daysAgo: 30 });
-  const products = mockNewArrivals;
+  const { data: products, isLoading } = trpc.public.products.list.useQuery(
+    { limit: 8 },
+    { staleTime: 1000 * 60 * 5 }
+  );
+
+  const items = products?.products ?? [];
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -131,14 +73,37 @@ export function NewArrivals({
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="flex-shrink-0 w-64 md:w-72 snap-start"
-            >
-              <ProductCard {...product} />
-            </div>
-          ))}
+          {isLoading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="shrink-0 w-64 md:w-72 snap-start space-y-3"
+                >
+                  <Skeleton className="aspect-3/4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))
+            : items.map((product) => (
+                <div
+                  key={product.id}
+                  className="shrink-0 w-64 md:w-72 snap-start"
+                >
+                  <ProductCard
+                    id={product.id}
+                    name={product.name}
+                    slug={product.slug}
+                    price={product.basePrice}
+                    salePrice={product.salePrice ?? undefined}
+                    primaryImage={product.primaryImage ?? undefined}
+                    isNew
+                    isOnSale={
+                      product.salePrice !== null &&
+                      product.salePrice < product.basePrice
+                    }
+                  />
+                </div>
+              ))}
         </div>
 
         {/* View All Button */}

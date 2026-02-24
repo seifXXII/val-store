@@ -30,7 +30,7 @@ export async function ServerAnnouncementBar() {
     }
 
     // Parse content
-    const content = announcement.getContentParsed<AnnouncementContent>();
+    const content = announcement.parsedContent as AnnouncementContent;
 
     if (!content) {
       return null;
