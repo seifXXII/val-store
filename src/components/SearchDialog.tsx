@@ -108,12 +108,12 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                   <button
                     key={product.id}
                     onClick={() => handleSelect(product.slug)}
-                    className="w-full flex items-center gap-3 p-2 rounded-md hover:bg-white/[0.08] transition-colors text-left"
+                    className="w-full flex items-center gap-3 p-2 rounded-md hover:bg-white/8 transition-colors text-left"
                   >
-                    <div className="relative h-12 w-12 bg-white/[0.08] rounded-md overflow-hidden shrink-0">
-                      {product.image ? (
+                    <div className="relative h-12 w-12 bg-white/8 rounded-md overflow-hidden shrink-0">
+                      {product.primaryImage ? (
                         <Image
-                          src={product.image}
+                          src={product.primaryImage}
                           alt={product.name}
                           fill
                           className="object-cover"
@@ -167,13 +167,13 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
         {/* Footer hint */}
         <div className="border-t border-white/10 px-3 py-2 text-xs text-gray-500 flex gap-4">
           <span>
-            <kbd className="bg-white/[0.08] text-gray-400 px-1.5 py-0.5 rounded text-[10px]">
+            <kbd className="bg-white/8 text-gray-400 px-1.5 py-0.5 rounded text-[10px]">
               Enter
             </kbd>{" "}
             to search
           </span>
           <span>
-            <kbd className="bg-white/[0.08] text-gray-400 px-1.5 py-0.5 rounded text-[10px]">
+            <kbd className="bg-white/8 text-gray-400 px-1.5 py-0.5 rounded text-[10px]">
               Esc
             </kbd>{" "}
             to close
