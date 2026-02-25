@@ -91,7 +91,7 @@ export type BrandStoryContent = z.infer<typeof brandStoryContentSchema>;
 // ============================================
 
 export const newsletterContentSchema = z.object({
-  title: z.string().optional().default("Join the VAL Community"),
+  title: z.string().optional().default("Join the Valkyrie Community"),
   subtitle: z
     .string()
     .optional()
@@ -112,7 +112,7 @@ export type NewsletterContent = z.infer<typeof newsletterContentSchema>;
 // ============================================
 
 export const instagramContentSchema = z.object({
-  handle: z.string().optional().default("@valstore"),
+  handle: z.string().optional().default("@valkyrie"),
   profileUrl: z.string().url("Must be a valid URL").optional(),
   images: z.array(z.string().url()).optional().default([]),
 });

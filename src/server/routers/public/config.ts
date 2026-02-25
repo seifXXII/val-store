@@ -19,7 +19,7 @@ export const publicConfigRouter = router({
 
     if (!settings) {
       return {
-        storeName: "Val Store",
+        storeName: "Valkyrie",
         storeTagline: null,
         logoUrl: null,
         currency: "USD",

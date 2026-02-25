@@ -3,8 +3,8 @@
  */
 
 export const metadata = {
-  title: "Privacy Policy | Val Store",
-  description: "Val Store privacy policy and data protection information.",
+  title: "Privacy Policy | Valkyrie",
+  description: "Valkyrie privacy policy and data protection information.",
 };
 
 export default function PrivacyPage() {

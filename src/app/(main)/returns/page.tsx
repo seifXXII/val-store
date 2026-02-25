@@ -6,7 +6,7 @@ import { RotateCcw, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata = {
-  title: "Returns & Exchanges | Val Store",
+  title: "Returns & Exchanges | Valkyrie",
   description: "Learn about our hassle-free return and exchange policy.",
 };
 

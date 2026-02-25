@@ -11,7 +11,6 @@ import { usePathname } from "next/navigation";
 import { User, Package, MapPin, Heart, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 
 const accountLinks = [
   { href: "/account", label: "Dashboard", icon: User },
@@ -23,11 +22,15 @@ const accountLinks = [
 
 export function AccountSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
 
   const handleSignOut = async () => {
-    await authClient.signOut();
-    router.push("/");
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          window.location.href = "/";
+        },
+      },
+    });
   };
 
   return (
@@ -47,8 +50,8 @@ export function AccountSidebar() {
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-white/[0.08] text-val-accent"
-                  : "text-gray-400 hover:bg-white/[0.04] hover:text-white"
+                  ? "bg-white/8 text-val-accent"
+                  : "text-gray-400 hover:bg-white/4 hover:text-white"
               )}
             >
               <Icon className="h-5 w-5" />

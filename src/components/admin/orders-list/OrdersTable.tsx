@@ -24,17 +24,20 @@ type OrderStatus =
   | "cancelled"
   | "refunded";
 
-const statusColors: Record<
-  OrderStatus,
-  "secondary" | "default" | "outline" | "destructive"
-> = {
-  pending: "secondary",
-  processing: "default",
-  paid: "default",
-  shipped: "outline",
-  delivered: "default",
-  cancelled: "destructive",
-  refunded: "secondary",
+const statusStyles: Record<OrderStatus, string> = {
+  pending:
+    "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+  processing:
+    "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800",
+  paid: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+  shipped:
+    "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border-purple-200 dark:border-purple-800",
+  delivered:
+    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800",
+  cancelled:
+    "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800",
+  refunded:
+    "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700",
 };
 
 const ITEMS_PER_PAGE = 10;
@@ -107,13 +110,23 @@ export function OrdersTable() {
                   <TableCell>{order.totalItems}</TableCell>
                   <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
                   <TableCell>
-                    <Badge variant={order.isPaid ? "default" : "secondary"}>
+                    <Badge
+                      variant="outline"
+                      className={
+                        order.isPaid
+                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+                          : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800"
+                      }
+                    >
                       {order.isPaid ? "Paid" : "Unpaid"}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={statusColors[order.status as OrderStatus]}>
-                      {order.status}
+                    <Badge
+                      variant="outline"
+                      className={statusStyles[order.status as OrderStatus]}
+                    >
+                      <span className="capitalize">{order.status}</span>
                     </Badge>
                   </TableCell>
                   <TableCell>

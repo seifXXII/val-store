@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo, useImperativeHandle, forwardRef } from "react";
 import { trpc } from "@/lib/trpc";
 import {
   Table,
@@ -31,31 +31,77 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import Image from "next/image";
+import type { ProductFilters } from "./ProductsListHeader";
 
 const ITEMS_PER_PAGE = 10;
 
-export function ProductsTable() {
+export interface ProductsTableHandle {
+  getProducts: () => Array<{
+    id: string;
+    name: string;
+    slug: string;
+    basePrice: number;
+    currentPrice: number;
+    stock: number;
+    isActive: boolean;
+    isFeatured: boolean;
+    isOnSale: boolean;
+    discountPercentage: number;
+    primaryImage: string | null;
+  }>;
+}
+
+interface ProductsTableProps {
+  filters: ProductFilters;
+  search: string;
+}
+
+export const ProductsTable = forwardRef<
+  ProductsTableHandle,
+  ProductsTableProps
+>(function ProductsTable({ filters, search }, ref) {
   const utils = trpc.useUtils();
+
+  // Build query input from filters
+  const queryInput = useMemo(
+    () => ({
+      limit: ITEMS_PER_PAGE,
+      ...(filters.isActive !== undefined && { isActive: filters.isActive }),
+      ...(filters.categoryId && { categoryId: filters.categoryId }),
+    }),
+    [filters]
+  );
 
   // Use infinite query for infinite scroll
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    trpc.admin.products.list.useInfiniteQuery(
-      { limit: ITEMS_PER_PAGE },
-      {
-        getNextPageParam: (lastPage) => {
-          // Return next page number if there are more pages
-          if (lastPage.page < lastPage.totalPages) {
-            return lastPage.page + 1;
-          }
-          return undefined;
-        },
-        initialCursor: 1, // Start from page 1
-      }
-    );
+    trpc.admin.products.list.useInfiniteQuery(queryInput, {
+      getNextPageParam: (lastPage) => {
+        if (lastPage.page < lastPage.totalPages) {
+          return lastPage.page + 1;
+        }
+        return undefined;
+      },
+      initialCursor: 1,
+    });
 
   // Flatten all pages into a single products array
-  const products = data?.pages.flatMap((page) => page.products) || [];
+  const allProducts = useMemo(
+    () => data?.pages.flatMap((page) => page.products) || [],
+    [data]
+  );
   const total = data?.pages[0]?.total || 0;
+
+  // Apply client-side search filter
+  const products = useMemo(() => {
+    if (!search.trim()) return allProducts;
+    const q = search.toLowerCase();
+    return allProducts.filter((p) => p.name.toLowerCase().includes(q));
+  }, [allProducts, search]);
+
+  // Expose products for CSV export
+  useImperativeHandle(ref, () => ({
+    getProducts: () => products,
+  }));
 
   // Infinite scroll hook
   const { ref: sentinelRef } = useInfiniteScroll({
@@ -112,6 +158,7 @@ export function ProductsTable() {
       {/* Products count */}
       <p className="text-sm text-muted-foreground">
         Showing {products.length} of {total} products
+        {search.trim() && ` (filtered by "${search}")`}
       </p>
 
       <div className="rounded-md border">
@@ -270,4 +317,4 @@ export function ProductsTable() {
       )}
     </div>
   );
-}
+});

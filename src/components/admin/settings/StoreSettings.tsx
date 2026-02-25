@@ -116,7 +116,7 @@ export function StoreSettings() {
               <Label htmlFor="store-name">Store Name</Label>
               <Input
                 id="store-name"
-                placeholder="Val Store"
+                placeholder="Valkyrie"
                 value={form.storeName}
                 onChange={(e) =>
                   setForm({ ...form, storeName: e.target.value })
@@ -151,7 +151,7 @@ export function StoreSettings() {
               <Input
                 id="contact-email"
                 type="email"
-                placeholder="hello@valstore.com"
+                placeholder="hello@valkyrie.com"
                 value={form.contactEmail}
                 onChange={(e) =>
                   setForm({ ...form, contactEmail: e.target.value })
@@ -215,7 +215,7 @@ export function StoreSettings() {
             <Label htmlFor="meta-title">Default Meta Title</Label>
             <Input
               id="meta-title"
-              placeholder="Val Store - Premium Fashion"
+              placeholder="Valkyrie - Premium Fashion"
               value={form.defaultMetaTitle}
               onChange={(e) =>
                 setForm({ ...form, defaultMetaTitle: e.target.value })
@@ -229,7 +229,7 @@ export function StoreSettings() {
             <Label htmlFor="meta-description">Default Meta Description</Label>
             <Textarea
               id="meta-description"
-              placeholder="Discover premium fashion at Val Store..."
+              placeholder="Discover premium fashion at Valkyrie..."
               value={form.defaultMetaDescription}
               onChange={(e) =>
                 setForm({ ...form, defaultMetaDescription: e.target.value })

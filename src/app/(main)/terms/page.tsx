@@ -3,8 +3,8 @@
  */
 
 export const metadata = {
-  title: "Terms of Service | Val Store",
-  description: "Val Store terms of service and conditions of use.",
+  title: "Terms of Service | Valkyrie",
+  description: "Valkyrie terms of service and conditions of use.",
 };
 
 export default function TermsPage() {
@@ -16,7 +16,7 @@ export default function TermsPage() {
       <div className="prose dark:prose-invert max-w-3xl">
         <h2>1. Acceptance of Terms</h2>
         <p>
-          By accessing and using Val Store, you accept and agree to be bound by
+          By accessing and using Valkyrie, you accept and agree to be bound by
           these Terms of Service. If you do not agree to these terms, please do
           not use our website.
         </p>
@@ -63,14 +63,14 @@ export default function TermsPage() {
         <h2>7. Intellectual Property</h2>
         <p>
           All content on this website, including text, images, logos, and
-          graphics, is the property of Val Store and is protected by copyright
+          graphics, is the property of Valkyrie and is protected by copyright
           laws.
         </p>
 
         <h2>8. Limitation of Liability</h2>
         <p>
-          Val Store shall not be liable for any indirect, incidental, special,
-          or consequential damages arising from your use of our website or
+          Valkyrie shall not be liable for any indirect, incidental, special, or
+          consequential damages arising from your use of our website or
           products.
         </p>
 

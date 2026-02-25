@@ -664,7 +664,7 @@ export const siteSettings = pgTable("site_settings", {
   // Store Identity
   storeName: varchar("store_name", { length: 255 })
     .notNull()
-    .default("Val Store"),
+    .default("Valkyrie"),
   storeTagline: varchar("store_tagline", { length: 255 }),
   logoUrl: varchar("logo_url", { length: 500 }),
   faviconUrl: varchar("favicon_url", { length: 500 }),

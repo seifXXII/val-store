@@ -73,7 +73,7 @@ export function AdminSidebar() {
       <div className="flex h-16 items-center border-b px-6">
         <Link href="/admin" className="flex items-center gap-2 font-semibold">
           <Package className="h-6 w-6" />
-          <span>Val Store Admin</span>
+          <span>Valkyrie Admin</span>
         </Link>
       </div>
 

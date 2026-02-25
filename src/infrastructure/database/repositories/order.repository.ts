@@ -75,7 +75,7 @@ export class DrizzleOrderRepository implements OrderRepositoryInterface {
 
     const datePart = now.toISOString().slice(0, 10).replaceAll("-", "");
     const randomPart = Math.random().toString(36).slice(2, 8).toUpperCase();
-    const orderNumber = `VAL-${datePart}-${randomPart}`;
+    const orderNumber = `VLK-${datePart}-${randomPart}`;
 
     await db.transaction(async (tx) => {
       await tx.insert(orders).values({

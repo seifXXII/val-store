@@ -6,8 +6,8 @@ import { Mail, Phone, MapPin, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata = {
-  title: "Contact Us | Val Store",
-  description: "Get in touch with Val Store. We're here to help.",
+  title: "Contact Us | Valkyrie",
+  description: "Get in touch with Valkyrie. We're here to help.",
 };
 
 export default function ContactPage() {

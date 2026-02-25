@@ -79,6 +79,15 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
   // Initialize form with fetched data
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
+    defaultValues: {
+      name: "",
+      slug: "",
+      description: "",
+      basePrice: 0,
+      salePrice: null,
+      isActive: true,
+      isFeatured: false,
+    },
     values: product
       ? {
           name: product.name,
@@ -173,7 +182,12 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
                 name="slug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Slug</FormLabel>
+                    <FormLabel>
+                      Slug{" "}
+                      <span className="text-xs font-normal text-muted-foreground">
+                        (URL-friendly identifier)
+                      </span>
+                    </FormLabel>
                     <div className="flex gap-2">
                       <FormControl>
                         <Input placeholder="product-slug" {...field} />
@@ -187,7 +201,6 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
                         Generate
                       </Button>
                     </div>
-                    <FormDescription>URL-friendly identifier</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -250,7 +263,12 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
                 name="salePrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sale Price ($)</FormLabel>
+                    <FormLabel>
+                      Sale Price ($){" "}
+                      <span className="text-xs font-normal text-muted-foreground">
+                        (Optional)
+                      </span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -265,7 +283,6 @@ export function ProductEditForm({ productId }: ProductEditFormProps) {
                         }
                       />
                     </FormControl>
-                    <FormDescription>Optional sale price</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

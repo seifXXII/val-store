@@ -42,7 +42,7 @@ export async function ServerHeroSection() {
     const heroSection = await getCachedHeroSection();
 
     if (heroSection?.isActive) {
-      const parsed = heroSection.getContentParsed<HeroContent>();
+      const parsed = heroSection.parsedContent as HeroContent;
       content = { ...DEFAULT_HERO, ...parsed };
     }
   } catch (error) {
@@ -70,19 +70,18 @@ export async function ServerHeroSection() {
 
   return (
     <section className="relative h-[calc(100vh-96px)] md:h-[calc(100vh-104px)] flex items-center justify-center overflow-hidden">
-      {/* Background Image or Gradient */}
-      {backgroundImage ? (
-        <Image
-          src={backgroundImage}
-          alt="Hero background"
-          fill
-          priority
-          className="object-cover"
-          unoptimized
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-val-steel via-gray-900 to-black" />
-      )}
+      {/* Background Image or Default Image */}
+      <Image
+        src={
+          backgroundImage ||
+          "https://picsum.photos/seed/hero-valkyrie/1920/1080"
+        }
+        alt="Hero background"
+        fill
+        priority
+        className="object-cover"
+        unoptimized
+      />
 
       {/* Overlay */}
       <div

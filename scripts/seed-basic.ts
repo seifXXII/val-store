@@ -36,14 +36,14 @@ async function seed() {
     await db.delete(userProfiles);
     // Note: Don't delete users - Better Auth manages them
 
-    // 1. Create admin user profile (assumes admin@valstore.com exists in Better Auth)
+    // 1. Create admin user profile (assumes admin@valkyrie.com exists in Better Auth)
     console.log("👤 Creating admin user profile...");
 
     // First, check if admin user exists in Better Auth users table
     const [existingAdmin] = await db
       .select()
       .from(user)
-      .where(sql`${user.email} = 'admin@valstore.com'`)
+      .where(sql`${user.email} = 'admin@valkyrie.com'`)
       .limit(1);
 
     let adminUserId: string;
@@ -55,7 +55,7 @@ async function seed() {
         .values({
           id: crypto.randomUUID(),
           name: "Admin User",
-          email: "admin@valstore.com",
+          email: "admin@valkyrie.com",
           emailVerified: true,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -302,13 +302,13 @@ async function seed() {
 
     console.log("\n✨ Seed completed successfully!\n");
     console.log("📋 Summary:");
-    console.log("  - 1 admin user (admin@valstore.com)");
+    console.log("  - 1 admin user (admin@valkyrie.com)");
     console.log("  - 3 categories");
     console.log("  - 5 products");
     console.log("  - 20 product variants (including low stock items)");
     console.log("  - 3 orders with items");
     console.log("\n🔑 Admin Login:");
-    console.log("  Email: admin@valstore.com");
+    console.log("  Email: admin@valkyrie.com");
     console.log("  Note: You'll need to set a password via Better Auth\n");
   } catch (error) {
     console.error("❌ Seed failed:", error);

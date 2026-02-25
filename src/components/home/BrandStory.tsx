@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 interface BrandStoryProps {
@@ -13,7 +14,7 @@ export function BrandStory({
   preHeadline = "Our Story",
   headline = "Crafted for the Bold",
   paragraphs = [
-    "Val was born from a simple idea: fashion should empower. Every piece in our collection is designed for those who refuse to blend in, who see clothing as a form of self-expression.",
+    "Valkyrie was born from a simple idea: fashion should empower. Every piece in our collection is designed for those who refuse to blend in, who see clothing as a form of self-expression.",
     "From sustainable sourcing to ethical manufacturing, we're committed to creating fashion that looks good and does good.",
   ],
   ctaText = "Learn More",
@@ -24,9 +25,15 @@ export function BrandStory({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
           {/* Image Side */}
-          <div className="relative aspect-[4/5] overflow-hidden">
-            {/* Placeholder gradient (replace with actual image) */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900" />
+          <div className="relative aspect-4/5 overflow-hidden">
+            <Image
+              src="https://picsum.photos/seed/brand-story/800/1000"
+              alt="Valkyrie brand story"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+              unoptimized
+            />
             {/* Decorative accent line */}
             <div className="absolute bottom-0 left-0 w-1/2 h-1 bg-val-accent" />
           </div>

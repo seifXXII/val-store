@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   X,
   Search,
@@ -13,7 +14,6 @@ import {
   Twitter,
 } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 
 interface NavLink {
   label: string;
@@ -44,11 +44,11 @@ const collectionsLinks = [
 const socialLinks = [
   {
     icon: Instagram,
-    href: "https://instagram.com/valstore",
+    href: "https://instagram.com/valkyrie",
     label: "Instagram",
   },
-  { icon: Facebook, href: "https://facebook.com/valstore", label: "Facebook" },
-  { icon: Twitter, href: "https://twitter.com/valstore", label: "Twitter" },
+  { icon: Facebook, href: "https://facebook.com/valkyrie", label: "Facebook" },
+  { icon: Twitter, href: "https://twitter.com/valkyrie", label: "Twitter" },
 ];
 
 export function MobileMenu({
@@ -56,7 +56,6 @@ export function MobileMenu({
   onClose,
   isLoggedIn = false,
 }: Omit<MobileMenuProps, "navLinks">) {
-  const router = useRouter();
   // Prevent body scroll when menu is open
   useEffect(() => {
     if (isOpen) {
@@ -83,9 +82,13 @@ export function MobileMenu({
       <div className="absolute inset-y-0 right-0 w-full max-w-sm bg-black border-l border-white/10 flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <span className="text-xl font-bold tracking-wider text-white">
-            VAL
-          </span>
+          <Image
+            src="/logo/VAL-LOGO.png"
+            alt="Valkyrie"
+            width={120}
+            height={35}
+            className="h-7 w-auto object-contain"
+          />
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
@@ -186,7 +189,7 @@ export function MobileMenu({
                     fetchOptions: {
                       onSuccess: () => {
                         onClose();
-                        router.push("/login");
+                        window.location.href = "/login";
                       },
                     },
                   });

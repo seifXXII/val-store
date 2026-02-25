@@ -116,7 +116,7 @@ export const useCartStore = create<CartStore>()(
       isEmpty: () => get().items.length === 0,
     }),
     {
-      name: "val-cart",
+      name: "valkyrie-cart",
       storage: createJSONStorage(() => localStorage),
       partialize: (state: CartStore) => ({ items: state.items }),
     }

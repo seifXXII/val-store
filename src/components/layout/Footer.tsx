@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Instagram, Facebook, Twitter, Music2 } from "lucide-react"; // Music2 for TikTok
 import { container } from "@/application/container";
 
@@ -8,7 +9,7 @@ export async function Footer() {
   const settings = await siteConfigRepo.getSiteSettings();
 
   const currentYear = new Date().getFullYear();
-  const storeName = settings?.storeName || "Val Store";
+  const storeName = settings?.storeName || "Valkyrie";
 
   const footerLinks = {
     shop: [
@@ -154,11 +155,14 @@ export async function Footer() {
         <div className="mt-12 pt-8 border-t border-white/10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Logo */}
-            <Link
-              href="/"
-              className="text-xl font-black tracking-[0.2em] text-white"
-            >
-              {storeName.toUpperCase()}
+            <Link href="/">
+              <Image
+                src="/logo/VAL-LOGO.png"
+                alt="Valkyrie"
+                width={120}
+                height={35}
+                className="h-8 w-auto object-contain"
+              />
             </Link>
 
             {/* Copyright */}

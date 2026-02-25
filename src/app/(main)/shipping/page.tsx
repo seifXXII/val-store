@@ -6,7 +6,7 @@ import { Truck, Clock, Globe, Package } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata = {
-  title: "Shipping Information | Val Store",
+  title: "Shipping Information | Valkyrie",
   description:
     "Learn about our shipping options, delivery times, and policies.",
 };

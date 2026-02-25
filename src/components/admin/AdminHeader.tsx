@@ -1,12 +1,14 @@
 "use client";
 
 import { UserDialog } from "@/components/UserDialog";
-import { useSession } from "@/lib/auth-client";
+import { trpc } from "@/lib/trpc";
 import { AdminNotifications } from "./AdminNotifications";
 import { AdminThemeToggle } from "./AdminThemeToggle";
+import { useSession } from "@/lib/auth-client";
 
 export function AdminHeader() {
   const { data: session } = useSession();
+  const { data: serverUser } = trpc.public.user.getSession.useQuery();
 
   // Transform session to user props expected by UserDialog
   const user = session?.user
@@ -15,7 +17,8 @@ export function AdminHeader() {
         email: session.user.email || "",
         firstName: session.user.name?.split(" ")[0] || "",
         lastName: session.user.name?.split(" ").slice(1).join(" ") || "",
-        role: (session.user as { role?: string })?.role || "user",
+        role: serverUser?.role || "user",
+        image: session.user.image || null,
       }
     : null;
 

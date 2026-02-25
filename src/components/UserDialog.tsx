@@ -4,16 +4,15 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { User, LogOut, Settings, ShoppingBag } from "lucide-react";
+import { User, LogOut, Settings, ShoppingBag, Shield } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 interface UserDialogProps {
   user?: {
@@ -22,22 +21,19 @@ interface UserDialogProps {
     firstName: string;
     lastName: string;
     role: string;
+    image?: string | null;
   } | null;
 }
 
 export function UserDialog({ user }: UserDialogProps) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
 
   const handleLogout = async () => {
-    // Sign out from Better Auth (clears server session)
     await signOut({
       fetchOptions: {
         onSuccess: () => {
-          // Clear any client-side data
           localStorage.removeItem("user");
-          // Redirect to login
-          router.push("/login");
+          window.location.href = "/login";
         },
       },
     });
@@ -56,75 +52,117 @@ export function UserDialog({ user }: UserDialogProps) {
     );
   }
 
+  const initials =
+    (user.firstName?.[0] || "") + (user.lastName?.[0] || "") || "U";
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="relative">
-          <User className="h-5 w-5" />
+        <Button
+          variant="outline"
+          size="icon"
+          className="relative h-9 w-9 rounded-full overflow-hidden hover:ring-2 hover:ring-ring/20 transition-all"
+        >
+          {user.image ? (
+            <Image
+              src={user.image}
+              alt={`${user.firstName} ${user.lastName}`}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <span className="flex h-full w-full items-center justify-center bg-muted text-foreground text-sm font-medium">
+              {initials}
+            </span>
+          )}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader className="sr-only">
           <DialogTitle>Account</DialogTitle>
-          <DialogDescription>
-            Manage your account settings and preferences
-          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* User Info */}
-          <div className="rounded-lg border p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                <User className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="font-medium">
-                  {user.firstName} {user.lastName}
-                </p>
-                <p className="text-sm text-gray-500">{user.email}</p>
-                <p className="text-xs text-gray-400 capitalize">{user.role}</p>
-              </div>
+        <div className="space-y-5">
+          {/* User Profile Card */}
+          <div className="flex flex-col items-center text-center pt-2">
+            <div className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-border mb-3">
+              {user.image ? (
+                <Image
+                  src={user.image}
+                  alt={`${user.firstName} ${user.lastName}`}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center bg-muted text-foreground text-2xl font-semibold">
+                  {initials}
+                </span>
+              )}
             </div>
+            <h3 className="text-lg font-semibold text-foreground">
+              {user.firstName} {user.lastName}
+            </h3>
+            <p className="text-sm text-muted-foreground">{user.email}</p>
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground capitalize">
+              <Shield className="h-3 w-3" />
+              {user.role.replace("_", " ")}
+            </span>
           </div>
 
+          {/* Divider */}
+          <div className="border-t" />
+
           {/* Quick Actions */}
-          <div className="space-y-2">
-            <Button variant="outline" className="w-full justify-start" asChild>
+          <div className="space-y-1">
+            <Button
+              variant="outline"
+              className="w-full justify-start h-10 px-3"
+              asChild
+              onClick={() => setOpen(false)}
+            >
               <Link href="/account/orders">
-                <ShoppingBag className="mr-2 h-4 w-4" />
+                <ShoppingBag className="mr-3 h-4 w-4" />
                 My Orders
               </Link>
             </Button>
 
-            <Button variant="outline" className="w-full justify-start" asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-start h-10 px-3"
+              asChild
+              onClick={() => setOpen(false)}
+            >
               <Link href="/account/profile">
-                <Settings className="mr-2 h-4 w-4" />
+                <User className="mr-3 h-4 w-4" />
                 My Profile
               </Link>
             </Button>
 
-            {user.role === "admin" || user.role === "super_admin" ? (
+            {(user.role === "admin" || user.role === "super_admin") && (
               <Button
                 variant="outline"
-                className="w-full justify-start"
+                className="w-full justify-start h-10 px-3"
                 asChild
+                onClick={() => setOpen(false)}
               >
                 <Link href="/admin">
-                  <Settings className="mr-2 h-4 w-4" />
+                  <Settings className="mr-3 h-4 w-4" />
                   Admin Dashboard
                 </Link>
               </Button>
-            ) : null}
+            )}
           </div>
+
+          {/* Divider */}
+          <div className="border-t" />
 
           {/* Logout */}
           <Button
-            variant="destructive"
-            className="w-full"
+            variant="outline"
+            className="w-full justify-start h-10 px-3 text-destructive border-destructive/30 hover:bg-destructive/10"
             onClick={handleLogout}
           >
-            <LogOut className="mr-2 h-4 w-4" />
+            <LogOut className="mr-3 h-4 w-4" />
             Sign out
           </Button>
         </div>

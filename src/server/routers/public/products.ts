@@ -54,18 +54,29 @@ export const publicProductsRouter = router({
       const total = allProducts.length;
       const totalPages = Math.ceil(total / limit);
 
-      // Return only public-safe data
-      const products = allProducts.slice(offset, offset + limit).map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        description: p.description,
-        basePrice: p.basePrice,
-        salePrice: p.salePrice,
-        categoryId: p.categoryId,
-        gender: p.gender,
-        isFeatured: p.isFeatured,
-      }));
+      // Get primary images for the page products
+      const imageRepo = container.getProductImageRepository();
+      const pageProducts = allProducts.slice(offset, offset + limit);
+
+      // Return only public-safe data with images
+      const products = await Promise.all(
+        pageProducts.map(async (p) => {
+          const images = await imageRepo.findByProduct(p.id);
+          const primaryImage = images.find((img) => img.isPrimary) || images[0];
+          return {
+            id: p.id,
+            name: p.name,
+            slug: p.slug,
+            description: p.description,
+            basePrice: p.basePrice,
+            salePrice: p.salePrice,
+            categoryId: p.categoryId,
+            gender: p.gender,
+            isFeatured: p.isFeatured,
+            primaryImage: primaryImage?.imageUrl ?? null,
+          };
+        })
+      );
 
       return {
         products,
@@ -136,18 +147,26 @@ export const publicProductsRouter = router({
     .input(z.object({ limit: z.number().min(1).max(20).optional().default(8) }))
     .query(async ({ input }) => {
       const repo = container.getProductRepository();
+      const imageRepo = container.getProductImageRepository();
       const products = await repo.findAll({
         isActive: true,
         isFeatured: true,
       });
 
-      return products.slice(0, input.limit).map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        basePrice: p.basePrice,
-        salePrice: p.salePrice,
-      }));
+      return Promise.all(
+        products.slice(0, input.limit).map(async (p) => {
+          const images = await imageRepo.findByProduct(p.id);
+          const primaryImage = images.find((img) => img.isPrimary) || images[0];
+          return {
+            id: p.id,
+            name: p.name,
+            slug: p.slug,
+            basePrice: p.basePrice,
+            salePrice: p.salePrice,
+            primaryImage: primaryImage?.imageUrl ?? null,
+          };
+        })
+      );
     }),
 
   /**
@@ -180,14 +199,22 @@ export const publicProductsRouter = router({
       const total = allResults.length;
       const totalPages = Math.ceil(total / limit);
 
-      const products = allResults.slice(offset, offset + limit).map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        basePrice: p.basePrice,
-        salePrice: p.salePrice,
-        image: p.images?.[0] ?? null,
-      }));
+      const imageRepo = container.getProductImageRepository();
+
+      const products = await Promise.all(
+        allResults.slice(offset, offset + limit).map(async (p) => {
+          const images = await imageRepo.findByProduct(p.id);
+          const primaryImage = images.find((img) => img.isPrimary) || images[0];
+          return {
+            id: p.id,
+            name: p.name,
+            slug: p.slug,
+            basePrice: p.basePrice,
+            salePrice: p.salePrice,
+            primaryImage: primaryImage?.imageUrl ?? null,
+          };
+        })
+      );
 
       return {
         products,

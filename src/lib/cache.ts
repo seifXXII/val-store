@@ -37,7 +37,7 @@ export const getCachedHeroSection = unstable_cache(
     return {
       isActive: section.isActive,
       content: section.content,
-      getContentParsed: <T>() => JSON.parse(section.content) as T,
+      parsedContent: JSON.parse(section.content),
     };
   },
   [CACHE_TAGS.HERO],
@@ -68,7 +68,7 @@ export const getCachedAnnouncementSection = unstable_cache(
     return {
       isActive: section.isActive,
       content: section.content,
-      getContentParsed: <T>() => JSON.parse(section.content) as T,
+      parsedContent: JSON.parse(section.content),
     };
   },
   [CACHE_TAGS.ANNOUNCEMENT],
@@ -81,17 +81,27 @@ export const getCachedAnnouncementSection = unstable_cache(
 export const getCachedFeaturedProducts = unstable_cache(
   async (limit: number = 8) => {
     const repo = container.getProductRepository();
+    const imageRepo = container.getProductImageRepository();
     const products = await repo.findFeatured(limit);
 
-    // Return serializable data only
-    return products.map((p) => ({
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      basePrice: p.basePrice,
-      salePrice: p.salePrice,
-      isFeatured: p.isFeatured,
-    }));
+    // Fetch primary images for all products
+    const productsWithImages = await Promise.all(
+      products.map(async (p) => {
+        const images = await imageRepo.findByProduct(p.id);
+        const primaryImage = images.find((img) => img.isPrimary) || images[0];
+        return {
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          basePrice: p.basePrice,
+          salePrice: p.salePrice,
+          isFeatured: p.isFeatured,
+          primaryImage: primaryImage?.imageUrl ?? null,
+        };
+      })
+    );
+
+    return productsWithImages;
   },
   [CACHE_TAGS.FEATURED_PRODUCTS],
   { revalidate: DEFAULT_REVALIDATE, tags: [CACHE_TAGS.FEATURED_PRODUCTS] }
@@ -196,16 +206,24 @@ export const getCachedProductBySlug = unstable_cache(
 export const getCachedAllProducts = unstable_cache(
   async (limit: number = 50) => {
     const repo = container.getProductRepository();
+    const imageRepo = container.getProductImageRepository();
     const products = await repo.findAll({ isActive: true });
 
-    return products.slice(0, limit).map((p) => ({
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      basePrice: p.basePrice,
-      salePrice: p.salePrice,
-      isFeatured: p.isFeatured,
-    }));
+    return Promise.all(
+      products.slice(0, limit).map(async (p) => {
+        const images = await imageRepo.findByProduct(p.id);
+        const primaryImage = images.find((img) => img.isPrimary) || images[0];
+        return {
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          basePrice: p.basePrice,
+          salePrice: p.salePrice,
+          isFeatured: p.isFeatured,
+          primaryImage: primaryImage?.imageUrl ?? null,
+        };
+      })
+    );
   },
   ["all-products"],
   { revalidate: DEFAULT_REVALIDATE, tags: ["all-products"] }
@@ -217,18 +235,25 @@ export const getCachedAllProducts = unstable_cache(
 export const getCachedRelatedProducts = unstable_cache(
   async (excludeId: string, limit: number = 4) => {
     const repo = container.getProductRepository();
+    const imageRepo = container.getProductImageRepository();
     const products = await repo.findAll({ isActive: true });
 
-    return products
-      .filter((p) => p.id !== excludeId)
-      .slice(0, limit)
-      .map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        basePrice: p.basePrice,
-        salePrice: p.salePrice,
-      }));
+    const filtered = products.filter((p) => p.id !== excludeId).slice(0, limit);
+
+    return Promise.all(
+      filtered.map(async (p) => {
+        const images = await imageRepo.findByProduct(p.id);
+        const primaryImage = images.find((img) => img.isPrimary) || images[0];
+        return {
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          basePrice: p.basePrice,
+          salePrice: p.salePrice,
+          primaryImage: primaryImage?.imageUrl ?? null,
+        };
+      })
+    );
   },
   ["related-products"],
   { revalidate: DEFAULT_REVALIDATE }

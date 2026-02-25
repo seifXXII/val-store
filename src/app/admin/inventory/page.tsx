@@ -277,8 +277,8 @@ export default function AdminInventoryPage() {
                           v.stockQuantity <= 0
                             ? "destructive"
                             : v.stockQuantity <= 10
-                              ? "secondary"
-                              : "default"
+                              ? "default"
+                              : "secondary"
                         }
                       >
                         {v.stockQuantity}
@@ -333,7 +333,13 @@ export default function AdminInventoryPage() {
                       {[v.size, v.color].filter(Boolean).join(" / ") || "—"}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Badge variant="destructive">{v.stockQuantity}</Badge>
+                      <Badge
+                        variant={
+                          v.stockQuantity <= 0 ? "destructive" : "default"
+                        }
+                      >
+                        {v.stockQuantity}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Button
