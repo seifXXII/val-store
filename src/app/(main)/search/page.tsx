@@ -7,11 +7,12 @@
 
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { InfiniteSearchGrid } from "@/components/products/InfiniteSearchGrid";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
 
@@ -30,4 +31,18 @@ export default function SearchPage() {
   }
 
   return <InfiniteSearchGrid query={query} />;
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      }
+    >
+      <SearchContent />
+    </Suspense>
+  );
 }
