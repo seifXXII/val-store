@@ -34,7 +34,7 @@ export const auth = betterAuth({
   // Email and password auth configuration
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
+    requireEmailVerification: false, // Disabled so users can sign up without email verification
     sendResetPassword: async ({ user, url }) => {
       console.log("[Auth] Sending password reset email to:", user.email);
       try {

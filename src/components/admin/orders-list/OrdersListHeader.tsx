@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Filter, FileDown } from "lucide-react";
+import { toast } from "sonner";
 
 export function OrdersListHeader() {
   return (
@@ -24,11 +25,19 @@ export function OrdersListHeader() {
             className="pl-10"
           />
         </div>
-        <Button variant="outline">
+        <Button
+          variant="outline"
+          onClick={() => toast.info("Advanced filters are coming soon.")}
+        >
           <Filter className="mr-2 h-4 w-4" />
           Filters
         </Button>
-        <Button variant="outline">
+        <Button
+          variant="outline"
+          onClick={() =>
+            toast.info("Order export functionality is under development.")
+          }
+        >
           <FileDown className="mr-2 h-4 w-4" />
           Export
         </Button>

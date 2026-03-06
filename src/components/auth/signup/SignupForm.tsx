@@ -11,6 +11,15 @@ import { toast } from "sonner";
 import Link from "next/link";
 import type { ExtendedSignUpEmail } from "@/types/auth";
 import { PhoneValueObject } from "@/domain/value-objects/phone.value-object";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface SignupFormData {
   email: string;
@@ -96,9 +105,9 @@ export function SignupForm() {
         return;
       }
 
-      // Success - redirect to check email page with email param
-      toast.success("Account created! Please check your email to verify.");
-      router.push(`/check-email?email=${encodeURIComponent(formData.email)}`);
+      // Success - redirect to home page
+      toast.success("Account created successfully!");
+      router.push(`/`);
     } catch {
       toast.error("An unexpected error occurred");
     } finally {
@@ -120,7 +129,7 @@ export function SignupForm() {
             value={formData.firstName}
             onChange={handleChange}
             required
-            className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
+            className="bg-white/6 border-white/10 text-white placeholder:text-gray-500"
           />
         </div>
         <div className="space-y-2">
@@ -134,7 +143,7 @@ export function SignupForm() {
             value={formData.lastName}
             onChange={handleChange}
             required
-            className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
+            className="bg-white/6 border-white/10 text-white placeholder:text-gray-500"
           />
         </div>
       </div>
@@ -151,7 +160,7 @@ export function SignupForm() {
           value={formData.email}
           onChange={handleChange}
           required
-          className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
+          className="bg-white/6 border-white/10 text-white placeholder:text-gray-500"
         />
       </div>
 
@@ -166,7 +175,7 @@ export function SignupForm() {
           placeholder="1234567890"
           value={formData.phone}
           onChange={handlePhoneChange}
-          className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
+          className="bg-white/6 border-white/10 text-white placeholder:text-gray-500"
         />
       </div>
 
@@ -181,7 +190,7 @@ export function SignupForm() {
           value={formData.password}
           onChange={handleChange}
           required
-          className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
+          className="bg-white/6 border-white/10 text-white placeholder:text-gray-500"
         />
       </div>
 
@@ -196,7 +205,7 @@ export function SignupForm() {
           value={formData.confirmPassword}
           onChange={handleChange}
           required
-          className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
+          className="bg-white/6 border-white/10 text-white placeholder:text-gray-500"
         />
       </div>
 
@@ -204,14 +213,42 @@ export function SignupForm() {
         <Label htmlFor="birthday" className="text-gray-300">
           Birthday
         </Label>
-        <Input
-          id="birthday"
-          name="birthday"
-          type="date"
-          value={formData.birthday}
-          onChange={handleChange}
-          className="bg-white/[0.06] border-white/10 text-white placeholder:text-gray-500"
-        />
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={cn(
+                "w-full justify-start text-left font-normal bg-white/6 border-white/10 text-white hover:bg-white/10 hover:text-white",
+                !formData.birthday && "text-gray-500"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {formData.birthday ? (
+                format(new Date(formData.birthday), "PPP")
+              ) : (
+                <span>Pick a date</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={
+                formData.birthday ? new Date(formData.birthday) : undefined
+              }
+              onSelect={(date) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  birthday: date ? format(date, "yyyy-MM-dd") : "",
+                }));
+              }}
+              initialFocus
+              captionLayout="dropdown"
+              fromYear={1900}
+              toYear={new Date().getFullYear()}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
 
       <Button
