@@ -57,55 +57,69 @@ export function CustomerDetailDialog({
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="border rounded-lg p-4 flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <ShoppingBag className="h-5 w-5 text-primary" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border rounded-xl p-5 flex items-center gap-4 bg-muted/20">
+                <div className="p-3 bg-primary/10 rounded-full">
+                  <ShoppingBag className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">
+                  <p className="text-3xl font-bold tracking-tight">
                     {customerDetail.orderCount}
                   </p>
-                  <p className="text-sm text-muted-foreground">Total Orders</p>
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                    Total Orders
+                  </p>
                 </div>
               </div>
-              <div className="border rounded-lg p-4 flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <DollarSign className="h-5 w-5 text-green-600" />
+              <div className="border rounded-xl p-5 flex items-center gap-4 bg-muted/20">
+                <div className="p-3 bg-green-500/10 rounded-full">
+                  <DollarSign className="h-6 w-6 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">
+                  <p className="text-3xl font-bold tracking-tight">
                     ${customerDetail.totalSpent.toFixed(2)}
                   </p>
-                  <p className="text-sm text-muted-foreground">Total Spent</p>
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                    Total Spent
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Orders */}
-            <div>
-              <h4 className="font-semibold mb-3">Order History</h4>
+            <div className="pt-2">
+              <h4 className="font-semibold text-lg mb-4">Order History</h4>
               {customerDetail.orders.length === 0 ? (
-                <p className="text-muted-foreground text-sm">No orders yet</p>
+                <div className="text-center py-8 border rounded-xl bg-muted/10">
+                  <p className="text-muted-foreground">No orders placed yet.</p>
+                </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {customerDetail.orders.map((order) => (
                     <div
                       key={order.id}
-                      className="border rounded-lg p-3 flex justify-between items-center"
+                      className="border rounded-xl p-4 flex sm:flex-row flex-col sm:items-center justify-between gap-4 hover:bg-muted/10 transition-colors"
                     >
-                      <div>
-                        <p className="font-medium">
-                          Order #{order.id.slice(-8).toUpperCase()}
-                        </p>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-mono font-medium">
+                            #{order.id.slice(-8).toUpperCase()}
+                          </p>
+                          <span className="text-muted-foreground text-xs">
+                            •
+                          </span>
+                          <p className="text-sm text-muted-foreground">
+                            {format(new Date(order.createdAt), "MMM d, yyyy")}
+                          </p>
+                        </div>
                         <p className="text-sm text-muted-foreground">
-                          {format(new Date(order.createdAt), "MMM d, yyyy")} •{" "}
                           {order.items.length} item
                           {order.items.length !== 1 ? "s" : ""}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium">
+
+                      <div className="flex sm:flex-col flex-row items-center sm:items-end justify-between sm:justify-center gap-2">
+                        <p className="font-semibold text-lg">
                           ${parseFloat(order.totalAmount).toFixed(2)}
                         </p>
                         <Badge
