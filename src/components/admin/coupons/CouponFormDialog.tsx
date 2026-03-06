@@ -34,7 +34,7 @@ export function CouponFormDialog({
 }: CouponFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl text-foreground">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
             {isEditing ? "Edit Coupon" : "Create New Coupon"}
@@ -47,42 +47,31 @@ export function CouponFormDialog({
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-6 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Left Column: Core Details */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="code" className="text-sm font-semibold">
-                  Coupon Code
-                </Label>
+                <Label htmlFor="code">Coupon Code</Label>
                 <Input
                   id="code"
                   name="code"
                   placeholder="e.g. SUMMER20"
-                  className="uppercase font-mono text-lg tracking-wider"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm font-semibold">
-                  Description
-                </Label>
+                <Label htmlFor="description">Description (Optional)</Label>
                 <Textarea
                   id="description"
                   name="description"
                   placeholder="Internal note: 20% off summer collection"
-                  className="resize-none h-24"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-6">
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="discountType"
-                    className="text-sm font-semibold"
-                  >
-                    Discount Type
-                  </Label>
+                  <Label htmlFor="discountType">Discount Type</Label>
                   <Select name="discountType" defaultValue="percentage">
                     <SelectTrigger>
                       <SelectValue />
@@ -94,12 +83,7 @@ export function CouponFormDialog({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="discountValue"
-                    className="text-sm font-semibold"
-                  >
-                    Value
-                  </Label>
+                  <Label htmlFor="discountValue">Value</Label>
                   <Input
                     id="discountValue"
                     name="discountValue"
@@ -113,14 +97,14 @@ export function CouponFormDialog({
             </div>
 
             {/* Right Column: Restrictions */}
-            <div className="space-y-4 bg-muted/20 p-4 rounded-xl border border-muted/50">
-              <h4 className="font-semibold mb-2">
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm mb-2">
                 Usage Limits & Restrictions
               </h4>
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="minPurchaseAmount" className="text-sm">
+                  <Label htmlFor="minPurchaseAmount">
                     Min. Purchase Amount ($)
                   </Label>
                   <Input
@@ -133,7 +117,7 @@ export function CouponFormDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="maxDiscountAmount" className="text-sm">
+                  <Label htmlFor="maxDiscountAmount">
                     Max Discount Amount ($)
                   </Label>
                   <Input
@@ -149,9 +133,7 @@ export function CouponFormDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="usageLimit" className="text-sm">
-                    Total Usage Limit
-                  </Label>
+                  <Label htmlFor="usageLimit">Total Usage Limit</Label>
                   <Input
                     id="usageLimit"
                     name="usageLimit"
@@ -161,18 +143,16 @@ export function CouponFormDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="expiresAt" className="text-sm">
-                    Expiration Date
-                  </Label>
+                  <Label htmlFor="expiresAt">Expiration Date</Label>
                   <Input id="expiresAt" name="expiresAt" type="date" />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-4 border rounded-xl bg-muted/10">
+          <div className="flex flex-row items-center justify-between rounded-lg border p-4">
             <div className="space-y-0.5">
-              <Label htmlFor="isActive" className="text-base font-medium">
+              <Label htmlFor="isActive" className="text-base">
                 Active Status
               </Label>
               <p className="text-sm text-muted-foreground">
