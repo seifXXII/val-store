@@ -39,11 +39,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
   return (
     <>
       <ProductDetail product={productForDetail} />
-      <div className="container py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-white/10 mt-8">
         <ProductReviews productId={product.id} />
       </div>
       {relatedProducts.length > 0 && (
-        <RelatedProducts products={relatedProducts} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-white/10">
+          <RelatedProducts products={relatedProducts} />
+        </div>
       )}
     </>
   );
