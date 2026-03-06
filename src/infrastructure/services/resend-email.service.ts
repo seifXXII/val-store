@@ -43,7 +43,11 @@ export class ResendEmailService implements EmailServiceInterface {
       });
 
       if (error) {
-        console.error("Email send error:", error);
+        console.error(
+          "Email send error object:",
+          JSON.stringify(error, null, 2)
+        );
+        console.error("Email send error:", error.name, error.message);
         return { id: "", success: false };
       }
 

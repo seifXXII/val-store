@@ -81,7 +81,7 @@ function CheckEmailContent() {
               onClick={handleResendEmail}
               disabled={isResending || resendCooldown > 0}
               variant="secondary"
-              className="w-full bg-white/[0.06] border border-white/10 text-white hover:bg-white/[0.1]"
+              className="w-full bg-white/6 border border-white/10 text-white hover:bg-white/10"
             >
               {isResending ? (
                 <>
@@ -102,7 +102,7 @@ function CheckEmailContent() {
           <Button
             asChild
             variant="outline"
-            className="w-full border-white/10 text-white hover:bg-white/[0.06]"
+            className="w-full bg-transparent border-white/10 text-white hover:bg-white/10 hover:text-white"
           >
             <Link href="/login">Back to login</Link>
           </Button>
